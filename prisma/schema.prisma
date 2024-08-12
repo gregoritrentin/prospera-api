@@ -1,0 +1,192 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(uuid())
+  name         String
+  email        String         @unique
+  password     String
+  status       String
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updateAt     DateTime?      @updatedAt @map("updated_at")
+  UserBusiness UserBusiness[]
+  UserTerms    UserTerms[]
+
+  @@map("users")
+}
+
+model Terms {
+  id        String      @id @default(uuid())
+  term      String
+  createdAt DateTime    @default(now()) @map("created_at")
+  updateAt  DateTime?   @updatedAt @map("updated_at")
+  UserTerms UserTerms[]
+
+  @@map("terms")
+}
+
+model UserTerms {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  termId    String    @map("term_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updateAt  DateTime? @updatedAt @map("updated_at")
+  term      Terms     @relation(fields: [termId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, termId], name: "userTermsIdentifier")
+  @@map("user_terms")
+}
+
+model UserBusiness {
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  userId     String    @map("user_id")
+  role       String
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updateAt   DateTime? @updatedAt @map("updated_at")
+  business   Business  @relation(fields: [businessId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@unique([businessId, userId], name: "userBusinessIdentifier")
+  @@map("user_business")
+}
+
+model Business {
+  id                   String                 @id @default(uuid())
+  marketplaceId        String                 @map("marketplace_id")
+  name                 String
+  email                String
+  phone                String
+  document             String                 @unique
+  ie                   String?
+  im                   String?
+  addressLine1         String                 @map("address_line1")
+  addressLine2         String                 @map("address_line2")
+  addressLine3         String?                @map("address_line3")
+  neighborhood         String
+  postalCode           String                 @map("postal_code")
+  countryCode          String                 @map("country_code")
+  state                String
+  city                 String
+  businessType         String                 @map("business_type")
+  businessSize         String                 @map("business_syze")
+  status               String
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updateAt             DateTime?              @updatedAt @map("updated_at")
+  person               Person[]
+  UserBusiness         UserBusiness[]
+  BusinessApps         BusinessApps[]
+  BusinessOwners       BusinessOwners[]
+  BusinessBankAccounts BusinessBankAccounts[]
+  marketplace          Marketplaces           @relation(fields: [marketplaceId], references: [id])
+
+  @@map("business")
+}
+
+model BusinessOwners {
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  personId   String    @map("person_id")
+  ownerType  String    @map("owner_type")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updateAt   DateTime? @updatedAt @map("updated_at")
+  business   Business  @relation(fields: [businessId], references: [id])
+  persons    Person    @relation(fields: [personId], references: [id])
+
+  @@map("business_owners")
+}
+
+model BusinessBankAccounts {
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  bank       String
+  branch     String
+  account    String
+  status     String
+  type       String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updateAt   DateTime? @updatedAt @map("updated_at")
+  business   Business  @relation(fields: [businessId], references: [id])
+
+  @@map("business_bank_accounts")
+}
+
+model App {
+  id           String         @id @default(uuid())
+  name         String
+  description  String
+  price        Float
+  status       String
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updateAt     DateTime?      @updatedAt @map("updated_at")
+  BusinessApps BusinessApps[]
+
+  @@map("apps")
+}
+
+model BusinessApps {
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  appsId     String    @map("apps_id")
+  price      Float
+  quantity   Int
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updateAt   DateTime? @updatedAt @map("updated_at")
+  business   Business  @relation(fields: [businessId], references: [id])
+  apps       App       @relation(fields: [appsId], references: [id])
+
+  @@map("business_apps")
+}
+
+model Marketplaces {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  status    String
+  createdAt DateTime   @default(now()) @map("created_at")
+  updateAt  DateTime?  @updatedAt @map("updated_at")
+  Business  Business[]
+
+  @@map("marketpaces")
+}
+
+model Person {
+  id             String           @id @default(uuid())
+  businessId     String           @map("business_id")
+  name           String
+  email          String
+  phone          String
+  document       String
+  ie             String?
+  addressLine1   String           @map("address_line1")
+  addressLine2   String           @map("address_line2")
+  addressLine3   String?          @map("address_line3")
+  neighborhood   String
+  postalCode     String           @map("postal_code")
+  countryCode    String           @map("country_code")
+  state          String
+  city           String
+  notes          String?
+  status         String
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updateAt       DateTime?        @updatedAt @map("updated_at")
+  business       Business         @relation(fields: [businessId], references: [id])
+  BusinessOwners BusinessOwners[]
+
+  @@unique([businessId, document], name: "documentIdentifier")
+  @@map("persons")
+}

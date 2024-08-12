@@ -1,0 +1,85 @@
+@baseUrl = http://localhost:3333
+@authToken = {{authenticate.response.body.access_token}}
+
+# @name authenticate
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "email": "gregori@prosperatecnologia.com.br",
+  "password": "123456",
+  "businessId": "40a9eb78-f1c5-49ae-9e94-b93044fb43e6"
+  //"businessId": "d64f597e-df5f-4298-b2ee-76ee52694374"
+}
+
+###
+
+# @name create_account
+POST {{baseUrl}}/accounts
+Content-Type: application/json
+
+{
+  "name": "Grégori Trentin",
+  "email": "gregori@prosperatecnologia.com.br",
+  "password": "123456"
+}
+
+###
+
+# @name create_business
+POST {{baseUrl}}/business
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "businessName": "PRIMEIRA IGREJA BATISTA EM ERECHIM",
+  "tradingName":  "PIB ERECHIM",
+  "email":        "secretaria@piberechim.com.br",
+  "phone":        "54 3321 0214",
+  "document":     "07350773000147",
+  "addressLine1": "RUA GAURAMA",
+  "addressLine2": "136",
+  "addressLine3": "",
+  "neighborhood": "CENTRO",
+  "postalCode":   "99700000",
+  "countryCode":  "BR",
+  "state":        "RS",
+  "city":         "ERECHIM",
+  "slug":         "piberechim"
+}
+
+###
+
+# @name fetch_business
+GET {{baseUrl}}/business?page=1
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# @name person_create
+POST {{baseUrl}}/person
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name":         "CARLA TRENTIN",
+  "email":        "carla@prosperatecnologia.com.br",
+  "phone":        "54 99175 0086",
+  "document":     "00356260038",
+  "addressLine1": "RUA MARIA CLARA BADALOTTI TORMEN",
+  "addressLine2": "145",
+  "addressLine3": "",
+  "neighborhood": "PARQUE DOS IMIGRANTES",
+  "postalCode":   "99709462",
+  "countryCode":  "BR",
+  "state":        "RS",
+  "city":         "ERECHIM"
+}
+
+###
+
+# @name fetch_person
+GET {{baseUrl}}/person?page=1
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
