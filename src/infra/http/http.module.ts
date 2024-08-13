@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common"
 import { DatabaseModule } from "../database/database.module";
+import { EmailModule } from "../email/email.module";
 import { CryptographyModule } from "@/infra/cryptography/cryptografhy.module";
 
 //user
@@ -73,14 +74,12 @@ import { EditAppController } from "./controllers/app/edit-app-controller";
 import { FetchAppController } from "./controllers/app/fetch-app-controller";
 import { DeleteAppController } from "./controllers/app/delete-app-controller";
 import { EmailController } from "./controllers/email/send-mail.controller";
-import { SendGridService } from "../email/sendgrid.service";
+//import { SendGridService } from "../email/sendgrid.service";
 import { SendEmailUseCase } from "@/domain/email/use-cases/send-email";
-
-//email
 
 
 @Module({
-  imports: [DatabaseModule, CryptographyModule],
+  imports: [DatabaseModule, EmailModule, CryptographyModule],
   controllers: [
 
     //user

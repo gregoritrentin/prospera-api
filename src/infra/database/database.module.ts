@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { PrismaService } from './prisma/prisma.service';
+//import { SendGridService } from '../email/sendgrid.service';
 
 import { BusinessRepository } from '@/domain/business/repository/business-repository';
 import { AppRepository } from '@/domain/app/repository/app-repository';
@@ -15,11 +16,15 @@ import { PrismaUserBusinessRepository } from '@/infra/database/prisma/repositori
 
 import { PrismaPersonRepository } from '@/infra/database/prisma/repositories/prisma-person-repository';
 import { PrismaAppRepository } from '@/infra/database/prisma/repositories/prisma-app-repository';
+//import { EmailRepository } from '@/domain/email/repositories/email-repository';
+//import { SendGridRepository } from '../email/sendgrid-repository';
 
 
 @Module({
     providers: [
         PrismaService,
+        //SendGridService,
+
         {
             provide: BusinessRepository,
             useClass: PrismaBusinessRepository,
@@ -49,17 +54,25 @@ import { PrismaAppRepository } from '@/infra/database/prisma/repositories/prisma
             provide: UserBusinessRepository,
             useClass: PrismaUserBusinessRepository,
 
-        }
+        },
+        // {
+        //     provide: EmailRepository,
+        //     useClass: SendGridRepository,
+
+        // }
 
 
     ],
     exports: [
         PrismaService,
+        //SendGridService,
 
         UserRepository,
         AppRepository,
+
         UserBusinessRepository,
         BusinessRepository,
+
         PersonRepository,
         MarketplaceRepository,
     ],

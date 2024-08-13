@@ -1,26 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { Email } from '@/domain/email/entities/email';
 import { EmailRepository } from '@/domain/email/repositories/email-repository';
-import { SendGridService } from '@/infra/email/sendgrid.service';
+import * as SendGridMail from '@sendgrid/mail';
 
 @Injectable()
 export class SendGridRepository implements EmailRepository {
-    constructor(private sendgrid: SendGridService) {
-
-
-
-    }
+    constructor() { }
 
     async send(email: Email): Promise<void> {
         const msg = {
-            to: email.to,
             from: 'nao-responda@prosperaerp.com',
+            to: email.to,
             subject: email.subject,
-            text: email.body,
-            html: email.body,
+            text: email.text,
+            html: email.html,
         };
 
-        await this.sendgrid.send(msg);
+        await SendGridMail.send(msg);
 
     }
 }

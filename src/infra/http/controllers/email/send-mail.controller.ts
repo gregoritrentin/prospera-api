@@ -6,7 +6,7 @@ import { Email } from '@/domain/email/entities/email';
 export class EmailController {
     constructor(private readonly sendEmail: SendEmailUseCase) { }
 
-    @Post('send')
+    @Post()
     async handle(
         @Body('to') to: string,
         @Body('subject') subject: string,
