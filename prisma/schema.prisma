@@ -19,6 +19,7 @@ model User {
   email     String    @unique
   password  String
   status    String
+  photoUrl  String?
   createdAt DateTime  @default(now()) @map("created_at")
   updateAt  DateTime? @updatedAt @map("updated_at")
 
@@ -53,16 +54,16 @@ model UserTerms {
 }
 
 model UserBusiness {
-  id         String    @id @default(uuid())
-  businessId String    @map("business_id")
-  userId     String    @map("user_id")
+  id         String @id @default(uuid())
+  businessId String @map("business_id")
+  userId     String @map("user_id")
   role       String
-  
-  status     String
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updateAt   DateTime? @updatedAt @map("updated_at")
-  business   Business  @relation(fields: [businessId], references: [id])
-  user       User      @relation(fields: [userId], references: [id])
+
+  status    String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updateAt  DateTime? @updatedAt @map("updated_at")
+  business  Business  @relation(fields: [businessId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
 
   @@unique([businessId, userId], name: "userBusinessIdentifier")
   @@map("user_business")
