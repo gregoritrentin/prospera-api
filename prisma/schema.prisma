@@ -19,7 +19,7 @@ model User {
   email     String    @unique
   password  String
   status    String
-  photoUrl  String?
+  photoUrl  String?   @map("photo_url")
   createdAt DateTime  @default(now()) @map("created_at")
   updateAt  DateTime? @updatedAt @map("updated_at")
 
