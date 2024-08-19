@@ -5,8 +5,7 @@ import { EnvService } from './env/env.service'
 import { AuthModule } from './auth/auth.module'
 import { HttpModule } from './http/http.module'
 import { EnvModule } from './env/env.module'
-
-//import { EmailModule } from './email/email.module'
+//import { BullModule } from '@nestjs/bullmq'
 
 @Module({
   imports: [
@@ -14,10 +13,18 @@ import { EnvModule } from './env/env.module'
       validate: (env) => envSchema.parse(env),
       isGlobal: true,
     }),
+    // BullModule.forRoot({
+    //   connection: {
+    //     host: 'localhost',
+    //     port: 6379,
+    //   },
+    // }),
+    // BullModule.registerQueue({
+    //   name: 'sendMail',
+    // }),
     AuthModule,
     HttpModule,
     EnvModule,
-    //EmailModule,
   ],
   providers: [EnvService],
 })

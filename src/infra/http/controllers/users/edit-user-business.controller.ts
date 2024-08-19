@@ -19,7 +19,7 @@ const bodyValidationPipe = new ZodValidationPipe(editUserBusinessBodySchema)
 
 type EditUserBusinessBodySchema = z.infer<typeof editUserBusinessBodySchema>
 
-@Controller('/userbusiness/:id')
+@Controller('/user/business/:id')
 export class EditUserBusinessController {
     constructor(private editUser: EditUserBusinessUseCase) { }
 

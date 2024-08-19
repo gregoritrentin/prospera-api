@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Email } from '@/domain/email/entities/email';
 import { EmailRepository } from '@/domain/email/repositories/email-repository';
 import * as SendGridMail from '@sendgrid/mail';
+//import { SendMailProducerService } from '../queue/sendMail-producer.service';
 
 @Injectable()
 export class SendGridRepository implements EmailRepository {
-    constructor() { }
+    constructor() { } //private sendMailService: SendMailProducerService
 
     async send(email: Email): Promise<void> {
         const msg = {
@@ -17,6 +18,9 @@ export class SendGridRepository implements EmailRepository {
         };
 
         await SendGridMail.send(msg);
+        //await this.sendMailService.sendMail(email);
 
     }
 }
+
+

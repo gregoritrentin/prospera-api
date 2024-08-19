@@ -4,7 +4,6 @@ import { SendEmailUseCase } from '@/domain/email/use-cases/send-email';
 import { SendGridRepository } from './sendgrid-repository';
 import { EmailRepository } from '@/domain/email/repositories/email-repository';
 import { EnvService } from '../env/env.service';
-
 @Module({
     providers: [
         EnvService,

@@ -15,7 +15,7 @@ const bodyValidationPipe = new ZodValidationPipe(createUserBusinessBodySchema)
 
 type CreateUserBusinessBodySchema = z.infer<typeof createUserBusinessBodySchema>
 
-@Controller('/userbusiness')
+@Controller('/user/business')
 export class CreateUserBusinessController {
   constructor(private createUserBusiness: CreateUserBusinessUseCase) { }
 

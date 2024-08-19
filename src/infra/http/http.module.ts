@@ -74,8 +74,40 @@ import { EditAppController } from "./controllers/app/edit-app-controller";
 import { FetchAppController } from "./controllers/app/fetch-app-controller";
 import { DeleteAppController } from "./controllers/app/delete-app-controller";
 import { EmailController } from "./controllers/email/send-mail.controller";
-//import { SendGridService } from "../email/sendgrid.service";
 import { SendEmailUseCase } from "@/domain/email/use-cases/send-email";
+
+//item
+import { FetchItemController } from "./controllers/items/fetch-item.controller";
+import { CreateItemController } from "./controllers/items/create-item.controller";
+import { EditItemController } from "./controllers/items/edit-item.controller";
+import { DeleteItemController } from "./controllers/items/delete-item.controller";
+
+import { FetchItemUseCase } from "@/domain/item/use-cases/fetch-item";
+import { EditItemUseCase } from "@/domain/item/use-cases/edit-item";
+import { DeleteItemUseCase } from "@/domain/item/use-cases/delete-item";
+import { CreateItemUseCase } from "@/domain/item/use-cases/create-item";
+
+//item-group
+import { FetchItemGroupController } from "@/infra/http/controllers/items/fetch-item-group.controller";
+import { CreateItemGroupController } from "@/infra/http/controllers/items/create-item-group.controller";
+import { EditItemGroupController } from "@/infra/http/controllers/items/edit-group.controller";
+import { DeleteItemGroupController } from "@/infra/http/controllers/items/delete-item-group.controller";
+
+import { CreateItemGroupUseCase } from "@/domain/item/use-cases/create-item-group";
+import { EditItemGroupUseCase } from "@/domain/item/use-cases/edit-item-group";
+import { DeleteItemGroupUseCase } from "@/domain/item/use-cases/delete-item-group";
+import { FetchItemGroupUseCase } from "@/domain/item/use-cases/fetch-item-group";
+
+//item-taxation
+import { FetchItemTaxationController } from "@/infra/http/controllers/items/fetch-item-taxation.controller";
+import { CreateItemTaxationController } from "@/infra/http/controllers/items/create-item-taxation.controller";
+import { EditItemTaxationController } from "@/infra/http/controllers/items/edit-taxation.controller";
+import { DeleteItemTaxationController } from "@/infra/http/controllers/items/delete-item-taxation.controller";
+
+import { CreateItemTaxationUseCase } from "@/domain/item/use-cases/create-item-taxation";
+import { EditItemTaxationUseCase } from "@/domain/item/use-cases/edit-item-taxation";
+import { DeleteItemTaxationUseCase } from "@/domain/item/use-cases/delete-item-taxation";
+import { FetchItemTaxationUseCase } from "@/domain/item/use-cases/fech-item-taxation";
 
 
 @Module({
@@ -119,6 +151,24 @@ import { SendEmailUseCase } from "@/domain/email/use-cases/send-email";
     FetchAppController,
     EditAppController,
 
+    //item
+    CreateItemController,
+    EditItemController,
+    DeleteItemController,
+    FetchItemController,
+
+    //item-group
+    CreateItemGroupController,
+    EditItemGroupController,
+    DeleteItemGroupController,
+    FetchItemGroupController,
+
+    //item-taxation
+    CreateItemTaxationController,
+    EditItemTaxationController,
+    DeleteItemTaxationController,
+    FetchItemTaxationController,
+
     //email
     EmailController,
 
@@ -161,6 +211,24 @@ import { SendEmailUseCase } from "@/domain/email/use-cases/send-email";
     DeleteAppUseCase,
     FetchAppUseCase,
     EditAppUseCase,
+
+    //item
+    CreateItemUseCase,
+    EditItemUseCase,
+    DeleteItemUseCase,
+    FetchItemUseCase,
+
+    //item-group
+    CreateItemGroupUseCase,
+    EditItemGroupUseCase,
+    DeleteItemGroupUseCase,
+    FetchItemGroupUseCase,
+
+    //item-taxation
+    CreateItemTaxationUseCase,
+    EditItemTaxationUseCase,
+    DeleteItemTaxationUseCase,
+    FetchItemTaxationUseCase,
 
     //email
     SendEmailUseCase,
