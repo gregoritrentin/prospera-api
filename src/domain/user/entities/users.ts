@@ -60,13 +60,13 @@ export class User extends Entity<UserProps> {
         this.touch()
     }
 
-    // set defaultBusiness(defaultBusiness: string | undefined | null) {
-    //     if (defaultBusiness === undefined && defaultBusiness === null) {
-    //         return
-    //     }
-    //     this.props.defaultBusiness = defaultBusiness
-    //     this.touch()
-    // }
+    set defaultBusiness(defaultBusiness: string | undefined | null) {
+        if (defaultBusiness === undefined && defaultBusiness === null) {
+            return
+        }
+        this.props.defaultBusiness = defaultBusiness
+        this.touch()
+    }
 
     set status(status: string) {
         this.props.status = status

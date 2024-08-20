@@ -60,6 +60,7 @@ export class Person extends AggregateRoot<PersonProps> {
   get neighborhood() {
     return this.props.neighborhood
   }
+
   get postalCode() {
     return this.props.postalCode
   }
@@ -130,10 +131,13 @@ export class Person extends AggregateRoot<PersonProps> {
     this.touch()
   }
 
-  // set addressLine3(addressLine3: string) {
-  //   this.props.addressLine3 = addressLine3
-  //   this.touch()
-  // }
+  set addressLine3(addressLine3: string | undefined | null) {
+    if (addressLine3 === undefined && addressLine3 === null) {
+      return
+    }
+    this.props.addressLine3 = addressLine3
+    this.touch()
+  }
 
   set neighborhood(neighborhood: string) {
     this.props.neighborhood = neighborhood
@@ -165,10 +169,13 @@ export class Person extends AggregateRoot<PersonProps> {
     this.touch()
   }
 
-  // set notes(notes: string) {
-  //   this.props.notes = notes
-  //   this.touch()
-  // }
+  set notes(notes: string | undefined | null) {
+    if (notes === undefined && notes === null) {
+      return
+    }
+    this.props.notes = notes
+    this.touch()
+  }
 
   static create(
     props: Optional<PersonProps, 'createdAt'>,
@@ -178,8 +185,6 @@ export class Person extends AggregateRoot<PersonProps> {
       {
         ...props,
         createdAt: props.createdAt ?? new Date(),
-        addressLine3: props.addressLine3 ?? null,
-        notes: props.notes ?? null
       },
       id,
     )

@@ -19,10 +19,13 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@/*": ["./src/*"] 
+      "@/*": [
+        "./src/*"
+      ]
     },
     "types": [
-      "vitest/globals"
+      "vitest/globals",
+      "multer"
     ]
   }
 }

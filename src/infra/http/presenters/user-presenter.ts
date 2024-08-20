@@ -6,7 +6,7 @@ export class UserPresenter {
             id: user.id.toString(),
             name: user.name,
             email: user.email,
-            user: user.status,
+            status: user.status,
             defaultBusiness: user.defaultBusiness,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt

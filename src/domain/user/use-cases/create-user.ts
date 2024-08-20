@@ -2,14 +2,14 @@ import { Either, left, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
 import { User } from '@/domain/user/entities/users'
 import { UserRepository } from '@/domain/user/repositories/user-repository'
-import { HashGenerator } from '@/domain/user/cryptografy/hash-generator'
+import { HashGenerator } from '@/domain/cryptografy/hash-generator'
 import { UserAlreadyExistsError } from '@/domain/user/use-cases/errors/user-already-exists-error'
 
 interface CreateUserUseCaseRequest {
   name: string
   email: string
   password: string
-  defaultBusiness: string
+  defaultBusiness: string | undefined
 }
 
 type CreateUserUseCaseResponse = Either<

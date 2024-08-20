@@ -15,6 +15,7 @@ const editUserBodySchema = z.object({
     name: z.string(),
     email: z.string().email(),
     password: z.string(),
+    defaultBusiness: z.string().optional(),
     status: z.string(),
 })
 
@@ -36,6 +37,7 @@ export class EditUserController {
             name,
             email,
             password,
+            defaultBusiness,
             status,
 
         } = body
@@ -45,8 +47,8 @@ export class EditUserController {
             name,
             email,
             password,
+            defaultBusiness,
             status,
-
         })
 
         if (result.isLeft()) {

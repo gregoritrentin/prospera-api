@@ -12,10 +12,10 @@ export const envSchema = z.object({
   REDIS_PORT: z.coerce.number().optional().default(6379),
   REDIS_DB: z.coerce.number().optional().default(0),
 
-  //CLOUDFLARE_ACCOUNT_ID: z.string(),
-  //AWS_BUCKET_NAME: z.string(),
-  //AWS_ACCESS_KEY_ID: z.string(),
-  //AWS_SECRET_ACCESS_KEY: z.string(),
+  CLOUDFLARE_ACCOUNT_ID: z.string(),
+  AWS_BUCKET_NAME: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
 
   PORT: z.coerce.number().optional().default(3333),
 })

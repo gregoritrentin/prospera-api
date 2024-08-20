@@ -20,7 +20,7 @@ const editBusinessBodySchema = z.object({
     im: z.string(),
     addressLine1: z.string(),
     addressLine2: z.string(),
-    addressLine3: z.string(),
+    addressLine3: z.string().optional(),
     neighborhood: z.string(),
     postalCode: z.string(),
     countryCode: z.string(),

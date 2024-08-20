@@ -1,16 +1,17 @@
 import { Either, left, right } from '@/core/either'
-import { NotAllowedError } from '@/core/errors/errors/not-allowed-error'
-import { ResourceNotFoundError } from '@/core/errors/errors/resource-not-found-error'
+import { NotAllowedError } from '@/core/errors/not-allowed-error'
+import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
 import { User } from '@/domain/user/entities/users'
 import { UserRepository } from '@/domain/user/repositories/user-repository'
 import { Injectable } from '@nestjs/common'
-import { HashGenerator } from '@/domain/user/cryptografy/hash-generator'
+import { HashGenerator } from '@/domain/cryptografy/hash-generator'
 
 interface EditUserUseCaseRequest {
     userId: string
     name: string
     email: string
     password: string
+    defaultBusiness: string | undefined
     status: string
 
 }
@@ -34,6 +35,7 @@ export class EditUserUseCase {
         name,
         email,
         password,
+        defaultBusiness,
         status,
 
 
@@ -50,6 +52,7 @@ export class EditUserUseCase {
         user.email = email
         user.password = hashedPassword
         user.status = status
+        user.defaultBusiness = defaultBusiness
 
         await this.userRepository.save(user)
 

@@ -102,6 +102,7 @@ model Business {
   ItemGroup            ItemGroup[]
   ItemTaxation         ItemTaxation[]
   User                 User[]
+  Files                File[]
 
   @@map("business")
 }
@@ -261,4 +262,19 @@ model PriceList {
   updateAt  DateTime? @updatedAt @map("updated_at")
 
   @@map("price_list")
+}
+
+model File {
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  title      String
+  url        String
+  //notaId     String
+  //nfseId     String
+  //invoiceId  String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+  business   Business  @relation(fields: [businessId], references: [id])
+
+  @@map("file")
 }

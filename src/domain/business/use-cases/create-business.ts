@@ -12,7 +12,7 @@ interface CreateBusinessUseCaseRequest {
   document: string
   addressLine1: string
   addressLine2: string
-  addressLine3?: string | null
+  addressLine3?: string | null | undefined
   neighborhood: string
   postalCode: string
   countryCode: string

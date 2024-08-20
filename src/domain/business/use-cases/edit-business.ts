@@ -1,7 +1,7 @@
 import { Either, left, right } from '@/core/either'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { NotAllowedError } from '@/core/errors/errors/not-allowed-error'
-import { ResourceNotFoundError } from '@/core/errors/errors/resource-not-found-error'
+import { NotAllowedError } from '@/core/errors/not-allowed-error'
+import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
 import { Business } from '@/domain/business/entities/business'
 import { BusinessRepository } from '@/domain/business/repository/business-repository'
 import { Injectable } from '@nestjs/common'
@@ -17,7 +17,7 @@ interface EditBusinessUseCaseRequest {
     im: string
     addressLine1: string
     addressLine2: string
-    addressLine3?: string | null
+    addressLine3?: string | null | undefined
     neighborhood: string
     postalCode: string
     countryCode: string
@@ -74,7 +74,7 @@ export class EditBusinessUseCase {
         business.document = document
         business.addressLine1 = addressLine1
         business.addressLine2 = addressLine2
-        //business.addressLine3 = addressLine3
+        business.addressLine3 = addressLine3
         business.neighborhood = neighborhood
         business.postalCode = postalCode
         business.countryCode = countryCode

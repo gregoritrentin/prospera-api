@@ -1,6 +1,6 @@
 import { Either, left, right } from '@/core/either'
-import { NotAllowedError } from '@/core/errors/errors/not-allowed-error'
-import { ResourceNotFoundError } from '@/core/errors/errors/resource-not-found-error'
+import { NotAllowedError } from '@/core/errors/not-allowed-error'
+import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
 import { ItemTaxation } from '@/domain/item/entities/item-taxation'
 import { ItemTaxationRepository } from '@/domain/item/repositories/item-taxation-repository'
 import { Injectable } from '@nestjs/common'

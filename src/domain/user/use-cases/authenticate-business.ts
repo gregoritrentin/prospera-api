@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common'
 import { UserRepository } from '@/domain/user/repositories/user-repository'
 import { BusinessRepository } from '@/domain/business/repository/business-repository'
 //import { UserBusinessRepository } from '@/domain/main/repositories/user-business-repository'
-import { HashComparer } from '@/domain/user/cryptografy/hash-comparer'
-import { Encrypter } from '@/domain/user/cryptografy/encrypter'
+import { HashComparer } from '@/domain/cryptografy/hash-comparer'
+import { Encrypter } from '@/domain/cryptografy/encrypter'
 import { WrongCredentialsError } from '@/domain/user/use-cases/errors/wrong-credentials-error'
 
 interface AuthenticateBusinessUseCaseRequest {

@@ -13,6 +13,7 @@ import { FetchUserController } from "./controllers/users/fetch-user.controller";
 import { GetUserController } from "./controllers/users/get-user.controller";
 import { GetBusinessController } from "./controllers/users/get-business.controller";
 
+
 //business
 import { CreateBusinessController } from "./controllers/business/create-business.controller";
 import { EditBusinessController } from "./controllers/business/edit-business.controller";
@@ -108,10 +109,13 @@ import { CreateItemTaxationUseCase } from "@/domain/item/use-cases/create-item-t
 import { EditItemTaxationUseCase } from "@/domain/item/use-cases/edit-item-taxation";
 import { DeleteItemTaxationUseCase } from "@/domain/item/use-cases/delete-item-taxation";
 import { FetchItemTaxationUseCase } from "@/domain/item/use-cases/fech-item-taxation";
+import { UploadPhotoController } from "./controllers/users/upload-photo.controller";
+import { StorageModule } from "../storage/storage.module";
+import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-create-file";
 
 
 @Module({
-  imports: [DatabaseModule, EmailModule, CryptographyModule],
+  imports: [DatabaseModule, EmailModule, CryptographyModule, StorageModule],
   controllers: [
 
     //user
@@ -171,6 +175,9 @@ import { FetchItemTaxationUseCase } from "@/domain/item/use-cases/fech-item-taxa
 
     //email
     EmailController,
+
+    //storage
+    UploadPhotoController,
 
   ],
   providers: [
@@ -232,6 +239,9 @@ import { FetchItemTaxationUseCase } from "@/domain/item/use-cases/fech-item-taxa
 
     //email
     SendEmailUseCase,
+
+    //storage
+    UploadAndCreateFileUseCase,
 
   ],
 })

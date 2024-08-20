@@ -17,7 +17,7 @@ const createUserBodySchema = z.object({
   name: z.string(),
   email: z.string().email(),
   password: z.string(),
-  defaultBusiness: z.string(),
+  defaultBusiness: z.string().optional(),
 })
 
 type CreateUserBodySchema = z.infer<typeof createUserBodySchema>
@@ -35,14 +35,14 @@ export class CreateUserController {
       name,
       email,
       password,
-      defaultBusiness
+      defaultBusiness,
     } = body
 
     const result = await this.registerUser.execute({
       name,
       email,
       password,
-      defaultBusiness,
+      defaultBusiness: defaultBusiness || undefined,
     })
 
     if (result.isLeft()) {
