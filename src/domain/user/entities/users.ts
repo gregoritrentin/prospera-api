@@ -7,6 +7,7 @@ interface UserProps {
     email: string
     password: string
     status: string
+    defaultBusiness?: string | null
     createdAt: Date
     updatedAt?: Date | null
 }
@@ -22,6 +23,10 @@ export class User extends Entity<UserProps> {
 
     get password() {
         return this.props.password
+    }
+
+    get defaultBusiness() {
+        return this.props.defaultBusiness
     }
 
     get status() {
@@ -54,11 +59,19 @@ export class User extends Entity<UserProps> {
         this.props.password = password
         this.touch()
     }
+
+    set defaultBusiness(defaultBusiness: string | undefined | null) {
+        if (defaultBusiness === undefined && defaultBusiness === null) {
+            return
+        }
+        this.props.defaultBusiness = defaultBusiness
+        this.touch()
+    }
+
     set status(status: string) {
         this.props.status = status
         this.touch()
     }
-
 
     static create(
         props: Optional<UserProps, 'createdAt'>,
@@ -68,7 +81,6 @@ export class User extends Entity<UserProps> {
             {
                 ...props,
                 createdAt: props.createdAt ?? new Date(),
-
             },
             id,
         )

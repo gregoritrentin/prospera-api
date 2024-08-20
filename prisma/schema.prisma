@@ -14,17 +14,18 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique
-  password  String
-  status    String
-  photoUrl  String?   @map("photo_url")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updateAt  DateTime? @updatedAt @map("updated_at")
-
-  UserBusiness UserBusiness[]
-  UserTerms    UserTerms[]
+  id              String         @id @default(uuid())
+  name            String
+  email           String         @unique
+  password        String
+  status          String
+  photoUrl        String?        @map("photo_url")
+  defaultBusiness String?        @map("default_business")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updateAt        DateTime?      @updatedAt @map("updated_at")
+  Business        Business?      @relation(fields: [defaultBusiness], references: [id])
+  UserBusiness    UserBusiness[]
+  UserTerms       UserTerms[]
 
   @@map("users")
 }
@@ -54,16 +55,15 @@ model UserTerms {
 }
 
 model UserBusiness {
-  id         String @id @default(uuid())
-  businessId String @map("business_id")
-  userId     String @map("user_id")
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  userId     String    @map("user_id")
   role       String
-
-  status    String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updateAt  DateTime? @updatedAt @map("updated_at")
-  business  Business  @relation(fields: [businessId], references: [id])
-  user      User      @relation(fields: [userId], references: [id])
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updateAt   DateTime? @updatedAt @map("updated_at")
+  business   Business  @relation(fields: [businessId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
 
   @@unique([businessId, userId], name: "userBusinessIdentifier")
   @@map("user_business")
@@ -101,6 +101,7 @@ model Business {
   Items                Item[]
   ItemGroup            ItemGroup[]
   ItemTaxation         ItemTaxation[]
+  User                 User[]
 
   @@map("business")
 }
@@ -258,4 +259,6 @@ model PriceList {
   status    String
   createdAt DateTime  @default(now()) @map("created_at")
   updateAt  DateTime? @updatedAt @map("updated_at")
+
+  @@map("price_list")
 }

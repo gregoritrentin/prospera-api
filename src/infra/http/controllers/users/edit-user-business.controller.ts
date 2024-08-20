@@ -12,6 +12,7 @@ import { EditUserBusinessUseCase } from '@/domain/user/use-cases/edit-user-busin
 
 const editUserBusinessBodySchema = z.object({
     role: z.string(),
+    isDefaultBusiness: z.boolean(),
     status: z.string(),
 })
 

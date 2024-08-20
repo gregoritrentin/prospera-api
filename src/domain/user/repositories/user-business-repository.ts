@@ -4,6 +4,8 @@ import { UserBusinessDetails } from '../entities/value-objects/user-business-det
 
 export abstract class UserBusinessRepository {
   abstract findById(id: string): Promise<UserBusiness | null>
+  abstract findByUserAndBusiness(userId: string, businessId: string): Promise<UserBusiness | null>
+
   abstract findMany(params: PaginationParams, businessId: string): Promise<UserBusiness[]>
   abstract findManyDetails(userId: string, businessId: string): Promise<UserBusinessDetails[]>
 

@@ -28,10 +28,6 @@ export class CreateUserBusinessUseCase {
 
   }: CreateUserBusinessUseCaseRequest): Promise<CreateUserBusinessUseCaseResponse> {
 
-
-
-
-
     const userBusiness = UserBusiness.create({
       businessId: new UniqueEntityID(businessId),
       userId: new UniqueEntityID(userId),

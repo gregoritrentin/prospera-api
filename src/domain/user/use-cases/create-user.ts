@@ -9,7 +9,7 @@ interface CreateUserUseCaseRequest {
   name: string
   email: string
   password: string
-
+  defaultBusiness: string
 }
 
 type CreateUserUseCaseResponse = Either<
@@ -30,6 +30,7 @@ export class CreateUserUseCase {
     name,
     email,
     password,
+    defaultBusiness
 
   }: CreateUserUseCaseRequest): Promise<CreateUserUseCaseResponse> {
 
@@ -46,6 +47,7 @@ export class CreateUserUseCase {
       name,
       email,
       password: hashedPassword,
+      defaultBusiness,
       status: 'PENDING',
     })
 

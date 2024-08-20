@@ -25,6 +25,22 @@ export class PrismaUserBusinessRepository implements UserBusinessRepository {
         return PrismaUserBusinessMapper.toDomain(userBusiness)
     }
 
+    async findByUserAndBusiness(userId: string, businessId: string): Promise<UserBusiness | null> {
+        const userBusiness = await this.prisma.userBusiness.findUnique({
+            where: {
+                userBusinessIdentifier: {
+                    userId,
+                    businessId,
+                }
+            }
+        })
+
+        if (!userBusiness) {
+            return null
+        }
+        return PrismaUserBusinessMapper.toDomain(userBusiness)
+    }
+
     async findMany({ page }: PaginationParams, businessId: string): Promise<UserBusiness[]> {
         const userBusiness = await this.prisma.userBusiness.findMany({
             orderBy: {

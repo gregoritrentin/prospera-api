@@ -9,6 +9,7 @@ import { UserPayload } from '@/infra/auth/jwt.strategy'
 const createUserBusinessBodySchema = z.object({
   userId: z.string(),
   role: z.string(),
+  isDefaultBusiness: z.boolean(),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(createUserBusinessBodySchema)
