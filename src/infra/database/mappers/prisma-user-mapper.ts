@@ -9,13 +9,12 @@ export class PrismaUserMapper {
         name: raw.name,
         email: raw.email,
         password: raw.password,
-        defaultBusiness: raw.defaultBusiness ?? null,
+        defaultBusiness: raw.defaultBusiness,
         status: raw.status,
       },
       new UniqueEntityID(raw.id),
     )
   }
-
 
   static toPrisma(user: User): Prisma.UserUncheckedCreateInput {
     return {
@@ -23,7 +22,7 @@ export class PrismaUserMapper {
       name: user.name,
       email: user.email,
       password: user.password,
-      defaultBusiness: user.defaultBusiness ?? null,
+      defaultBusiness: user.defaultBusiness,
       status: user.status,
 
     }

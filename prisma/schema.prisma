@@ -21,6 +21,7 @@ model User {
   status          String
   photoUrl        String?        @map("photo_url")
   defaultBusiness String?        @map("default_business")
+  teste           String         @default("teste")
   createdAt       DateTime       @default(now()) @map("created_at")
   updateAt        DateTime?      @updatedAt @map("updated_at")
   Business        Business?      @relation(fields: [defaultBusiness], references: [id])
