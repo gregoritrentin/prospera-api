@@ -11,8 +11,7 @@ import { EditUserController } from "./controllers/users/edit-user.controller";
 import { DeleteUserController } from "./controllers/users/delete-user.controller";
 import { FetchUserController } from "./controllers/users/fetch-user.controller";
 import { GetUserController } from "./controllers/users/get-user.controller";
-import { GetBusinessController } from "./controllers/users/get-business.controller";
-
+import { GetBusinessController } from "./controllers/users/get-business.controller"
 
 //business
 import { CreateBusinessController } from "./controllers/business/create-business.controller";
@@ -74,8 +73,6 @@ import { CreateAppController } from "./controllers/app/create-app.controller";
 import { EditAppController } from "./controllers/app/edit-app-controller";
 import { FetchAppController } from "./controllers/app/fetch-app-controller";
 import { DeleteAppController } from "./controllers/app/delete-app-controller";
-import { EmailController } from "./controllers/email/send-mail.controller";
-import { SendEmailUseCase } from "@/domain/email/use-cases/send-email";
 
 //item
 import { FetchItemController } from "./controllers/items/fetch-item.controller";
@@ -109,10 +106,12 @@ import { CreateItemTaxationUseCase } from "@/domain/item/use-cases/create-item-t
 import { EditItemTaxationUseCase } from "@/domain/item/use-cases/edit-item-taxation";
 import { DeleteItemTaxationUseCase } from "@/domain/item/use-cases/delete-item-taxation";
 import { FetchItemTaxationUseCase } from "@/domain/item/use-cases/fech-item-taxation";
-import { UploadPhotoController } from "./controllers/users/upload-photo.controller";
+import { UploadPhotoController } from "./controllers/users/upload-user-photo.controller";
 import { StorageModule } from "../storage/storage.module";
-import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-create-file";
 
+import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-create-file";
+import { SendAndCreateEmailUseCase } from "@/domain/email/use-cases/send-and-create-email";
+import { SetUserPhotoUseCase } from "@/domain/user/use-cases/set-user-photo";
 
 @Module({
   imports: [DatabaseModule, EmailModule, CryptographyModule, StorageModule],
@@ -173,14 +172,12 @@ import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-c
     DeleteItemTaxationController,
     FetchItemTaxationController,
 
-    //email
-    EmailController,
-
     //storage
     UploadPhotoController,
 
   ],
   providers: [
+
     //user
     AuthenticateUserUseCase,
     AuthenticateBusinessUseCase,
@@ -189,6 +186,7 @@ import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-c
     EditUserUseCase,
     DeleteUserUseCase,
     FetchUserUseCase,
+    SetUserPhotoUseCase,
     GetUserUseCase,
     GetBusinessUseCase,
 
@@ -237,11 +235,9 @@ import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-c
     DeleteItemTaxationUseCase,
     FetchItemTaxationUseCase,
 
-    //email
-    SendEmailUseCase,
-
     //storage
     UploadAndCreateFileUseCase,
+    SendAndCreateEmailUseCase,
 
   ],
 })

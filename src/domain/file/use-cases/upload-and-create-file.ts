@@ -31,11 +31,12 @@ export class UploadAndCreateFileUseCase {
         fileType,
         body,
     }: UploadAndCreateFileRequest): Promise<UploadAndCreateFileResponse> {
+
         if (!/^(image\/(jpeg|png))$/.test(fileType)) {
             return left(new InvalidFileTypeError(fileType))
         }
 
-        const { url } = await this.uploader.upload({ fileName, fileType, body })
+        const { url } = await this.uploader.upload({ businessId, fileName, fileType, body })
 
         const file = File.create({
             businessId: new UniqueEntityID(businessId),

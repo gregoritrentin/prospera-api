@@ -1,6 +1,8 @@
 
 import { InvalidFileTypeError } from '@/core/errors/invalid-file-type-error'
 import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file'
+import { EditUserUseCase } from '@/domain/user/use-cases/edit-user'
+import { SetUserPhotoUseCase } from '@/domain/user/use-cases/set-user-photo'
 import { CurrentUser } from '@/infra/auth/current-user-decorator'
 import { UserPayload } from '@/infra/auth/jwt.strategy'
 import {
@@ -10,21 +12,24 @@ import {
     MaxFileSizeValidator,
     ParseFilePipe,
     Post,
+    Param,
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 
-@Controller('/upload/user-photo')
+@Controller('user/upload-photo/:id')
 export class UploadPhotoController {
     constructor(
         private uploadUserPhoto: UploadAndCreateFileUseCase,
+        private setUserPhoto: SetUserPhotoUseCase,
     ) { }
 
     @Post()
     @UseInterceptors(FileInterceptor('file'))
     async handle(
         @CurrentUser() user: UserPayload,
+        @Param('id') userId: string,
         @UploadedFile(
             new ParseFilePipe({
                 validators: [
@@ -59,6 +64,11 @@ export class UploadPhotoController {
                     throw new BadRequestException(error.message)
             }
         }
+
+        await this.setUserPhoto.execute({
+            userId: userId,
+            photoFileId: result.value.file.id.toString(),
+        })
 
         const { file } = result.value
 

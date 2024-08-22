@@ -1,4 +1,5 @@
 export interface UploadParams {
+    businessId: string
     fileName: string
     fileType: string
     body: Buffer

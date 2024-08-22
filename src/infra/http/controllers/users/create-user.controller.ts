@@ -18,6 +18,7 @@ const createUserBodySchema = z.object({
   email: z.string().email(),
   password: z.string(),
   defaultBusiness: z.string().optional(),
+  photoFileId: z.string().optional(),
 })
 
 type CreateUserBodySchema = z.infer<typeof createUserBodySchema>
@@ -25,7 +26,7 @@ type CreateUserBodySchema = z.infer<typeof createUserBodySchema>
 @Controller('/user')
 @Public()
 export class CreateUserController {
-  constructor(private registerUser: CreateUserUseCase) { }
+  constructor(private createUser: CreateUserUseCase) { }
 
   @Post()
   @HttpCode(201)
@@ -36,13 +37,16 @@ export class CreateUserController {
       email,
       password,
       defaultBusiness,
+      photoFileId,
+
     } = body
 
-    const result = await this.registerUser.execute({
+    const result = await this.createUser.execute({
       name,
       email,
       password,
       defaultBusiness: defaultBusiness || undefined,
+      photoFileId: photoFileId || undefined,
     })
 
     if (result.isLeft()) {

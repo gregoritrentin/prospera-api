@@ -1,5 +1,5 @@
 
-export interface EmailParams {
+export interface EmailSenderParams {
     to: string
     from: string
     subject: string
@@ -8,5 +8,5 @@ export interface EmailParams {
 }
 
 export abstract class Sender {
-    abstract send(params: EmailParams): Promise<{ url: string }>
+    abstract send(params: EmailSenderParams): Promise<{ url: string }>
 }

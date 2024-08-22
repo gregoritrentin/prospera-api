@@ -8,6 +8,7 @@ interface UserProps {
     password: string
     status: string
     defaultBusiness?: string | null
+    photoFileId?: string | null
     createdAt: Date
     updatedAt?: Date | null
 }
@@ -27,6 +28,10 @@ export class User extends Entity<UserProps> {
 
     get defaultBusiness() {
         return this.props.defaultBusiness
+    }
+
+    get photoFileId() {
+        return this.props.photoFileId
     }
 
     get status() {
@@ -65,6 +70,14 @@ export class User extends Entity<UserProps> {
             return
         }
         this.props.defaultBusiness = defaultBusiness
+        this.touch()
+    }
+
+    set photoFileId(photoFileId: string | undefined | null) {
+        if (photoFileId === undefined && photoFileId === null) {
+            return
+        }
+        this.props.photoFileId = photoFileId
         this.touch()
     }
 

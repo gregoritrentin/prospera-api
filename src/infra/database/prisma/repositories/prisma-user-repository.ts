@@ -4,6 +4,8 @@ import { UserRepository } from '@/domain/user/repositories/user-repository'
 import { User } from '@/domain/user/entities/users'
 import { PrismaUserMapper } from '@/infra/database/mappers/prisma-user-mapper'
 import { PaginationParams } from '@/core/repositories/pagination-params'
+import { UserDetails } from '@/domain/user/entities/value-objects/user-details'
+import { PrismaUserDetailsMapper } from '../../mappers/prisma-user-details-mapper'
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -36,15 +38,23 @@ export class PrismaUserRepository implements UserRepository {
     return PrismaUserMapper.toDomain(user)
   }
 
-  async findMe(id: string): Promise<User[]> {
+  async findMe(id: string): Promise<UserDetails | null> {
 
-    const user = await this.prisma.user.findMany({
+    const user = await this.prisma.user.findUnique({
       where: {
         id,
-      }
+      },
+      include: {
+        File: true,
+      },
+
     })
 
-    return user.map(PrismaUserMapper.toDomain)
+    if (!user) {
+      return null
+    }
+
+    return PrismaUserDetailsMapper.toDomain(user)
 
   }
 
@@ -64,6 +74,7 @@ export class PrismaUserRepository implements UserRepository {
     return user.map(PrismaUserMapper.toDomain)
 
   }
+
 
   async create(user: User): Promise<void> {
     const data = PrismaUserMapper.toPrisma(user)
@@ -93,5 +104,16 @@ export class PrismaUserRepository implements UserRepository {
     })
   }
 
+  async setphoto(userId: string, photoFileId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        photoFileId: photoFileId
+      }
+
+    })
+  }
 
 }

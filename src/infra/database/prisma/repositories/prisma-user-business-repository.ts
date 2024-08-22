@@ -67,7 +67,6 @@ export class PrismaUserBusinessRepository implements UserBusinessRepository {
                 createdAt: 'asc',
             },
 
-
             where: {
                 businessId,
                 userId,

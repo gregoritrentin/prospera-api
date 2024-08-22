@@ -14,18 +14,20 @@ datasource db {
 }
 
 model User {
-  id              String         @id @default(uuid())
+  id              String    @id @default(uuid())
   name            String
-  email           String         @unique
+  email           String    @unique
   password        String
   status          String
-  photoUrl        String?        @map("photo_url")
-  defaultBusiness String?        @map("default_business")
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updateAt        DateTime?      @updatedAt @map("updated_at")
-  Business        Business?      @relation(fields: [defaultBusiness], references: [id])
-  UserBusiness    UserBusiness[]
-  UserTerms       UserTerms[]
+  photoFileId     String?   @map("photo_file_id")
+  defaultBusiness String?   @map("default_business")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updateAt        DateTime? @updatedAt @map("updated_at")
+  Business        Business? @relation(fields: [defaultBusiness], references: [id])
+  File            File?     @relation(fields: [photoFileId], references: [id])
+
+  UserBusiness UserBusiness[]
+  UserTerms    UserTerms[]
 
   @@map("users")
 }
@@ -103,6 +105,7 @@ model Business {
   ItemTaxation         ItemTaxation[]
   User                 User[]
   Files                File[]
+  Email                Email[]
 
   @@map("business")
 }
@@ -269,12 +272,24 @@ model File {
   businessId String    @map("business_id")
   title      String
   url        String
-  //notaId     String
-  //nfseId     String
-  //invoiceId  String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+  business   Business  @relation(fields: [businessId], references: [id])
+  User       User[]
+
+  @@map("files")
+}
+
+model Email {
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  to         String
+  subject    String
+  body       String
+  status     String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
   business   Business  @relation(fields: [businessId], references: [id])
 
-  @@map("file")
+  @@map("emails")
 }

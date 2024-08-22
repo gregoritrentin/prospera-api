@@ -7,12 +7,10 @@ import { UserRepository } from '@/domain/user/repositories/user-repository';
 import { UserBusinessRepository } from '@/domain/user/repositories/user-business-repository';
 import { PersonRepository } from '@/domain/person/repositories/person-repository';
 import { MarketplaceRepository } from '@/domain/business/repository/marketplace-repository';
-
 import { PrismaMarketplaceRepository } from './prisma/repositories/prisma-marketplace-repository';
 import { PrismaBusinessRepository } from './prisma/repositories/prisma-business-repository';
 import { PrismaUserRepository } from '@/infra/database/prisma/repositories/prisma-user-repository';
 import { PrismaUserBusinessRepository } from '@/infra/database/prisma/repositories/prisma-user-business-repository';
-
 import { PrismaPersonRepository } from '@/infra/database/prisma/repositories/prisma-person-repository';
 import { PrismaAppRepository } from '@/infra/database/prisma/repositories/prisma-app-repository';
 import { PrismaItemRepository } from './prisma/repositories/prisma-item-repository';
@@ -21,6 +19,10 @@ import { ItemGroupRepository } from '@/domain/item/repositories/item-group-repos
 import { PrismaItemGroupRepository } from './prisma/repositories/prisma-item-group-repository';
 import { ItemTaxationRepository } from '@/domain/item/repositories/item-taxation-repository';
 import { PrismaItemTaxationRepository } from './prisma/repositories/prisma-item-taxation-repository';
+import { FileRepository } from '@/domain/file/repository/file-repository';
+import { PrismaFilesRepository } from './prisma/repositories/prisma-file-repository';
+import { EmailRepository } from '@/domain/email/repositories/email-repository';
+import { PrismaEmailRepository } from './prisma/repositories/prisma-email-repository';
 
 
 
@@ -73,13 +75,20 @@ import { PrismaItemTaxationRepository } from './prisma/repositories/prisma-item-
             useClass: PrismaUserBusinessRepository,
 
         },
+        {
+            provide: FileRepository,
+            useClass: PrismaFilesRepository,
 
+        },
+        {
+            provide: EmailRepository,
+            useClass: PrismaEmailRepository,
 
+        },
 
     ],
     exports: [
         PrismaService,
-
         UserRepository,
         AppRepository,
         UserBusinessRepository,
@@ -89,6 +98,10 @@ import { PrismaItemTaxationRepository } from './prisma/repositories/prisma-item-
         ItemGroupRepository,
         ItemTaxationRepository,
         MarketplaceRepository,
+
+        FileRepository,
+        EmailRepository,
+
     ],
 })
 export class DatabaseModule { }

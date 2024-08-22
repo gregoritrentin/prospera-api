@@ -1,7 +1,4 @@
-import {
-    UploadParams,
-    Uploader,
-} from '@/domain/storage/uploader'
+import { UploadParams, Uploader } from '@/domain/storage/uploader'
 
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { Injectable } from '@nestjs/common'
@@ -26,12 +23,15 @@ export class R2Storage implements Uploader {
     }
 
     async upload({
+        businessId,
         fileName,
         fileType,
         body,
     }: UploadParams): Promise<{ url: string }> {
+
         const uploadId = randomUUID()
-        const uniqueFileName = `${uploadId}-${fileName}`
+
+        const uniqueFileName = `${businessId}/${uploadId}-${fileName}`
 
         await this.client.send(
             new PutObjectCommand({

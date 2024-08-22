@@ -4,6 +4,7 @@ import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
 import { User } from '@/domain/user/entities/users'
 import { UserRepository } from '@/domain/user/repositories/user-repository'
 import { Injectable } from '@nestjs/common'
+import { UserDetails } from '../entities/value-objects/user-details'
 
 interface GetUserUseCaseRequest {
     userId: string
@@ -12,7 +13,7 @@ interface GetUserUseCaseRequest {
 type GetUserUseCaseResponse = Either<
     ResourceNotFoundError | NotAllowedError,
     {
-        user: User[]
+        user: UserDetails
     }
 >
 
@@ -26,6 +27,10 @@ export class GetUserUseCase {
 
     }: GetUserUseCaseRequest): Promise<GetUserUseCaseResponse> {
         const user = await this.userRepository.findMe(userId)
+
+        if (!user) {
+            return left(new ResourceNotFoundError())
+        }
 
         return right({
             user,

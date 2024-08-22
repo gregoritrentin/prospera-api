@@ -1,14 +1,8 @@
 import { BadRequestException, Get, Controller, Query } from '@nestjs/common'
-import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
-import { z } from 'zod'
-
-import { UserPresenter } from '@/infra/http/presenters/user-presenter'
+import { UserDetailsPresenter } from '@/infra/http/presenters/user-details-presenter'
 import { GetUserUseCase } from '@/domain/user/use-cases/get-user'
 import { CurrentUser } from '@/infra/auth/current-user-decorator'
 import { UserPayload } from '@/infra/auth/jwt.strategy'
-
-
-
 @Controller('/user/me')
 export class GetUserController {
     constructor(private getUser: GetUserUseCase) { }
@@ -30,6 +24,7 @@ export class GetUserController {
 
         const user = result.value.user
 
-        return { user: user.map(UserPresenter.toHttp) }
+        //return { user: user.map(UserDetailsPresenter.toHttp) }
+        return user //UserDetailsPresenter.toHttp(user)
     }
 }

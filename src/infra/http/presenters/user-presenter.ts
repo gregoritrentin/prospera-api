@@ -8,6 +8,7 @@ export class UserPresenter {
             email: user.email,
             status: user.status,
             defaultBusiness: user.defaultBusiness,
+            photoFileId: user.photoFileId,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt
         }

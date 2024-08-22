@@ -16,6 +16,7 @@ const editUserBodySchema = z.object({
     email: z.string().email(),
     password: z.string(),
     defaultBusiness: z.string().optional(),
+    photoFileId: z.string().optional(),
     status: z.string(),
 })
 
@@ -38,6 +39,7 @@ export class EditUserController {
             email,
             password,
             defaultBusiness,
+            photoFileId,
             status,
 
         } = body
@@ -48,6 +50,7 @@ export class EditUserController {
             email,
             password,
             defaultBusiness,
+            photoFileId,
             status,
         })
 

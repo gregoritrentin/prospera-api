@@ -72,14 +72,14 @@ export class EditPersonUseCase {
         person.document = document
         person.addressLine1 = addressLine1
         person.addressLine2 = addressLine2
-        //person.addressLine3 = addressLine3
+        person.addressLine3 = addressLine3
         person.neighborhood = neighborhood
         person.postalCode = postalCode
         person.countryCode = countryCode
         person.state = state
         person.city = city
         person.status = status
-        //person.notes = notes
+        person.notes = notes
 
         await this.personRepository.save(person)
 

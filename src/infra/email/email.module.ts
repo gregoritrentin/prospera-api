@@ -1,24 +1,16 @@
-import { Module } from '@nestjs/common';
-import { SendGridService } from '@/infra/email/sendgrid.service';
-import { SendEmailUseCase } from '@/domain/email/use-cases/send-email';
-import { SendGridRepository } from './sendgrid-repository';
-import { EmailRepository } from '@/domain/email/repositories/email-repository';
-import { EnvService } from '../env/env.service';
-@Module({
-    providers: [
-        EnvService,
-        SendGridService,
-        SendEmailUseCase,
-        {
-            provide: EmailRepository,
-            useClass: SendGridRepository,
-        },
+import { EmailSender } from '@/domain/mailer/email-sender'
+import { Module } from '@nestjs/common'
+import { SendGridMailer } from './sendgrid-mailer'
+import { EnvModule } from '../env/env.module'
 
+@Module({
+    imports: [EnvModule],
+    providers: [
+        {
+            provide: EmailSender,
+            useClass: SendGridMailer,
+        },
     ],
-    exports: [
-        EnvService,
-        SendGridService,
-        EmailRepository,
-    ],
+    exports: [EmailSender],
 })
 export class EmailModule { }
