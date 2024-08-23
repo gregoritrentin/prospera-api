@@ -24,7 +24,6 @@ export class GetUserController {
 
         const user = result.value.user
 
-        //return { user: user.map(UserDetailsPresenter.toHttp) }
-        return user //UserDetailsPresenter.toHttp(user)
+        return UserDetailsPresenter.toHttp(user)
     }
 }

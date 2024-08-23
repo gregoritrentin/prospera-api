@@ -6,7 +6,7 @@ export class PrismaEmailMapper {
     static toDomain(raw: PrismaEmail): Email {
         return Email.create(
             {
-                businessId: new UniqueEntityID(raw.businessId),
+                businessId: raw.businessId ? new UniqueEntityID(raw.businessId) : undefined,
                 to: raw.to,
                 subject: raw.subject,
                 body: raw.body,
@@ -19,7 +19,7 @@ export class PrismaEmailMapper {
     static toPrisma(email: Email): Prisma.EmailUncheckedCreateInput {
         return {
             id: email.id.toString(),
-            businessId: email.businessId.toString(),
+            businessId: email.businessId?.toString() || undefined,
             to: email.to,
             body: email.body,
             subject: email.subject,
@@ -28,3 +28,6 @@ export class PrismaEmailMapper {
         }
     }
 }
+
+
+

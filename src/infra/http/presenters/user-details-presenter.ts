@@ -1,4 +1,3 @@
-//import { UserBusiness } from "@/domain/user/entities/user-business";
 import { UserDetails } from "@/domain/user/entities/value-objects/user-details";
 
 export class UserDetailsPresenter {
@@ -7,7 +6,6 @@ export class UserDetailsPresenter {
 
             id: userDetails.id.toString(),
             name: userDetails.name,
-            //role: userDetails.role,
             status: userDetails.status,
             photoFileUrl: userDetails.photoFileUrl,
             createdAt: userDetails.createdAt,

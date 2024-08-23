@@ -19,6 +19,9 @@ import { EditBusinessController } from "./controllers/business/edit-business.con
 import { DeleteBusinessController } from "./controllers/business/delete-business.controller";
 import { FetchBusinessController } from "./controllers/business/fetch-business.controller";
 
+//business-owner
+import { CreateBusinessOwnerController } from "./controllers/business/create-business-owner.controller";
+
 //user-business
 import { CreateUserBusinessController } from "./controllers/users/create-user-business.controller";
 import { EditUserBusinessController } from "./controllers/users/edit-user-business.controller";
@@ -51,6 +54,9 @@ import { DeleteBusinessUseCase } from '@/domain/business/use-cases/delele-busine
 import { FetchBusinessUseCase } from "@/domain/business/use-cases/fetch-business";
 import { CreateMarketplaceUseCase } from "@/domain/business/use-cases/create-marketplace";
 import { FetchMarketplaceUseCase } from "@/domain/business/use-cases/fetch-marketplace";
+
+//business-owner
+import { CreateBusinessOwnerUseCase } from "@/domain/business/use-cases/create-business-owner";
 
 //user-business
 import { CreateUserBusinessUseCase } from "@/domain/user/use-cases/create-user-business";
@@ -138,6 +144,9 @@ import { SetUserPhotoUseCase } from "@/domain/user/use-cases/set-user-photo";
     DeleteBusinessController,
     FetchBusinessController,
 
+    //business-owner
+    CreateBusinessOwnerController,
+
     //marketplace
     CreateMarketplaceController,
     FetchMarketplaceController,
@@ -195,6 +204,9 @@ import { SetUserPhotoUseCase } from "@/domain/user/use-cases/set-user-photo";
     EditBusinessUseCase,
     DeleteBusinessUseCase,
     FetchBusinessUseCase,
+
+    //business-owner
+    CreateBusinessOwnerUseCase,
 
     //user-business
     CreateUserBusinessUseCase,

@@ -3,7 +3,7 @@ import { UserDetails } from '@/domain/user/entities/value-objects/user-details'
 import { User as PrismaUser, File as PrismaFile } from '@prisma/client'
 
 type PrismaUserDetails = PrismaUser & {
-    file: PrismaFile
+    File: PrismaFile | null
 }
 
 export class PrismaUserDetailsMapper {
@@ -16,7 +16,7 @@ export class PrismaUserDetailsMapper {
             email: raw.email,
             status: raw.status,
             defaultBusiness: raw.defaultBusiness,
-            photoFileUrl: raw.file.url,
+            photoFileUrl: raw.File?.url ?? null,
             photoFileId: raw.photoFileId,
             createdAt: raw.createdAt,
             updatedAt: raw.updateAt,

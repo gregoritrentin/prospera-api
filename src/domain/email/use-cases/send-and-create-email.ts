@@ -3,10 +3,8 @@ import { Injectable } from '@nestjs/common'
 import { Email } from '@/domain/email/entities/email'
 import { EmailRepository } from '@/domain/email/repositories/email-repository'
 import { EmailSender } from '@/domain/mailer/email-sender'
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
 interface SendAndCreateEmailRequest {
-    //businessId: string
     to: string
     subject: string
     body: string
@@ -26,7 +24,6 @@ export class SendAndCreateEmailUseCase {
     ) { }
 
     async execute({
-        //businessId,
         to,
         subject,
         body,
@@ -41,7 +38,6 @@ export class SendAndCreateEmailUseCase {
 
         //gravando no banco
         const email = Email.create({
-            businessId: new UniqueEntityID('38920572-b3b4-478d-9ca9-57ee2fdf320f'),
             to,
             subject,
             body,

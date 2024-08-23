@@ -6,7 +6,6 @@ import { UserRepository } from '@/domain/user/repositories/user-repository'
 import { HashGenerator } from '@/domain/cryptografy/hash-generator'
 import { UserAlreadyExistsError } from '@/domain/user/use-cases/errors/user-already-exists-error'
 import { SendAndCreateEmailUseCase } from '@/domain/email/use-cases/send-and-create-email'
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
 interface CreateUserUseCaseRequest {
   name: string
@@ -62,7 +61,6 @@ export class CreateUserUseCase {
 
     //envio e criação do e-mail
     const userEmail = Email.create({
-      businessId: new UniqueEntityID('38920572-b3b4-478d-9ca9-57ee2fdf320f'),
       to: user.email,
       subject: 'Confirmação de cadastro',
       body: 'Sua conta foi criada com sucesso. Por favor, confirme sua conta clicando no link abaixo.',

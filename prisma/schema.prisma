@@ -14,20 +14,19 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(uuid())
+  id              String         @id @default(uuid())
   name            String
-  email           String    @unique
+  email           String         @unique
   password        String
   status          String
-  photoFileId     String?   @map("photo_file_id")
-  defaultBusiness String?   @map("default_business")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updateAt        DateTime? @updatedAt @map("updated_at")
-  Business        Business? @relation(fields: [defaultBusiness], references: [id])
-  File            File?     @relation(fields: [photoFileId], references: [id])
-
-  UserBusiness UserBusiness[]
-  UserTerms    UserTerms[]
+  photoFileId     String?        @map("photo_file_id")
+  defaultBusiness String?        @map("default_business")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updateAt        DateTime?      @updatedAt @map("updated_at")
+  Business        Business?      @relation(fields: [defaultBusiness], references: [id])
+  File            File?          @relation(fields: [photoFileId], references: [id])
+  UserBusiness    UserBusiness[]
+  UserTerms       UserTerms[]
 
   @@map("users")
 }
@@ -72,28 +71,29 @@ model UserBusiness {
 }
 
 model Business {
-  id            String       @id @default(uuid())
-  marketplaceId String       @map("marketplace_id")
+  id            String    @id @default(uuid())
+  marketplaceId String    @map("marketplace_id")
   name          String
   email         String
   phone         String
-  document      String       @unique
+  document      String    @unique
   ie            String?
   im            String?
-  addressLine1  String       @map("address_line1")
-  addressLine2  String       @map("address_line2")
-  addressLine3  String?      @map("address_line3")
+  addressLine1  String    @map("address_line1")
+  addressLine2  String    @map("address_line2")
+  addressLine3  String?   @map("address_line3")
   neighborhood  String
-  postalCode    String       @map("postal_code")
-  countryCode   String       @map("country_code")
+  postalCode    String    @map("postal_code")
+  countryCode   String    @map("country_code")
   state         String
   city          String
-  businessType  String       @map("business_type")
-  businessSize  String       @map("business_syze")
+  businessType  String    @map("business_type")
+  businessSize  String    @map("business_syze")
   status        String
-  createdAt     DateTime     @default(now()) @map("created_at")
-  updateAt      DateTime?    @updatedAt @map("updated_at")
-  marketplace   Marketplaces @relation(fields: [marketplaceId], references: [id])
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updateAt      DateTime? @updatedAt @map("updated_at")
+
+  marketplace Marketplaces @relation(fields: [marketplaceId], references: [id])
 
   Person               Person[]
   UserBusiness         UserBusiness[]
@@ -104,21 +104,48 @@ model Business {
   ItemGroup            ItemGroup[]
   ItemTaxation         ItemTaxation[]
   User                 User[]
-  Files                File[]
   Email                Email[]
+  File                 File[]
 
   @@map("business")
 }
 
-model BusinessOwners {
+model File {
   id         String    @id @default(uuid())
-  businessId String    @map("business_id")
-  personId   String    @map("person_id")
-  ownerType  String    @map("owner_type")
+  businessId String
+  title      String
+  url        String
   createdAt  DateTime  @default(now()) @map("created_at")
-  updateAt   DateTime? @updatedAt @map("updated_at")
-  business   Business  @relation(fields: [businessId], references: [id])
-  persons    Person    @relation(fields: [personId], references: [id])
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+
+  User User[]
+
+  @@map("files")
+}
+
+model BusinessOwners {
+  id           String  @id @default(uuid())
+  businessId   String  @map("business_id")
+  name         String
+  email        String
+  phone        String
+  document     String
+  addressLine1 String  @map("address_line1")
+  addressLine2 String  @map("address_line2")
+  addressLine3 String? @map("address_line3")
+  neighborhood String
+  postalCode   String  @map("postal_code")
+  countryCode  String  @map("country_code")
+  state        String
+  city         String
+  status       String
+  ownerType    String  @map("owner_type")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updateAt  DateTime? @updatedAt @map("updated_at")
+  business  Business  @relation(fields: [businessId], references: [id])
 
   @@map("business_owners")
 }
@@ -202,8 +229,6 @@ model Person {
   updateAt     DateTime? @updatedAt @map("updated_at")
   business     Business  @relation(fields: [businessId], references: [id])
 
-  BusinessOwners BusinessOwners[]
-
   @@unique([businessId, document], name: "documentIdentifier")
   @@map("persons")
 }
@@ -267,29 +292,16 @@ model PriceList {
   @@map("price_list")
 }
 
-model File {
-  id         String    @id @default(uuid())
-  businessId String    @map("business_id")
-  title      String
-  url        String
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime? @updatedAt @map("updated_at")
-  business   Business  @relation(fields: [businessId], references: [id])
-  User       User[]
-
-  @@map("files")
-}
-
 model Email {
   id         String    @id @default(uuid())
-  businessId String    @map("business_id")
+  businessId String?   @map("business_id")
   to         String
   subject    String
   body       String
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  business   Business  @relation(fields: [businessId], references: [id])
+  business   Business? @relation(fields: [businessId], references: [id])
 
   @@map("emails")
 }

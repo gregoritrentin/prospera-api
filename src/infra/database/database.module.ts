@@ -23,6 +23,8 @@ import { FileRepository } from '@/domain/file/repository/file-repository';
 import { PrismaFilesRepository } from './prisma/repositories/prisma-file-repository';
 import { EmailRepository } from '@/domain/email/repositories/email-repository';
 import { PrismaEmailRepository } from './prisma/repositories/prisma-email-repository';
+import { BusinessOwnerRepository } from '@/domain/business/repository/business-owner-repository';
+import { PrismaBusinessOwnerRepository } from './prisma/repositories/prisma-business-owner-repository';
 
 
 
@@ -33,6 +35,11 @@ import { PrismaEmailRepository } from './prisma/repositories/prisma-email-reposi
         {
             provide: BusinessRepository,
             useClass: PrismaBusinessRepository,
+
+        },
+        {
+            provide: BusinessOwnerRepository,
+            useClass: PrismaBusinessOwnerRepository,
 
         },
         {
@@ -93,6 +100,7 @@ import { PrismaEmailRepository } from './prisma/repositories/prisma-email-reposi
         AppRepository,
         UserBusinessRepository,
         BusinessRepository,
+        BusinessOwnerRepository,
         PersonRepository,
         ItemRepository,
         ItemGroupRepository,

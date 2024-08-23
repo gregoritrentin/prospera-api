@@ -101,6 +101,30 @@ export class Item extends AggregateRoot<ItemProps> {
         this.touch()
     }
 
+    set ncm(ncm: string | undefined | null) {
+        if (ncm === undefined && ncm === null) {
+            return
+        }
+        this.props.ncm = ncm
+        this.touch()
+    }
+
+    set taxationId(taxationId: string | undefined | null) {
+        if (taxationId === undefined && taxationId === null) {
+            return
+        }
+        this.props.taxationId = taxationId
+        this.touch()
+    }
+
+    set groupId(groupId: string | undefined | null) {
+        if (groupId === undefined && groupId === null) {
+            return
+        }
+        this.props.ncm = groupId
+        this.touch()
+    }
+
     static create(
         props: Optional<ItemProps, 'createdAt'>,
         id?: UniqueEntityID,
@@ -109,9 +133,7 @@ export class Item extends AggregateRoot<ItemProps> {
             {
                 ...props,
                 createdAt: props.createdAt ?? new Date(),
-                taxationId: props.taxationId ?? null,
-                groupId: props.groupId ?? null,
-                ncm: props.ncm ?? null,
+
             },
             id,
         )

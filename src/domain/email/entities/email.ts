@@ -3,7 +3,7 @@ import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Optional } from '@/core/types/optional'
 
 export interface EmailProps {
-    businessId: UniqueEntityID
+    businessId?: UniqueEntityID
     to: string
     subject: string
     body: string
@@ -38,7 +38,7 @@ export class Email extends Entity<EmailProps> {
 
     static create(
         props: Optional<EmailProps, 'createdAt'>,
-        id?: UniqueEntityID,
+        id?: UniqueEntityID
     ) {
         const email = new Email(
             {
