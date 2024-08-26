@@ -77,11 +77,11 @@ CREATE TABLE "business" (
 -- CreateTable
 CREATE TABLE "files" (
     "id" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "url" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
-    "businessId" TEXT NOT NULL,
 
     CONSTRAINT "files_pkey" PRIMARY KEY ("id")
 );
@@ -90,6 +90,19 @@ CREATE TABLE "files" (
 CREATE TABLE "business_owners" (
     "id" TEXT NOT NULL,
     "business_id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "document" TEXT NOT NULL,
+    "address_line1" TEXT NOT NULL,
+    "address_line2" TEXT NOT NULL,
+    "address_line3" TEXT,
+    "neighborhood" TEXT NOT NULL,
+    "postal_code" TEXT NOT NULL,
+    "country_code" TEXT NOT NULL,
+    "state" TEXT NOT NULL,
+    "city" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
     "owner_type" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
@@ -232,7 +245,7 @@ CREATE TABLE "price_list" (
 -- CreateTable
 CREATE TABLE "emails" (
     "id" TEXT NOT NULL,
-    "business_id" TEXT NOT NULL,
+    "business_id" TEXT,
     "to" TEXT NOT NULL,
     "subject" TEXT NOT NULL,
     "body" TEXT NOT NULL,
@@ -319,4 +332,4 @@ ALTER TABLE "item_group" ADD CONSTRAINT "item_group_business_id_fkey" FOREIGN KE
 ALTER TABLE "item_taxation" ADD CONSTRAINT "item_taxation_business_id_fkey" FOREIGN KEY ("business_id") REFERENCES "business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "emails" ADD CONSTRAINT "emails_business_id_fkey" FOREIGN KEY ("business_id") REFERENCES "business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "emails" ADD CONSTRAINT "emails_business_id_fkey" FOREIGN KEY ("business_id") REFERENCES "business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
