@@ -12,5 +12,6 @@ import { EnvModule } from '../env/env.module'
         },
     ],
     exports: [EmailSender],
+
 })
 export class EmailModule { }
