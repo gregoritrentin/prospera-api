@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common'
 import { PrismaService } from './prisma/prisma.service';
 
-import { BusinessRepository } from '@/domain/business/repository/business-repository';
-import { AppRepository } from '@/domain/app/repository/app-repository';
-import { UserRepository } from '@/domain/user/repositories/user-repository';
-import { UserBusinessRepository } from '@/domain/user/repositories/user-business-repository';
+import { BusinessRepository } from '@/domain/core/repositories/business-repository';
+import { AppRepository } from '@/domain/core/repositories/app-repository';
+import { UserRepository } from '@/domain/core/repositories/user-repository';
+import { UserBusinessRepository } from '@/domain/core/repositories/user-business-repository';
 import { PersonRepository } from '@/domain/person/repositories/person-repository';
-import { MarketplaceRepository } from '@/domain/business/repository/marketplace-repository';
+import { MarketplaceRepository } from '@/domain/core/repositories/marketplace-repository';
 import { PrismaMarketplaceRepository } from './prisma/repositories/prisma-marketplace-repository';
 import { PrismaBusinessRepository } from './prisma/repositories/prisma-business-repository';
 import { PrismaUserRepository } from '@/infra/database/prisma/repositories/prisma-user-repository';
@@ -23,8 +23,14 @@ import { FileRepository } from '@/domain/file/repository/file-repository';
 import { PrismaFilesRepository } from './prisma/repositories/prisma-file-repository';
 import { EmailRepository } from '@/domain/email/repositories/email-repository';
 import { PrismaEmailRepository } from './prisma/repositories/prisma-email-repository';
-import { BusinessOwnerRepository } from '@/domain/business/repository/business-owner-repository';
+import { BusinessOwnerRepository } from '@/domain/core/repositories/business-owner-repository';
 import { PrismaBusinessOwnerRepository } from './prisma/repositories/prisma-business-owner-repository';
+import { TermRepository } from '@/domain/core/repositories/term-repository';
+import { PrismaTermRepository } from './prisma/repositories/prisma-term-repository';
+import { UserTermRepository } from '@/domain/core/repositories/user-term-repository';
+import { PrismaUserTermRepository } from './prisma/prisma-user-term-repository';
+import { BusinessAppRepository } from '@/domain/core/repositories/business-app-repository';
+import { PrismaBusinessAppRepository } from './prisma/repositories/prisma-business-app-repository';
 
 
 
@@ -38,8 +44,34 @@ import { PrismaBusinessOwnerRepository } from './prisma/repositories/prisma-busi
 
         },
         {
+            provide: UserBusinessRepository,
+            useClass: PrismaUserBusinessRepository,
+
+        },
+        {
             provide: BusinessOwnerRepository,
             useClass: PrismaBusinessOwnerRepository,
+
+        },
+        {
+            provide: BusinessAppRepository,
+            useClass: PrismaBusinessAppRepository,
+
+        },
+        {
+            provide: MarketplaceRepository,
+            useClass: PrismaMarketplaceRepository,
+
+        },
+
+        {
+            provide: AppRepository,
+            useClass: PrismaAppRepository,
+
+        },
+        {
+            provide: TermRepository,
+            useClass: PrismaTermRepository,
 
         },
         {
@@ -48,18 +80,23 @@ import { PrismaBusinessOwnerRepository } from './prisma/repositories/prisma-busi
 
         },
         {
-            provide: PersonRepository,
-            useClass: PrismaPersonRepository,
-
-        },
-        {
-            provide: MarketplaceRepository,
-            useClass: PrismaMarketplaceRepository,
+            provide: UserTermRepository,
+            useClass: PrismaUserTermRepository,
 
         },
         {
             provide: UserRepository,
             useClass: PrismaUserRepository,
+
+        },
+        {
+            provide: FileRepository,
+            useClass: PrismaFilesRepository,
+
+        },
+        {
+            provide: EmailRepository,
+            useClass: PrismaEmailRepository,
 
         },
         {
@@ -78,18 +115,8 @@ import { PrismaBusinessOwnerRepository } from './prisma/repositories/prisma-busi
 
         },
         {
-            provide: UserBusinessRepository,
-            useClass: PrismaUserBusinessRepository,
-
-        },
-        {
-            provide: FileRepository,
-            useClass: PrismaFilesRepository,
-
-        },
-        {
-            provide: EmailRepository,
-            useClass: PrismaEmailRepository,
+            provide: PersonRepository,
+            useClass: PrismaPersonRepository,
 
         },
 
@@ -100,12 +127,15 @@ import { PrismaBusinessOwnerRepository } from './prisma/repositories/prisma-busi
         AppRepository,
         UserBusinessRepository,
         BusinessRepository,
+        BusinessAppRepository,
+        TermRepository,
+        UserTermRepository,
+        MarketplaceRepository,
         BusinessOwnerRepository,
         PersonRepository,
         ItemRepository,
         ItemGroupRepository,
         ItemTaxationRepository,
-        MarketplaceRepository,
 
         FileRepository,
         EmailRepository,

@@ -1,5 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { BusinessOwner } from '@/domain/business/entities/business-owner'
+import { BusinessOwner } from '@/domain/core/entities/business-owner'
 import { BusinessOwners as PrismaBusinessOwner, Prisma } from '@prisma/client'
 
 export class PrismaBusinessOwnerMapper {

@@ -1,5 +1,5 @@
 //import { UserBusiness } from "@/domain/user/entities/user-business";
-import { UserBusinessDetails } from "@/domain/user/entities/value-objects/user-business-details";
+import { UserBusinessDetails } from "@/domain/core/entities/value-objects/user-business-details";
 
 export class UserBusinessDetailsPresenter {
     static toHttp(userBusinessDetails: UserBusinessDetails) {

@@ -36,10 +36,7 @@ export class PrismaPersonRepository implements PersonRepository {
             where: {
                 businessId,
             },
-            include: {
-                business: true
 
-            },
             skip: (page - 1) * 20,
         })
 

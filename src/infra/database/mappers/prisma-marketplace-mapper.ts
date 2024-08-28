@@ -1,5 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { Marketplace } from '@/domain/business/entities/marketplace'
+import { Marketplace } from '@/domain/core/entities/marketplace'
 import { Marketplaces as PrismaMarketplace, Prisma } from '@prisma/client'
 
 export class PrismaMarketplaceMapper {

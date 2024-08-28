@@ -1,5 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { UserBusinessDetails } from '@/domain/user/entities/value-objects/user-business-details'
+import { UserBusinessDetails } from '@/domain/core/entities/value-objects/user-business-details'
 import { User as PrismaUser, Business as PrismaBusiness, UserBusiness as PrismaUserBusiness, Prisma } from '@prisma/client'
 
 type PrismaUserDetailsBusiness = PrismaUserBusiness & {

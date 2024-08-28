@@ -1,6 +1,6 @@
 import { PaginationParams } from "@/core/repositories/pagination-params";
-import { MarketplaceRepository } from "@/domain/business/repository/marketplace-repository";
-import { Marketplace } from "@/domain/business/entities/marketplace";
+import { MarketplaceRepository } from "@/domain/core/repositories/marketplace-repository";
+import { Marketplace } from "@/domain/core/entities/marketplace";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { PrismaMarketplaceMapper } from "../../mappers/prisma-marketplace-mapper";
@@ -34,6 +34,7 @@ export class PrismaMarketplaceRepository implements MarketplaceRepository {
 
 
     }
+
     async save(marketplace: Marketplace): Promise<void> {
         const data = PrismaMarketplaceMapper.toPrisma(marketplace)
 
@@ -44,6 +45,7 @@ export class PrismaMarketplaceRepository implements MarketplaceRepository {
             data,
         })
     }
+
     async create(marketplace: Marketplace): Promise<void> {
         const data = PrismaMarketplaceMapper.toPrisma(marketplace)
 

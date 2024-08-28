@@ -1,6 +1,6 @@
 import { PaginationParams } from "@/core/repositories/pagination-params";
-import { BusinessRepository } from "@/domain/business/repository/business-repository";
-import { Business } from "@/domain/business/entities/business";
+import { BusinessRepository } from "@/domain/core/repositories/business-repository";
+import { Business } from "@/domain/core/entities/business";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { PrismaBusinessMapper } from "../../mappers/prisma-business-mapper";
@@ -8,6 +8,7 @@ import { PrismaBusinessMapper } from "../../mappers/prisma-business-mapper";
 @Injectable()
 export class PrismaBusinessRepository implements BusinessRepository {
     constructor(private prisma: PrismaService) { }
+
     async findById(id: string): Promise<Business | null> {
         const business = await this.prisma.business.findUnique({
             where: {
@@ -32,6 +33,7 @@ export class PrismaBusinessRepository implements BusinessRepository {
         return user.map(PrismaBusinessMapper.toDomain)
 
     }
+
     async findMany({ page }: PaginationParams): Promise<Business[]> {
         const business = await this.prisma.business.findMany({
             orderBy: {
@@ -45,6 +47,7 @@ export class PrismaBusinessRepository implements BusinessRepository {
 
 
     }
+
     async save(business: Business): Promise<void> {
         const data = PrismaBusinessMapper.toPrisma(business)
 
@@ -55,6 +58,7 @@ export class PrismaBusinessRepository implements BusinessRepository {
             data,
         })
     }
+
     async create(business: Business): Promise<void> {
         const data = PrismaBusinessMapper.toPrisma(business)
 

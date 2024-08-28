@@ -33,7 +33,10 @@ model User {
 
 model Terms {
   id        String    @id @default(uuid())
-  term      String
+  title     String
+  content   String
+  language  String
+  startAt   DateTime
   createdAt DateTime  @default(now()) @map("created_at")
   updateAt  DateTime? @updatedAt @map("updated_at")
 
@@ -46,12 +49,13 @@ model UserTerms {
   id        String    @id @default(uuid())
   userId    String    @map("user_id")
   termId    String    @map("term_id")
+  ip        String
   createdAt DateTime  @default(now()) @map("created_at")
   updateAt  DateTime? @updatedAt @map("updated_at")
   term      Terms     @relation(fields: [termId], references: [id])
   user      User      @relation(fields: [userId], references: [id])
 
-  @@unique([userId, termId], name: "userTermsIdentifier")
+  @@unique([userId, termId], name: "userTermIdentifier")
   @@map("user_terms")
 }
 
@@ -170,6 +174,8 @@ model App {
   name        String
   description String
   price       Float
+  quantity    Float
+  type        String
   status      String
   createdAt   DateTime  @default(now()) @map("created_at")
   updateAt    DateTime? @updatedAt @map("updated_at")
@@ -182,7 +188,7 @@ model App {
 model BusinessApps {
   id         String    @id @default(uuid())
   businessId String    @map("business_id")
-  appsId     String    @map("apps_id")
+  appId      String    @map("app_id")
   price      Float
   quantity   Int
   status     String
@@ -190,7 +196,7 @@ model BusinessApps {
   updateAt   DateTime? @updatedAt @map("updated_at")
 
   business Business @relation(fields: [businessId], references: [id])
-  apps     App      @relation(fields: [appsId], references: [id])
+  apps     App      @relation(fields: [appId], references: [id])
 
   @@map("business_apps")
 }

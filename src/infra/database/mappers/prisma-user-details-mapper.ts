@@ -1,5 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { UserDetails } from '@/domain/user/entities/value-objects/user-details'
+import { UserDetails } from '@/domain/core/entities/value-objects/user-details'
 import { User as PrismaUser, File as PrismaFile } from '@prisma/client'
 
 type PrismaUserDetails = PrismaUser & {

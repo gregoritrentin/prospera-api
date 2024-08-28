@@ -1,8 +1,8 @@
 import { PaginationParams } from "@/core/repositories/pagination-params";
-import { App } from "@/domain/app/entities/app";
+import { App } from '@/domain/core/entities/app'
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-import { AppRepository } from "@/domain/app/repository/app-repository";
+import { AppRepository } from "@/domain/core/repositories/app-repository";
 import { PrismaAppMapper } from "@/infra/database/mappers/prisma-app-mapper";
 
 @Injectable()

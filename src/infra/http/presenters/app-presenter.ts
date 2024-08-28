@@ -1,4 +1,4 @@
-import { App } from "@/domain/app/entities/app";
+import { App } from "@/domain/core/entities/app";
 
 export class AppPresenter {
     static toHttp(app: App) {
@@ -6,6 +6,8 @@ export class AppPresenter {
             name: app.name,
             description: app.description,
             price: app.price,
+            quantity: app.quantity,
+            type: app.type,
             status: app.status,
             createdAt: app.createdAt,
             updatedAt: app.updatedAt

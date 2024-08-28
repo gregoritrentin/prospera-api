@@ -1,4 +1,4 @@
-import { UserBusiness } from "@/domain/user/entities/user-business";
+import { UserBusiness } from "@/domain/core/entities/user-business";
 
 export class UserBusinessPresenter {
     static toHttp(userBusiness: UserBusiness) {
