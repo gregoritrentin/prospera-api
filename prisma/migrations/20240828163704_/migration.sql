@@ -16,7 +16,10 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "terms" (
     "id" TEXT NOT NULL,
-    "term" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "language" TEXT NOT NULL,
+    "startAt" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
 
@@ -28,6 +31,7 @@ CREATE TABLE "user_terms" (
     "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "term_id" TEXT NOT NULL,
+    "ip" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
 
@@ -131,6 +135,8 @@ CREATE TABLE "apps" (
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
+    "quantity" DOUBLE PRECISION NOT NULL,
+    "type" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
@@ -142,7 +148,7 @@ CREATE TABLE "apps" (
 CREATE TABLE "business_apps" (
     "id" TEXT NOT NULL,
     "business_id" TEXT NOT NULL,
-    "apps_id" TEXT NOT NULL,
+    "app_id" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "quantity" INTEGER NOT NULL,
     "status" TEXT NOT NULL,
@@ -311,7 +317,7 @@ ALTER TABLE "business_bank_accounts" ADD CONSTRAINT "business_bank_accounts_busi
 ALTER TABLE "business_apps" ADD CONSTRAINT "business_apps_business_id_fkey" FOREIGN KEY ("business_id") REFERENCES "business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "business_apps" ADD CONSTRAINT "business_apps_apps_id_fkey" FOREIGN KEY ("apps_id") REFERENCES "apps"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "business_apps" ADD CONSTRAINT "business_apps_app_id_fkey" FOREIGN KEY ("app_id") REFERENCES "apps"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "persons" ADD CONSTRAINT "persons_business_id_fkey" FOREIGN KEY ("business_id") REFERENCES "business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
