@@ -32,7 +32,7 @@ import { EditUserController } from "@/infra/http/controllers/core/user/edit-user
 import { DeleteUserController } from "@/infra/http/controllers/core/user/delete-user.controller";
 import { FetchUserController } from "@/infra/http/controllers/core/user/fetch-user.controller";
 import { GetUserController } from "@/infra/http/controllers/core/user/get-user.controller";
-import { UploadPhotoController } from "@/infra/http/controllers/core/user/upload-user-photo.controller";
+import { SetUserPhotoController } from "@/infra/http/controllers/core/user/set-user-photo.controller";
 
 import { AuthenticateUserUseCase } from "@/domain/core/use-cases/authenticate-user";
 import { AuthenticateBusinessUseCase } from "@/domain/core/use-cases/authenticate-business";
@@ -176,7 +176,7 @@ import { SignUpController } from "./controllers/core/sign-up.controller";
     GetBusinessController,
 
     SetDefaultBusinessController,
-    UploadPhotoController,
+    SetUserPhotoController,
 
     //business
     CreateBusinessController,

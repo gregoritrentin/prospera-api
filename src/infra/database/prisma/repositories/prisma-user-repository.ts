@@ -75,7 +75,6 @@ export class PrismaUserRepository implements UserRepository {
 
   }
 
-
   async create(user: User): Promise<void> {
     const data = PrismaUserMapper.toPrisma(user)
 
@@ -104,7 +103,7 @@ export class PrismaUserRepository implements UserRepository {
     })
   }
 
-  async setphoto(userId: string, photoFileId: string): Promise<void> {
+  async setPhoto(userId: string, photoFileId: string): Promise<void> {
     await this.prisma.user.update({
       where: {
         id: userId,

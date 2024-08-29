@@ -10,6 +10,8 @@ export interface BusinessProps {
   email: string
   phone: string
   document: string
+  ie?: string | null
+  im?: string | null
   addressLine1: string
   addressLine2: string
   addressLine3?: string | null | undefined
@@ -19,6 +21,8 @@ export interface BusinessProps {
   state: string
   city: string
   status: string
+  logoFileId?: string | null
+  digitalCertificateFileId?: string | null
   businessSize: string
   businessType: string
   createdAt: Date
@@ -46,6 +50,14 @@ export class Business extends AggregateRoot<BusinessProps> {
 
   get document() {
     return this.props.document
+  }
+
+  get ie() {
+    return this.props.ie
+  }
+
+  get im() {
+    return this.props.im
   }
 
   get addressLine1() {
@@ -82,6 +94,14 @@ export class Business extends AggregateRoot<BusinessProps> {
 
   get status() {
     return this.props.status
+  }
+
+  get logoFileId() {
+    return this.props.logoFileId
+  }
+
+  get digitalCertificateFileId() {
+    return this.props.digitalCertificateFileId
   }
 
   get businessSize() {
@@ -126,6 +146,22 @@ export class Business extends AggregateRoot<BusinessProps> {
 
   set document(document: string) {
     this.props.document = document
+    this.touch()
+  }
+
+  set ie(ie: string | undefined | null) {
+    if (ie === undefined && ie === null) {
+      return
+    }
+    this.props.addressLine3 = ie
+    this.touch()
+  }
+
+  set im(im: string | undefined | null) {
+    if (im === undefined && im === null) {
+      return
+    }
+    this.props.addressLine3 = im
     this.touch()
   }
 
@@ -184,6 +220,22 @@ export class Business extends AggregateRoot<BusinessProps> {
 
   set status(status: string) {
     this.props.status = status
+    this.touch()
+  }
+
+  set logoFileId(logoFileId: string | undefined | null) {
+    if (logoFileId === undefined && logoFileId === null) {
+      return
+    }
+    this.props.logoFileId = logoFileId
+    this.touch()
+  }
+
+  set digitalCertificateFileId(digitalCertificateFileId: string | undefined | null) {
+    if (digitalCertificateFileId === undefined && digitalCertificateFileId === null) {
+      return
+    }
+    this.props.digitalCertificateFileId = digitalCertificateFileId
     this.touch()
   }
 

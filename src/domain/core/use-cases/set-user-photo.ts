@@ -38,7 +38,7 @@ export class SetUserPhotoUseCase {
 
         user.photoFileId = photoFileId
 
-        await this.userRepository.setphoto(userId, photoFileId)
+        await this.userRepository.setPhoto(userId, photoFileId)
 
         return right({
             user,

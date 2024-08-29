@@ -88,4 +88,16 @@ export class PrismaBusinessRepository implements BusinessRepository {
             }
         })
     }
+
+    async setLogo(businessId: string, logoFileId: string): Promise<void> {
+        await this.prisma.business.update({
+            where: {
+                id: businessId,
+            },
+            data: {
+                logoFileId: logoFileId
+            }
+
+        })
+    }
 }

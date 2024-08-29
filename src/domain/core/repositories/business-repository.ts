@@ -9,4 +9,5 @@ export abstract class BusinessRepository {
   abstract save(business: Business): Promise<void>
   abstract create(business: Business): Promise<void>
   abstract delete(business: Business): Promise<void>
+  abstract setLogo(businessId: string, logoFileId: string): Promise<void>
 }

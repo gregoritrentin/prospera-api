@@ -75,27 +75,30 @@ model UserBusiness {
 }
 
 model Business {
-  id            String    @id @default(uuid())
-  marketplaceId String    @map("marketplace_id")
-  name          String
-  email         String
-  phone         String
-  document      String    @unique
-  ie            String?
-  im            String?
-  addressLine1  String    @map("address_line1")
-  addressLine2  String    @map("address_line2")
-  addressLine3  String?   @map("address_line3")
-  neighborhood  String
-  postalCode    String    @map("postal_code")
-  countryCode   String    @map("country_code")
-  state         String
-  city          String
-  businessType  String    @map("business_type")
-  businessSize  String    @map("business_syze")
-  status        String
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime? @updatedAt @map("updated_at")
+  id                       String  @id @default(uuid())
+  marketplaceId            String  @map("marketplace_id")
+  name                     String
+  email                    String
+  phone                    String
+  document                 String  @unique
+  ie                       String?
+  im                       String?
+  addressLine1             String  @map("address_line1")
+  addressLine2             String  @map("address_line2")
+  addressLine3             String? @map("address_line3")
+  neighborhood             String
+  postalCode               String  @map("postal_code")
+  countryCode              String  @map("country_code")
+  state                    String
+  city                     String
+  businessType             String  @map("business_type")
+  businessSize             String  @map("business_syze")
+  logoFileId               String? @map("logo_file_id")
+  digitalCertificateFileId String? @map("digital_certificate_file_id") //
+
+  status    String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
 
   marketplace Marketplaces @relation(fields: [marketplaceId], references: [id])
 

@@ -12,7 +12,7 @@ export abstract class UserRepository {
   abstract create(user: User): Promise<void>
   abstract save(user: User): Promise<void>
   abstract delete(user: User): Promise<void>
-  abstract setphoto(userId: string, photoFileId: string): Promise<void>
+  abstract setPhoto(userId: string, photoFileId: string): Promise<void>
   abstract setDefaultBusiness(userId: string, businessId: string): Promise<void>
 
 

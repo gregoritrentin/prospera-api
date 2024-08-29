@@ -22,6 +22,8 @@ const createBusinessBodySchema = z.object({
   city: z.string(),
   businessSize: z.string(),
   businessType: z.string(),
+  logoFileId: z.string().optional(),
+  digitalCertificateFileId: z.string().optional(),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(createBusinessBodySchema)
@@ -54,6 +56,8 @@ export class CreateBusinessController {
       city,
       businessSize,
       businessType,
+      logoFileId,
+      digitalCertificateFileId
 
     } = body
 
@@ -77,6 +81,8 @@ export class CreateBusinessController {
       city,
       businessSize,
       businessType,
+      logoFileId,
+      digitalCertificateFileId,
     })
 
     if (result.isLeft()) {

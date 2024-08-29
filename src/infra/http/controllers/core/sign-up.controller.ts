@@ -16,6 +16,7 @@ import { CreateBusinessUseCase } from '@/domain/core/use-cases/create-business'
 import { CreateBusinessOwnerUseCase } from '@/domain/core/use-cases/create-business-owner'
 import { SetDefaultBusinessUseCase } from '@/domain/core/use-cases/set-default-business'
 import { CreateUserTermUseCase } from '@/domain/core/use-cases/create-user-term'
+import { CreateUserBusinessUseCase } from '@/domain/core/use-cases/create-user-business';
 
 const userSchema = z.object({
     name: z.string(),
@@ -41,6 +42,8 @@ const businessSchema = z.object({
     city: z.string(),
     businessSize: z.string(),
     businessType: z.string(),
+    logoFileId: z.string().optional(),
+    digitalCertificateFileId: z.string().optional(),
 });
 
 const businessOwnerSchema = z.object({
@@ -74,6 +77,7 @@ export class SignUpController {
     constructor(
         private createUser: CreateUserUseCase,
         private createBusiness: CreateBusinessUseCase,
+        private createUserBusiness: CreateUserBusinessUseCase,
         private createBusinessOwner: CreateBusinessOwnerUseCase,
         private setDefaultBusiness: SetDefaultBusinessUseCase,
         private createUserTerm: CreateUserTermUseCase,
@@ -102,6 +106,16 @@ export class SignUpController {
         });
         if (businessResult.isLeft()) {
             throw new BadRequestException(businessResult.value.message);
+        }
+
+        //handle user business creation
+        const userBusinessResult = await this.createUserBusiness.execute({
+            userId: userResult.value.user.id.toString(),
+            businessId: businessResult.value.business.id.toString(),
+            role: 'ADMIN',
+        });
+        if (userBusinessResult.isLeft()) {
+            throw new BadRequestException('User business creation failed');
         }
 
         //handle business owner creation

@@ -18,7 +18,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 
 @Controller('user/upload-photo/:id')
-export class UploadPhotoController {
+export class SetUserPhotoController {
     constructor(
         private uploadUserPhoto: UploadAndCreateFileUseCase,
         private setUserPhoto: SetUserPhotoUseCase,

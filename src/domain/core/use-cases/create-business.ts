@@ -13,6 +13,8 @@ interface CreateBusinessUseCaseRequest {
   phone: string
   email: string
   document: string
+  ie?: string | null | undefined
+  im?: string | null | undefined
   addressLine1: string
   addressLine2: string
   addressLine3?: string | null | undefined
@@ -23,6 +25,8 @@ interface CreateBusinessUseCaseRequest {
   city: string
   businessSize: string
   businessType: string
+  logoFileId?: string | undefined
+  digitalCertificateFileId?: string | undefined
 }
 
 type CreateBusinessUseCaseResponse = Either<
@@ -44,6 +48,8 @@ export class CreateBusinessUseCase {
     phone,
     email,
     document,
+    ie,
+    im,
     addressLine1,
     addressLine2,
     addressLine3,
@@ -54,6 +60,8 @@ export class CreateBusinessUseCase {
     city,
     businessSize,
     businessType,
+    logoFileId,
+    digitalCertificateFileId
 
   }: CreateBusinessUseCaseRequest): Promise<CreateBusinessUseCaseResponse> {
 
@@ -69,6 +77,8 @@ export class CreateBusinessUseCase {
       phone,
       email,
       document,
+      ie,
+      im,
       addressLine1,
       addressLine2,
       addressLine3,
@@ -80,6 +90,9 @@ export class CreateBusinessUseCase {
       status: 'INACTIVE',
       businessSize,
       businessType,
+      logoFileId,
+      digitalCertificateFileId
+
     })
 
     await this.businesssRepository.create(business)

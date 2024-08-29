@@ -48,6 +48,8 @@ export class EditBusinessUseCase {
         phone,
         email,
         document,
+        ie,
+        im,
         addressLine1,
         addressLine2,
         addressLine3,
@@ -72,6 +74,8 @@ export class EditBusinessUseCase {
         business.phone = phone
         business.email = email
         business.document = document
+        business.ie = ie
+        business.im = im
         business.addressLine1 = addressLine1
         business.addressLine2 = addressLine2
         business.addressLine3 = addressLine3
