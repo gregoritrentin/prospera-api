@@ -11,7 +11,7 @@ export class PrismaBusinessAppMapper {
             quantity: raw.quantity,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -26,7 +26,7 @@ export class PrismaBusinessAppMapper {
             quantity: businessApp.quantity,
             status: businessApp.status,
             createdAt: businessApp.createdAt,
-            updateAt: businessApp.updatedAt,
+            updatedAt: businessApp.updatedAt,
         }
     }
 }

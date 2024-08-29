@@ -26,7 +26,7 @@ export class PrismaPersonDetailsMapper {
             status: raw.status,
             notes: raw.notes,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         })
     }
 }

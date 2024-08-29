@@ -21,7 +21,7 @@ export class PrismaBusinessOwnerMapper {
             status: raw.status,
             ownerType: raw.ownerType,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -46,7 +46,7 @@ export class PrismaBusinessOwnerMapper {
             status: businessOwner.status,
             ownerType: businessOwner.ownerType,
             createdAt: businessOwner.createdAt,
-            updateAt: businessOwner.updatedAt,
+            updatedAt: businessOwner.updatedAt,
         }
     }
 }

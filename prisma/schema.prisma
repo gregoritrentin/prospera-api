@@ -22,7 +22,7 @@ model User {
   photoFileId     String?        @map("photo_file_id")
   defaultBusiness String?        @map("default_business")
   createdAt       DateTime       @default(now()) @map("created_at")
-  updateAt        DateTime?      @updatedAt @map("updated_at")
+  updatedAt       DateTime?      @updatedAt @map("updated_at")
   Business        Business?      @relation(fields: [defaultBusiness], references: [id])
   File            File?          @relation(fields: [photoFileId], references: [id])
   UserBusiness    UserBusiness[]
@@ -38,7 +38,7 @@ model Terms {
   language  String
   startAt   DateTime
   createdAt DateTime  @default(now()) @map("created_at")
-  updateAt  DateTime? @updatedAt @map("updated_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
 
   UserTerms UserTerms[]
 
@@ -51,7 +51,7 @@ model UserTerms {
   termId    String    @map("term_id")
   ip        String
   createdAt DateTime  @default(now()) @map("created_at")
-  updateAt  DateTime? @updatedAt @map("updated_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
   term      Terms     @relation(fields: [termId], references: [id])
   user      User      @relation(fields: [userId], references: [id])
 
@@ -66,7 +66,7 @@ model UserBusiness {
   role       String
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
-  updateAt   DateTime? @updatedAt @map("updated_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
   business   Business  @relation(fields: [businessId], references: [id])
   user       User      @relation(fields: [userId], references: [id])
 
@@ -95,7 +95,7 @@ model Business {
   businessSize  String    @map("business_syze")
   status        String
   createdAt     DateTime  @default(now()) @map("created_at")
-  updateAt      DateTime? @updatedAt @map("updated_at")
+  updatedAt     DateTime? @updatedAt @map("updated_at")
 
   marketplace Marketplaces @relation(fields: [marketplaceId], references: [id])
 
@@ -110,6 +110,7 @@ model Business {
   User                 User[]
   Email                Email[]
   File                 File[]
+  BusinessPlan         BusinessPlan[]
 
   @@map("business")
 }
@@ -148,7 +149,7 @@ model BusinessOwners {
   ownerType    String  @map("owner_type")
 
   createdAt DateTime  @default(now()) @map("created_at")
-  updateAt  DateTime? @updatedAt @map("updated_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
   business  Business  @relation(fields: [businessId], references: [id])
 
   @@map("business_owners")
@@ -163,10 +164,37 @@ model BusinessBankAccounts {
   status     String
   type       String
   createdAt  DateTime  @default(now()) @map("created_at")
-  updateAt   DateTime? @updatedAt @map("updated_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
   business   Business  @relation(fields: [businessId], references: [id])
 
   @@map("business_bank_accounts")
+}
+
+model Plan {
+  id           String         @id @default(uuid())
+  name         String
+  description  String?
+  price        Float
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime?      @updatedAt @map("updated_at")
+  BusinessPlan BusinessPlan[]
+
+  @@map("plans")
+}
+
+model BusinessPlan {
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  planId     String    @map("plan_id")
+  price      Float
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+  business   Business  @relation(fields: [businessId], references: [id])
+  plan       Plan      @relation(fields: [planId], references: [id])
+
+  @@unique([businessId, planId, status], name: "businessPlanIdentifier")
+  @@map("business_plans")
 }
 
 model App {
@@ -178,7 +206,7 @@ model App {
   type        String
   status      String
   createdAt   DateTime  @default(now()) @map("created_at")
-  updateAt    DateTime? @updatedAt @map("updated_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
 
   BusinessApps BusinessApps[]
 
@@ -193,7 +221,7 @@ model BusinessApps {
   quantity   Int
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
-  updateAt   DateTime? @updatedAt @map("updated_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
 
   business Business @relation(fields: [businessId], references: [id])
   apps     App      @relation(fields: [appId], references: [id])
@@ -206,11 +234,11 @@ model Marketplaces {
   name      String    @unique
   status    String
   createdAt DateTime  @default(now()) @map("created_at")
-  updateAt  DateTime? @updatedAt @map("updated_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
 
   Business Business[]
 
-  @@map("marketpaces")
+  @@map("marketplaces")
 }
 
 model Person {
@@ -232,7 +260,7 @@ model Person {
   notes        String?
   status       String
   createdAt    DateTime  @default(now()) @map("created_at")
-  updateAt     DateTime? @updatedAt @map("updated_at")
+  updatedAt    DateTime? @updatedAt @map("updated_at")
   business     Business  @relation(fields: [businessId], references: [id])
 
   @@unique([businessId, document], name: "documentIdentifier")
@@ -252,7 +280,7 @@ model Item {
   taxationId  String?   @map("taxation_id")
   ncm         String?
   createdAt   DateTime  @default(now()) @map("created_at")
-  updateAt    DateTime? @updatedAt @map("updated_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
 
   business     Business      @relation(fields: [businessId], references: [id])
   itemGroup    ItemGroup?    @relation(fields: [groupId], references: [id])
@@ -268,7 +296,7 @@ model ItemGroup {
   group      String
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
-  updateAt   DateTime? @updatedAt @map("updated_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
   business   Business  @relation(fields: [businessId], references: [id])
   item       Item[]
 
@@ -281,7 +309,7 @@ model ItemTaxation {
   taxation   String
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
-  updateAt   DateTime? @updatedAt @map("updated_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
   business   Business  @relation(fields: [businessId], references: [id])
   item       Item[]
 
@@ -293,7 +321,7 @@ model PriceList {
   priceList String    @map("price_list")
   status    String
   createdAt DateTime  @default(now()) @map("created_at")
-  updateAt  DateTime? @updatedAt @map("updated_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
 
   @@map("price_list")
 }

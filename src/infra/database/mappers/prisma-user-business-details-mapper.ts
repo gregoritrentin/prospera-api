@@ -18,7 +18,7 @@ export class PrismaUserBusinessDetailsMapper {
             role: raw.role,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
 
         )

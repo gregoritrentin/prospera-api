@@ -8,7 +8,7 @@ export class PrismaMarketplaceMapper {
             name: raw.name,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -20,7 +20,7 @@ export class PrismaMarketplaceMapper {
             name: marketplace.name,
             status: marketplace.status,
             createdAt: marketplace.createdAt,
-            updateAt: marketplace.updatedAt,
+            updatedAt: marketplace.updatedAt,
         }
     }
 }

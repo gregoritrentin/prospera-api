@@ -19,7 +19,7 @@ export class PrismaUserDetailsMapper {
             photoFileUrl: raw.File?.url ?? null,
             photoFileId: raw.photoFileId,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
 
         },
 

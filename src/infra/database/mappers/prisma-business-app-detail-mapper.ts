@@ -17,7 +17,7 @@ export class PrismaBusinessAppDetailsMapper {
             quantity: raw.quantity,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         })
     }
 }

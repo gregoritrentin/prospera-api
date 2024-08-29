@@ -12,7 +12,7 @@ export class PrismaAppMapper {
             type: raw.type,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -28,7 +28,7 @@ export class PrismaAppMapper {
             type: app.type,
             status: app.status,
             createdAt: app.createdAt,
-            updateAt: app.updatedAt,
+            updatedAt: app.updatedAt,
         }
     }
 }

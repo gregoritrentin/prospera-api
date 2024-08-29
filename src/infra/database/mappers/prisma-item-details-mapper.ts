@@ -23,7 +23,7 @@ export class PrismaItemDetailsMapper {
             unit: raw.unit,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         })
     }
 }

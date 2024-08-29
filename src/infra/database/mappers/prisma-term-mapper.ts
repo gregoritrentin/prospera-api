@@ -10,7 +10,7 @@ export class PrismaTermMapper {
             language: raw.language,
             startAt: raw.startAt,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -24,7 +24,7 @@ export class PrismaTermMapper {
             language: businessApp.language,
             startAt: businessApp.startAt,
             createdAt: businessApp.createdAt,
-            updateAt: businessApp.updatedAt,
+            updatedAt: businessApp.updatedAt,
         }
     }
 }

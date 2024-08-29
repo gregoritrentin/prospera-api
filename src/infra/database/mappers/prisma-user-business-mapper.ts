@@ -10,7 +10,7 @@ export class PrismaUserBusinessMapper {
             role: raw.role,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -24,7 +24,7 @@ export class PrismaUserBusinessMapper {
             role: userBusiness.role,
             status: userBusiness.status,
             createdAt: userBusiness.createdAt,
-            updateAt: userBusiness.updatedAt,
+            updatedAt: userBusiness.updatedAt,
         }
     }
 }

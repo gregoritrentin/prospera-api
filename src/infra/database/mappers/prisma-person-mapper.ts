@@ -21,7 +21,7 @@ export class PrismaPersonMapper {
             status: raw.status,
             notes: raw.notes,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt
+            updatedAt: raw.updatedAt
 
         }, new UniqueEntityID(raw.id))
     }
@@ -45,7 +45,7 @@ export class PrismaPersonMapper {
             status: person.status,
             notes: person.notes,
             createdAt: person.createdAt,
-            updateAt: person.updatedAt
+            updatedAt: person.updatedAt
         }
     }
 }

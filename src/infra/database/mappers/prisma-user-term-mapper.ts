@@ -9,7 +9,7 @@ export class PrismaUserTermMapper {
             userId: new UniqueEntityID(raw.userId),
             ip: raw.ip,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -22,7 +22,7 @@ export class PrismaUserTermMapper {
             userId: userTerm.userId.toString(),
             ip: userTerm.ip,
             createdAt: userTerm.createdAt,
-            updateAt: userTerm.updatedAt,
+            updatedAt: userTerm.updatedAt,
         }
     }
 }

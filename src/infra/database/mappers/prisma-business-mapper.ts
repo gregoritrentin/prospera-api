@@ -23,7 +23,7 @@ export class PrismaBusinessMapper {
             businessSize: raw.businessSize,
             businessType: raw.businessType,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -49,7 +49,7 @@ export class PrismaBusinessMapper {
             businessSize: business.businessSize,
             businessType: business.businessType,
             createdAt: business.createdAt,
-            updateAt: business.updatedAt,
+            updatedAt: business.updatedAt,
         }
     }
 }

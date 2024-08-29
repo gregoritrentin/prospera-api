@@ -130,6 +130,31 @@ CREATE TABLE "business_bank_accounts" (
 );
 
 -- CreateTable
+CREATE TABLE "plans" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "price" DOUBLE PRECISION NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3),
+
+    CONSTRAINT "plans_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "business_plans" (
+    "id" TEXT NOT NULL,
+    "business_id" TEXT NOT NULL,
+    "plan_id" TEXT NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "status" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3),
+
+    CONSTRAINT "business_plans_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "apps" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -159,14 +184,14 @@ CREATE TABLE "business_apps" (
 );
 
 -- CreateTable
-CREATE TABLE "marketpaces" (
+CREATE TABLE "marketplaces" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
 
-    CONSTRAINT "marketpaces_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "marketplaces_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -275,7 +300,10 @@ CREATE UNIQUE INDEX "user_business_business_id_user_id_key" ON "user_business"("
 CREATE UNIQUE INDEX "business_document_key" ON "business"("document");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "marketpaces_name_key" ON "marketpaces"("name");
+CREATE UNIQUE INDEX "business_plans_business_id_plan_id_status_key" ON "business_plans"("business_id", "plan_id", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "marketplaces_name_key" ON "marketplaces"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "persons_business_id_document_key" ON "persons"("business_id", "document");
@@ -302,7 +330,7 @@ ALTER TABLE "user_business" ADD CONSTRAINT "user_business_business_id_fkey" FORE
 ALTER TABLE "user_business" ADD CONSTRAINT "user_business_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "business" ADD CONSTRAINT "business_marketplace_id_fkey" FOREIGN KEY ("marketplace_id") REFERENCES "marketpaces"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "business" ADD CONSTRAINT "business_marketplace_id_fkey" FOREIGN KEY ("marketplace_id") REFERENCES "marketplaces"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "files" ADD CONSTRAINT "files_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -312,6 +340,12 @@ ALTER TABLE "business_owners" ADD CONSTRAINT "business_owners_business_id_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "business_bank_accounts" ADD CONSTRAINT "business_bank_accounts_business_id_fkey" FOREIGN KEY ("business_id") REFERENCES "business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "business_plans" ADD CONSTRAINT "business_plans_business_id_fkey" FOREIGN KEY ("business_id") REFERENCES "business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "business_plans" ADD CONSTRAINT "business_plans_plan_id_fkey" FOREIGN KEY ("plan_id") REFERENCES "plans"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "business_apps" ADD CONSTRAINT "business_apps_business_id_fkey" FOREIGN KEY ("business_id") REFERENCES "business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -16,7 +16,7 @@ export class PrismaItemMapper {
             unit: raw.unit,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt
+            updatedAt: raw.updatedAt
 
         }, new UniqueEntityID(raw.id))
     }
@@ -35,7 +35,7 @@ export class PrismaItemMapper {
             unit: item.unit,
             status: item.status,
             createdAt: item.createdAt,
-            updateAt: item.updatedAt
+            updatedAt: item.updatedAt
         }
     }
 }

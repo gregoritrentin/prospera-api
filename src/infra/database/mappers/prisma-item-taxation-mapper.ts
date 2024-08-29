@@ -9,7 +9,7 @@ export class PrismaItemTaxationMapper {
             taxation: raw.taxation,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -23,7 +23,7 @@ export class PrismaItemTaxationMapper {
             taxation: itemTaxation.taxation,
             status: itemTaxation.status,
             createdAt: itemTaxation.createdAt,
-            updateAt: itemTaxation.updatedAt,
+            updatedAt: itemTaxation.updatedAt,
 
         }
     }

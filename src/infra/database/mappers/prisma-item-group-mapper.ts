@@ -9,7 +9,7 @@ export class PrismaItemGroupMapper {
             group: raw.group,
             status: raw.status,
             createdAt: raw.createdAt,
-            updatedAt: raw.updateAt,
+            updatedAt: raw.updatedAt,
         },
             new UniqueEntityID(raw.id),
         )
@@ -23,7 +23,7 @@ export class PrismaItemGroupMapper {
             group: itemGroup.group,
             status: itemGroup.status,
             createdAt: itemGroup.createdAt,
-            updateAt: itemGroup.updatedAt,
+            updatedAt: itemGroup.updatedAt,
 
         }
     }
