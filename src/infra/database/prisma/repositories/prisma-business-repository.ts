@@ -22,6 +22,19 @@ export class PrismaBusinessRepository implements BusinessRepository {
         return PrismaBusinessMapper.toDomain(business)
     }
 
+    async findByDocument(document: string): Promise<Business | null> {
+        const business = await this.prisma.business.findUnique({
+            where: {
+                document,
+            }
+        })
+
+        if (!business) {
+            return null
+        }
+        return PrismaBusinessMapper.toDomain(business)
+    }
+
     async findMe(id: string): Promise<Business[]> {
 
         const user = await this.prisma.business.findMany({

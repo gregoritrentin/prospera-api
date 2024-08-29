@@ -4,6 +4,7 @@ import { Optional } from '@/core/types/optional'
 import dayjs from 'dayjs'
 
 export interface BusinessProps {
+
   marketplaceId: UniqueEntityID
   name: string
   email: string
@@ -25,6 +26,8 @@ export interface BusinessProps {
 }
 
 export class Business extends AggregateRoot<BusinessProps> {
+
+
   get marketplaceId() {
     return this.props.marketplaceId
   }

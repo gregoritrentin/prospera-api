@@ -42,6 +42,7 @@ import { DeleteUserUseCase } from "@/domain/core/use-cases/delete-user";
 import { FetchUserUseCase } from "@/domain/core/use-cases/fetch-user";
 import { GetUserUseCase } from "@/domain/core/use-cases/get-user";
 import { SetUserPhotoUseCase } from "@/domain/core/use-cases/set-user-photo";
+import { SetDefaultBusinessController } from "./controllers/core/user/set-default-business.controller";
 
 //term
 import { FetchTermController } from "./controllers/core/term/fetch-term.controller";
@@ -154,10 +155,15 @@ import { FetchItemTaxationUseCase } from "@/domain/item/use-cases/fech-item-taxa
 
 import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-create-file";
 import { SendAndCreateEmailUseCase } from "@/domain/email/use-cases/send-and-create-email";
+import { SetDefaultBusinessUseCase } from "@/domain/core/use-cases/set-default-business";
+import { SignUpController } from "./controllers/core/sign-up.controller";
 
 @Module({
   imports: [DatabaseModule, EmailModule, CryptographyModule, StorageModule],
   controllers: [
+
+    //sign-up
+    SignUpController,
 
     //user
     AuthenticateUserController,
@@ -168,6 +174,9 @@ import { SendAndCreateEmailUseCase } from "@/domain/email/use-cases/send-and-cre
     FetchUserController,
     GetUserController,
     GetBusinessController,
+
+    SetDefaultBusinessController,
+    UploadPhotoController,
 
     //business
     CreateBusinessController,
@@ -241,9 +250,6 @@ import { SendAndCreateEmailUseCase } from "@/domain/email/use-cases/send-and-cre
     DeleteItemTaxationController,
     FetchItemTaxationController,
 
-    //storage
-    UploadPhotoController,
-
   ],
   providers: [
 
@@ -258,6 +264,10 @@ import { SendAndCreateEmailUseCase } from "@/domain/email/use-cases/send-and-cre
     SetUserPhotoUseCase,
     GetUserUseCase,
     GetBusinessUseCase,
+    SetDefaultBusinessUseCase,
+
+    UploadAndCreateFileUseCase,
+    SendAndCreateEmailUseCase,
 
     //business
     CreateBusinessUseCase,
@@ -328,9 +338,7 @@ import { SendAndCreateEmailUseCase } from "@/domain/email/use-cases/send-and-cre
     DeleteItemTaxationUseCase,
     FetchItemTaxationUseCase,
 
-    //storage
-    UploadAndCreateFileUseCase,
-    SendAndCreateEmailUseCase,
+
 
   ],
 })

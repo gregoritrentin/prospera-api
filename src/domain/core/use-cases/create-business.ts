@@ -1,10 +1,13 @@
 import { Business } from '@/domain/core/entities/business'
 import { BusinessRepository } from '@/domain/core/repositories/business-repository'
-import { Either, right } from '@/core/either'
+import { UserRepository } from '@/domain/core/repositories/user-repository'
+import { Either, left, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { AlreadyExistsError } from './errors/already-exists-error'
 
 interface CreateBusinessUseCaseRequest {
+
   marketplaceId: string
   name: string
   phone: string
@@ -23,7 +26,7 @@ interface CreateBusinessUseCaseRequest {
 }
 
 type CreateBusinessUseCaseResponse = Either<
-  null,
+  AlreadyExistsError,
   {
     business: Business
   }
@@ -31,7 +34,9 @@ type CreateBusinessUseCaseResponse = Either<
 
 @Injectable()
 export class CreateBusinessUseCase {
-  constructor(private businesssRepository: BusinessRepository) { }
+  constructor(
+    private businesssRepository: BusinessRepository,
+  ) { }
 
   async execute({
     marketplaceId,
@@ -51,6 +56,13 @@ export class CreateBusinessUseCase {
     businessType,
 
   }: CreateBusinessUseCaseRequest): Promise<CreateBusinessUseCaseResponse> {
+
+    const businessWithSameDocument = await this.businesssRepository.findByDocument(document)
+
+    if (businessWithSameDocument) {
+      return left(new AlreadyExistsError(document))
+    }
+
     const business = Business.create({
       marketplaceId: new UniqueEntityID(marketplaceId),
       name,
@@ -75,5 +87,6 @@ export class CreateBusinessUseCase {
     return right({
       business,
     })
+
   }
 }

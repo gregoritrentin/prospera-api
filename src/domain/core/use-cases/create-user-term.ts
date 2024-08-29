@@ -1,11 +1,11 @@
 import { UserTerm } from '@/domain/core/entities/user-term'
 import { UserTermRepository } from '@/domain/core/repositories/user-term-repository'
-import { Either, right } from '@/core/either'
+import { Either, left, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { TermRepository } from '../repositories/term-repository'
 
 interface CreateUserTermUseCaseRequest {
-    termId: string
     userId: string
     ip: string
 }
@@ -16,26 +16,37 @@ type CreateUserTermUseCaseResponse = Either<
         userTerm: UserTerm
     }
 >
-
 @Injectable()
 export class CreateUserTermUseCase {
-    constructor(private businessAppsRepository: UserTermRepository) { }
+    constructor(
+        private userTermRepository: UserTermRepository,
+        private termRepository: TermRepository,
+    ) { }
 
     async execute({
-        termId,
+
         userId,
         ip,
 
     }: CreateUserTermUseCaseRequest): Promise<CreateUserTermUseCaseResponse> {
+
+        const latestTerm = await this.termRepository.findLatest();
+
+        //console.log('latestTerm', latestTerm);
+
+        // if (!latestTerm) {
+        //     return left(new Error('No terms of use found'));
+        // }
+
         const userTerm = UserTerm.create({
 
-            termId: new UniqueEntityID(termId),
+            termId: new UniqueEntityID(latestTerm?.id.toString()),
             userId: new UniqueEntityID(userId),
             ip,
 
         })
 
-        await this.businessAppsRepository.create(userTerm)
+        await this.userTermRepository.create(userTerm)
 
         return right({
             userTerm,

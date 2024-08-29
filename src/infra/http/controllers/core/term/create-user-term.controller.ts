@@ -29,7 +29,7 @@ export class CreateUserTermController {
         } = body
 
         const result = await this.createUserTerm.execute({
-            termId,
+
             userId,
             ip,
         })

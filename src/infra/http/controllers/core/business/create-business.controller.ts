@@ -2,6 +2,9 @@ import { BadRequestException, Body, Controller, Post } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
 import { CreateBusinessUseCase } from '@/domain/core/use-cases/create-business'
+import { Public } from '@/infra/auth/public'
+import { CurrentUser } from '@/infra/auth/current-user-decorator'
+import { UserPayload } from '@/infra/auth/jwt.strategy'
 
 const createBusinessBodySchema = z.object({
   marketplaceId: z.string(),
@@ -32,6 +35,8 @@ export class CreateBusinessController {
   @Post()
   async handle(
     @Body(bodyValidationPipe) body: CreateBusinessBodySchema,
+    @CurrentUser() user: UserPayload,
+
   ) {
     const {
       marketplaceId,
@@ -51,6 +56,10 @@ export class CreateBusinessController {
       businessType,
 
     } = body
+
+    const userId = user.sub
+
+    console.log(userId)
 
     const result = await this.createBusiness.execute({
       marketplaceId,

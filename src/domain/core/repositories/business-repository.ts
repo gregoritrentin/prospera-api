@@ -3,6 +3,7 @@ import { Business } from '@/domain/core/entities/business'
 
 export abstract class BusinessRepository {
   abstract findById(id: string): Promise<Business | null>
+  abstract findByDocument(id: string): Promise<Business | null>
   abstract findMe(id: string): Promise<Business[]>
   abstract findMany(params: PaginationParams): Promise<Business[]>
   abstract save(business: Business): Promise<void>

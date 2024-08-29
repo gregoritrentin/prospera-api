@@ -22,6 +22,22 @@ export class PrismaTermRepository implements TermRepository {
         return PrismaTermMapper.toDomain(term)
     }
 
+    async findLatest(): Promise<Term | null> {
+
+        const latestTerm = await this.prisma.terms.findFirst({
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        if (!latestTerm) {
+            return null;
+        }
+
+        return PrismaTermMapper.toDomain(latestTerm)
+
+    }
+
     async findMany({ page }: PaginationParams): Promise<Term[]> {
 
         const term = await this.prisma.terms.findMany({

@@ -5,6 +5,7 @@ import { Business as PrismaBusiness, Prisma } from '@prisma/client'
 export class PrismaBusinessMapper {
     static toDomain(raw: PrismaBusiness): Business {
         return Business.create({
+
             marketplaceId: new UniqueEntityID(raw.marketplaceId),
             name: raw.name,
             email: raw.email,

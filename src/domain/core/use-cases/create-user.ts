@@ -72,5 +72,6 @@ export class CreateUserUseCase {
     return right({
       user,
     })
+
   }
 }

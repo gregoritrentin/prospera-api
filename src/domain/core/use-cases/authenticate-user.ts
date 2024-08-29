@@ -52,5 +52,6 @@ export class AuthenticateUserUseCase {
     return right({
       accessToken,
     })
+
   }
 }

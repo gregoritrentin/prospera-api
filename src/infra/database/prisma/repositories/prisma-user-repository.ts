@@ -116,4 +116,16 @@ export class PrismaUserRepository implements UserRepository {
     })
   }
 
+  async setDefaultBusiness(userId: string, defaultBusiness: string): Promise<void> {
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        defaultBusiness,
+      }
+
+    })
+  }
+
 }
