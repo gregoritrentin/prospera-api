@@ -5,6 +5,7 @@ import { CreateMarketplaceUseCase } from '@/domain/core/use-cases/create-marketp
 
 const createMarketplaceBodySchema = z.object({
   name: z.string(),
+  document: z.string(),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(createMarketplaceBodySchema)
@@ -21,10 +22,12 @@ export class CreateMarketplaceController {
   ) {
     const {
       name,
+      document,
     } = body
 
     const result = await this.createMarketplace.execute({
       name,
+      document,
       status: 'PENDING'
 
     })

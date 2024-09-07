@@ -435,6 +435,7 @@ model BusinessApps {
 model Marketplaces {
   id        String    @id @default(uuid())
   name      String    @unique
+  document  String    @unique
   status    String
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")

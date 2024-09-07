@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common'
 interface CreateMarketplaceUseCaseRequest {
 
   name: string
+  document: string
   status: string
 }
 
@@ -22,11 +23,13 @@ export class CreateMarketplaceUseCase {
 
   async execute({
     name,
+    document,
     status,
 
   }: CreateMarketplaceUseCaseRequest): Promise<CreateMarketplaceUseCaseResponse> {
     const marketplace = Marketplace.create({
       name,
+      document,
       status,
     })
 
