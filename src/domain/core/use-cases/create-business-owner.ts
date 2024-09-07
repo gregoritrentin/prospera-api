@@ -16,8 +16,9 @@ interface CreateBusinessOwnerUseCaseRequest {
     neighborhood: string
     postalCode: string
     countryCode: string
-    state: string
-    city: string
+    stateCode: string
+    cityCode: string
+    birthDate: Date
     status: string
     ownerType: string
 }
@@ -45,8 +46,9 @@ export class CreateBusinessOwnerUseCase {
         neighborhood,
         postalCode,
         countryCode,
-        state,
-        city,
+        stateCode,
+        cityCode,
+        birthDate,
         status,
         ownerType
 
@@ -63,9 +65,10 @@ export class CreateBusinessOwnerUseCase {
             neighborhood,
             postalCode,
             countryCode,
-            state,
-            city,
-            status: 'INACTIVE',
+            stateCode,
+            cityCode,
+            birthDate,
+            status: 'PENDING',
             ownerType,
         })
 

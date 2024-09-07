@@ -16,8 +16,8 @@ interface CreatePersonUseCaseRequest {
   neighborhood: string
   postalCode: string
   countryCode: string
-  state: string
-  city: string
+  stateCode: string
+  cityCode: string
   status: string
   notes?: string | null
 }
@@ -45,8 +45,8 @@ export class CreatePersonUseCase {
     neighborhood,
     postalCode,
     countryCode,
-    state,
-    city,
+    stateCode,
+    cityCode,
     status,
     notes
 
@@ -63,8 +63,8 @@ export class CreatePersonUseCase {
       neighborhood,
       postalCode,
       countryCode,
-      state,
-      city,
+      stateCode,
+      cityCode,
       status,
       notes
       ,

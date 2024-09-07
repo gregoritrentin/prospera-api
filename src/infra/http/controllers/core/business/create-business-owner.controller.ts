@@ -15,8 +15,9 @@ const createBusinessOwnerBodySchema = z.object({
     neighborhood: z.string(),
     postalCode: z.string(),
     countryCode: z.string(),
-    state: z.string(),
-    city: z.string(),
+    stateCode: z.string(),
+    cityCode: z.string(),
+    birthDate: z.date(),
     status: z.string(),
     ownerType: z.string(),
 })
@@ -45,8 +46,9 @@ export class CreateBusinessOwnerController {
             neighborhood,
             postalCode,
             countryCode,
-            state,
-            city,
+            stateCode,
+            cityCode,
+            birthDate,
             status,
             ownerType,
 
@@ -64,9 +66,10 @@ export class CreateBusinessOwnerController {
             neighborhood,
             postalCode,
             countryCode,
-            state,
-            city,
+            stateCode,
+            cityCode,
             status,
+            birthDate,
             ownerType,
         })
 

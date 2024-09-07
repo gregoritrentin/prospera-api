@@ -12,6 +12,7 @@ export class PrismaUserMapper {
         defaultBusiness: raw.defaultBusiness,
         photoFileId: raw.photoFileId,
         status: raw.status,
+
       },
       new UniqueEntityID(raw.id),
     )

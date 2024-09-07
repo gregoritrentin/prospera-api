@@ -16,8 +16,8 @@ export interface PersonProps {
   neighborhood: string
   postalCode: string
   countryCode: string
-  state: string
-  city: string
+  stateCode: string
+  cityCode: string
   status: string
   notes?: string | null
   createdAt: Date
@@ -69,12 +69,12 @@ export class Person extends AggregateRoot<PersonProps> {
     return this.props.countryCode
   }
 
-  get state() {
-    return this.props.state
+  get stateCode() {
+    return this.props.stateCode
   }
 
-  get city() {
-    return this.props.city
+  get cityCode() {
+    return this.props.cityCode
   }
 
   get status() {
@@ -154,13 +154,13 @@ export class Person extends AggregateRoot<PersonProps> {
     this.touch()
   }
 
-  set state(state: string) {
-    this.props.state = state
+  set stateCode(stateCode: string) {
+    this.props.stateCode = stateCode
     this.touch()
   }
 
-  set city(city: string) {
-    this.props.city = city
+  set cityCode(cityCode: string) {
+    this.props.cityCode = cityCode
     this.touch()
   }
 

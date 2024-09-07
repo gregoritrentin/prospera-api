@@ -13,8 +13,8 @@ export interface PersonDetailsProps {
     neighborhood: string
     postalCode: string
     countryCode: string
-    state: string
-    city: string
+    stateCode: string
+    cityCode: string
     status: string
     notes?: string | null
     createdAt: Date
@@ -66,12 +66,12 @@ export class PersonDetails extends ValueObject<PersonDetailsProps> {
         return this.props.countryCode
     }
 
-    get state() {
-        return this.props.state
+    get stateCode() {
+        return this.props.stateCode
     }
 
-    get city() {
-        return this.props.city
+    get cityCode() {
+        return this.props.cityCode
     }
 
     get status() {

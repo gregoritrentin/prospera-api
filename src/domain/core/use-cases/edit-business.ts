@@ -21,10 +21,11 @@ interface EditBusinessUseCaseRequest {
     neighborhood: string
     postalCode: string
     countryCode: string
-    state: string
-    city: string
+    stateCode: string
+    cityCode: string
     businessSize: string
     businessType: string
+    foundingDate: Date
     status: string
 }
 
@@ -56,10 +57,11 @@ export class EditBusinessUseCase {
         neighborhood,
         postalCode,
         countryCode,
-        state,
-        city,
+        stateCode,
+        cityCode,
         businessSize,
         businessType,
+        foundingDate,
         status,
 
     }: EditBusinessUseCaseRequest): Promise<EditBusinessUseCaseResponse> {
@@ -82,10 +84,11 @@ export class EditBusinessUseCase {
         business.neighborhood = neighborhood
         business.postalCode = postalCode
         business.countryCode = countryCode
-        business.state = state
-        business.city = city
+        business.stateCode = stateCode
+        business.cityCode = cityCode
         business.businessSize = businessSize
         business.businessType = businessType
+        business.foundingDate = foundingDate
         business.status = status
 
         await this.businessRepository.save(business)

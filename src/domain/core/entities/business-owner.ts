@@ -14,8 +14,9 @@ export interface BusinessOwnerProps {
     neighborhood: string
     postalCode: string
     countryCode: string
-    state: string
-    city: string
+    stateCode: string
+    cityCode: string
+    birthDate: Date
     status: string
     ownerType: string
     createdAt: Date
@@ -67,12 +68,16 @@ export class BusinessOwner extends AggregateRoot<BusinessOwnerProps> {
         return this.props.countryCode
     }
 
-    get state() {
-        return this.props.state
+    get stateCode() {
+        return this.props.stateCode
     }
 
-    get city() {
-        return this.props.city
+    get cityCode() {
+        return this.props.cityCode
+    }
+
+    get birthDate() {
+        return this.props.birthDate
     }
 
     get status() {
@@ -153,13 +158,18 @@ export class BusinessOwner extends AggregateRoot<BusinessOwnerProps> {
         this.touch()
     }
 
-    set state(state: string) {
-        this.props.state = state
+    set stateCode(stateCode: string) {
+        this.props.stateCode = stateCode
         this.touch()
     }
 
-    set city(city: string) {
-        this.props.city = city
+    set cityCode(cityCode: string) {
+        this.props.cityCode = cityCode
+        this.touch()
+    }
+
+    set birthDate(birthDate: Date) {
+        this.props.birthDate = birthDate
         this.touch()
     }
 

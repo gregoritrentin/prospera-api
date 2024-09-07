@@ -23,8 +23,8 @@ const editPersonBodySchema = z.object({
     neighborhood: z.string(),
     postalCode: z.string(),
     countryCode: z.string(),
-    state: z.string(),
-    city: z.string(),
+    stateCode: z.string(),
+    cityCode: z.string(),
     status: z.string(),
     notes: z.string(),
 })
@@ -55,8 +55,8 @@ export class EditPersonController {
             neighborhood,
             postalCode,
             countryCode,
-            state,
-            city,
+            stateCode,
+            cityCode,
             status,
             notes
         } = body
@@ -76,8 +76,8 @@ export class EditPersonController {
             neighborhood,
             postalCode,
             countryCode,
-            state,
-            city,
+            stateCode,
+            cityCode,
             status,
             notes,
         })

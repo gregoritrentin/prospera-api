@@ -18,12 +18,13 @@ export interface BusinessProps {
   neighborhood: string
   postalCode: string
   countryCode: string
-  state: string
-  city: string
+  stateCode: string
+  cityCode: string
   status: string
   logoFileId?: string | null
   digitalCertificateFileId?: string | null
   businessSize: string
+  foundingDate: Date
   businessType: string
   createdAt: Date
   updatedAt?: Date | null
@@ -84,12 +85,12 @@ export class Business extends AggregateRoot<BusinessProps> {
     return this.props.countryCode
   }
 
-  get state() {
-    return this.props.state
+  get stateCode() {
+    return this.props.stateCode
   }
 
-  get city() {
-    return this.props.city
+  get cityCode() {
+    return this.props.cityCode
   }
 
   get status() {
@@ -110,6 +111,10 @@ export class Business extends AggregateRoot<BusinessProps> {
 
   get businessType() {
     return this.props.businessType
+  }
+
+  get foundingDate() {
+    return this.props.foundingDate
   }
 
   get createdAt() {
@@ -198,13 +203,13 @@ export class Business extends AggregateRoot<BusinessProps> {
     this.touch()
   }
 
-  set state(state: string) {
-    this.props.state = state
+  set stateCode(stateCode: string) {
+    this.props.stateCode = stateCode
     this.touch()
   }
 
-  set city(city: string) {
-    this.props.city = city
+  set cityCode(cityCode: string) {
+    this.props.cityCode = cityCode
     this.touch()
   }
 
@@ -215,6 +220,11 @@ export class Business extends AggregateRoot<BusinessProps> {
 
   set businessType(businessType: string) {
     this.props.businessType = businessType
+    this.touch()
+  }
+
+  set foundingDate(foundingDate: Date) {
+    this.props.foundingDate = foundingDate
     this.touch()
   }
 

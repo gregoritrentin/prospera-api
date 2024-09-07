@@ -23,8 +23,8 @@ const editBusinessOwnerBodySchema = z.object({
     neighborhood: z.string(),
     postalCode: z.string(),
     countryCode: z.string(),
-    state: z.string(),
-    city: z.string(),
+    stateCode: z.string(),
+    cityCode: z.string(),
     status: z.string(),
     ownerType: z.string(),
 
@@ -54,8 +54,8 @@ export class EditBusinessOwnerController {
             neighborhood,
             postalCode,
             countryCode,
-            state,
-            city,
+            stateCode,
+            cityCode,
             status,
             ownerType,
 
@@ -72,8 +72,8 @@ export class EditBusinessOwnerController {
             neighborhood,
             postalCode,
             countryCode,
-            state,
-            city,
+            stateCode,
+            cityCode,
             status,
             ownerType,
         })

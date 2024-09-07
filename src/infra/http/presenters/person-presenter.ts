@@ -15,8 +15,8 @@ export class PersonPresenter {
             neighborhood: person.neighborhood,
             postalCode: person.postalCode,
             countryCode: person.countryCode,
-            state: person.state,
-            city: person.city,
+            stateCode: person.stateCode,
+            cityCode: person.cityCode,
             createdAt: person.createdAt,
             updatedAt: person.updatedAt
         }

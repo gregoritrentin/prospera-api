@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,21 +8,55 @@ datasource db {
 }
 
 model User {
-  id              String         @id @default(uuid())
+  id              String    @id @default(uuid())
   name            String
-  email           String         @unique
+  email           String    @unique
+  cpf             String?   @unique
+  phone           String?
   password        String
+  birthDate       DateTime? @map("birth_date")
   status          String
-  photoFileId     String?        @map("photo_file_id")
-  defaultBusiness String?        @map("default_business")
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime?      @updatedAt @map("updated_at")
-  Business        Business?      @relation(fields: [defaultBusiness], references: [id])
-  File            File?          @relation(fields: [photoFileId], references: [id])
-  UserBusiness    UserBusiness[]
-  UserTerms       UserTerms[]
+  photoFileId     String?   @map("photo_file_id")
+  defaultBusiness String?   @map("default_business")
+  countryId       String?
+  stateId         String?
+  gender          String?
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @updatedAt @map("updated_at")
+  suspendedAt     DateTime? @map("suspended_at")
+
+  Business Business? @relation(fields: [defaultBusiness], references: [id])
+  File     File?     @relation(fields: [photoFileId], references: [id])
+  state    State?    @relation(fields: [stateId], references: [id])
+  country  Country?  @relation(fields: [countryId], references: [id])
+
+  UserBusiness         UserBusiness[]
+  UserTerms            UserTerms[]
+  Deal                 Deal[]
+  Sale                 Sale[]
+  ServiceOrder         ServiceOrder[]
+  FeatureSuggestion    FeatureSuggestion[]
+  FeatureVote          FeatureVote[]
+  EventRegistration    EventRegistration[]
+  CampaignContribution CampaignContribution[]
+  TicketAgent          Ticket[]               @relation("TicketAgent")
+  TicketOwner          Ticket[]               @relation("TicketOwner")
+  StockMovement        StockMovement[]
+  LoginLog             LoginLog[]
 
   @@map("users")
+}
+
+model LoginLog {
+  id        String   @id @default(uuid())
+  userId    String
+  ipAddress String
+  status    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("login_logs")
 }
 
 model Terms {
@@ -45,15 +73,136 @@ model Terms {
   @@map("terms")
 }
 
+model Country {
+  id   String @id @default(uuid())
+  name String
+  code String @unique
+
+  State          State[]
+  User           User[]
+  Business       Business[]
+  Person         Person[]
+  BusinessOwners BusinessOwners[]
+
+  @@map("countries")
+}
+
+model State {
+  id        String @id @default(uuid())
+  name      String
+  code      String @unique
+  countryId String @map("country_id")
+
+  country        Country          @relation(fields: [countryId], references: [id])
+  City           City[]
+  User           User[]
+  Business       Business[]
+  Person         Person[]
+  BusinessOwners BusinessOwners[]
+
+  @@map("states")
+}
+
+model City {
+  id      String @id @default(uuid())
+  name    String
+  stateId String @map("state_id")
+  code    String @unique
+
+  state          State            @relation(fields: [stateId], references: [id])
+  Business       Business[]
+  Person         Person[]
+  BusinessOwners BusinessOwners[]
+
+  @@map("cities")
+}
+
+model Ticket {
+  id          String    @id @default(uuid())
+  businessId  String    @map("business_id")
+  ownerId     String    @map("owner_id")
+  agentId     String?   @map("agent_id")
+  subject     String
+  description String
+  status      String
+  priority    String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+  closedAt    DateTime? @map("closed_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  owner    User     @relation("TicketOwner", fields: [ownerId], references: [id])
+  agent    User?    @relation("TicketAgent", fields: [agentId], references: [id])
+
+  @@map("tickets")
+}
+
+model KnowledgeBaseCategory {
+  id   String @id @default(uuid())
+  name String
+
+  knowledgeBases KnowledgeBase[]
+
+  @@map("knowledge_base_categories")
+}
+
+model KnowledgeBase {
+  id         String    @id @default(uuid())
+  title      String
+  summary    String
+  content    String
+  categoryId String    @map("category_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+
+  category KnowledgeBaseCategory @relation(fields: [categoryId], references: [id])
+
+  @@map("knowledge_base")
+}
+
+model FeatureSuggestion {
+  id                  String    @id @default(uuid())
+  businessId          String    @map("business_id")
+  ownerId             String    @map("owner_id")
+  title               String
+  description         String
+  status              String
+  votes               Int       @default(0)
+  crowdfundingGoal    Float?    @default(0.0) @map("crowdfunding_goal")
+  currentCrowdfunding Float?    @default(0.0) @map("current_crowdfunding")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime? @updatedAt @map("updated_at")
+
+  business    Business      @relation(fields: [businessId], references: [id])
+  owner       User          @relation(fields: [ownerId], references: [id])
+  FeatureVote FeatureVote[]
+
+  @@map("feature_suggestions")
+}
+
+model FeatureVote {
+  id                  String   @id @default(uuid())
+  userId              String   @map("user_id")
+  featureSuggestionId String   @map("feature_suggestion_id")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  user              User              @relation(fields: [userId], references: [id])
+  featureSuggestion FeatureSuggestion @relation(fields: [featureSuggestionId], references: [id])
+
+  @@unique([userId, featureSuggestionId], name: "userFeatureVoteIdentifier")
+  @@map("feature_votes")
+}
+
 model UserTerms {
   id        String    @id @default(uuid())
   userId    String    @map("user_id")
   termId    String    @map("term_id")
-  ip        String
+  ipAddress String
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
-  term      Terms     @relation(fields: [termId], references: [id])
-  user      User      @relation(fields: [userId], references: [id])
+
+  term Terms @relation(fields: [termId], references: [id])
+  user User  @relation(fields: [userId], references: [id])
 
   @@unique([userId, termId], name: "userTermIdentifier")
   @@map("user_terms")
@@ -67,40 +216,46 @@ model UserBusiness {
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  business   Business  @relation(fields: [businessId], references: [id])
-  user       User      @relation(fields: [userId], references: [id])
+
+  business Business @relation(fields: [businessId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 
   @@unique([businessId, userId], name: "userBusinessIdentifier")
   @@map("user_business")
 }
 
 model Business {
-  id                       String  @id @default(uuid())
-  marketplaceId            String  @map("marketplace_id")
+  id                       String    @id @default(uuid())
+  marketplaceId            String    @map("marketplace_id")
   name                     String
   email                    String
   phone                    String
-  document                 String  @unique
+  document                 String    @unique
   ie                       String?
   im                       String?
-  addressLine1             String  @map("address_line1")
-  addressLine2             String  @map("address_line2")
-  addressLine3             String? @map("address_line3")
+  addressLine1             String    @map("address_line1")
+  addressLine2             String    @map("address_line2")
+  addressLine3             String?   @map("address_line3")
   neighborhood             String
-  postalCode               String  @map("postal_code")
-  countryCode              String  @map("country_code")
-  state                    String
-  city                     String
-  businessType             String  @map("business_type")
-  businessSize             String  @map("business_syze")
-  logoFileId               String? @map("logo_file_id")
-  digitalCertificateFileId String? @map("digital_certificate_file_id") //
+  postalCode               String    @map("postal_code")
+  countryCode              String    @map("country_code")
+  stateCode                String    @map("state_code")
+  cityCode                 String    @map("city_code")
+  businessType             String    @map("business_type")
+  businessSize             String    @map("business_syze")
+  foundingDate             DateTime  @map("founding_date")
+  logoFileId               String?   @unique @map("logo_file_id")
+  digitalCertificateFileId String?   @unique @map("digital_certificate_file_id")
+  status                   String
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime? @updatedAt @map("updated_at")
 
-  status    String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
-
-  marketplace Marketplaces @relation(fields: [marketplaceId], references: [id])
+  marketplace            Marketplaces @relation(fields: [marketplaceId], references: [id])
+  logoFile               File?        @relation("LogoFile", fields: [logoFileId], references: [id])
+  digitalCertificateFile File?        @relation("DigitalCertificateFile", fields: [digitalCertificateFileId], references: [id])
+  country                Country      @relation(fields: [countryCode], references: [code])
+  state                  State        @relation(fields: [stateCode], references: [code])
+  city                   City         @relation(fields: [cityCode], references: [code])
 
   Person               Person[]
   UserBusiness         UserBusiness[]
@@ -114,13 +269,35 @@ model Business {
   Email                Email[]
   File                 File[]
   BusinessPlan         BusinessPlan[]
+  Account              Account[]
+  Subscription         Subscription[]
+  Event                Event[]
+  Deal                 Deal[]
+  Sale                 Sale[]
+  PriceList            PriceList[]
+  Invoice              Invoice[]
+  Transaction          Transaction[]
+  Receivable           Receivable[]
+  ServiceOrder         ServiceOrder[]
+  Ticket               Ticket[]
+  FeatureSuggestion    FeatureSuggestion[]
+  InvoiceSplit         InvoiceSplit[]
+  TransactionSplit     TransactionSplit[]
+  SubscriptionSplit    SubscriptionSplit[]
+  WebhookEvent         WebhookEvent[]
+  Campaign             Campaign[]
+  Reservation          Reservation[]
+  Purchase             Purchase[]
+  StockMovement        StockMovement[]
+  Inventory            Inventory[]
+  CashFlow             CashFlow[]
 
   @@map("business")
 }
 
 model File {
   id         String    @id @default(uuid())
-  businessId String
+  businessId String    @map("business_id")
   title      String
   url        String
   createdAt  DateTime  @default(now()) @map("created_at")
@@ -128,32 +305,41 @@ model File {
 
   business Business @relation(fields: [businessId], references: [id])
 
-  User User[]
+  User              User[]
+  InvoiceAttachment InvoiceAttachment[]
+
+  logoBusiness               Business?           @relation("LogoFile")
+  digitalCertificateBusiness Business?           @relation("DigitalCertificateFile")
+  EventRegistration          EventRegistration[]
+  Campaign                   Campaign[]
 
   @@map("files")
 }
 
 model BusinessOwners {
-  id           String  @id @default(uuid())
-  businessId   String  @map("business_id")
+  id           String    @id @default(uuid())
+  businessId   String    @map("business_id")
   name         String
   email        String
   phone        String
   document     String
-  addressLine1 String  @map("address_line1")
-  addressLine2 String  @map("address_line2")
-  addressLine3 String? @map("address_line3")
+  addressLine1 String    @map("address_line1")
+  addressLine2 String    @map("address_line2")
+  addressLine3 String?   @map("address_line3")
   neighborhood String
-  postalCode   String  @map("postal_code")
-  countryCode  String  @map("country_code")
-  state        String
-  city         String
+  postalCode   String    @map("postal_code")
+  countryCode  String    @map("country_code")
+  stateCode    String    @map("state_code")
+  cityCode     String    @map("city_code")
+  birthDate    DateTime  @map("birth_date")
+  ownerType    String    @map("owner_type")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime? @updatedAt @map("updated_at")
   status       String
-  ownerType    String  @map("owner_type")
-
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
-  business  Business  @relation(fields: [businessId], references: [id])
+  business     Business  @relation(fields: [businessId], references: [id])
+  country      Country   @relation(fields: [countryCode], references: [code])
+  state        State     @relation(fields: [stateCode], references: [code])
+  city         City      @relation(fields: [cityCode], references: [code])
 
   @@map("business_owners")
 }
@@ -161,25 +347,38 @@ model BusinessOwners {
 model BusinessBankAccounts {
   id         String    @id @default(uuid())
   businessId String    @map("business_id")
-  bank       String
+  bankCode   String
   branch     String
   account    String
   status     String
   type       String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  business   Business  @relation(fields: [businessId], references: [id])
+
+  business Business @relation(fields: [businessId], references: [id])
+  Bank     Bank     @relation(fields: [bankCode], references: [id])
 
   @@map("business_bank_accounts")
 }
 
+model Bank {
+  id   String @id @default(uuid())
+  name String
+  code String @unique
+
+  BusinessBankAccounts BusinessBankAccounts[]
+
+  @@map("banks")
+}
+
 model Plan {
-  id           String         @id @default(uuid())
-  name         String
-  description  String?
-  price        Float
-  createdAt    DateTime       @default(now()) @map("created_at")
-  updatedAt    DateTime?      @updatedAt @map("updated_at")
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
   BusinessPlan BusinessPlan[]
 
   @@map("plans")
@@ -193,8 +392,9 @@ model BusinessPlan {
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  business   Business  @relation(fields: [businessId], references: [id])
-  plan       Plan      @relation(fields: [planId], references: [id])
+
+  business Business @relation(fields: [businessId], references: [id])
+  plan     Plan     @relation(fields: [planId], references: [id])
 
   @@unique([businessId, planId, status], name: "businessPlanIdentifier")
   @@map("business_plans")
@@ -258,13 +458,30 @@ model Person {
   neighborhood String
   postalCode   String    @map("postal_code")
   countryCode  String    @map("country_code")
-  state        String
-  city         String
+  stateCode    String    @map("state_code")
+  cityCode     String    @map("city_code")
   notes        String?
   status       String
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime? @updatedAt @map("updated_at")
-  business     Business  @relation(fields: [businessId], references: [id])
+
+  business Business @relation(fields: [businessId], references: [id])
+  country  Country  @relation(fields: [countryCode], references: [code])
+  state    State    @relation(fields: [stateCode], references: [code])
+  city     City     @relation(fields: [cityCode], references: [code])
+
+  deal                 Deal[]
+  invoice              Invoice[]
+  transaction          Transaction[]
+  eventRegistration    EventRegistration[]
+  campaignContribution CampaignContribution[]
+  reservation          Reservation[]
+  salesAsCustomer      Sale[]                 @relation("Customer")
+  salesAsPerson        Sale[]                 @relation("SalesPerson")
+  customerOrders       ServiceOrder[]         @relation("Customer")
+  technicianOrders     ServiceOrder[]         @relation("Technician")
+  Purchase             Purchase[]
+  CashFlow             CashFlow[]
 
   @@unique([businessId, document], name: "documentIdentifier")
   @@map("persons")
@@ -289,6 +506,13 @@ model Item {
   itemGroup    ItemGroup?    @relation(fields: [groupId], references: [id])
   itemTaxation ItemTaxation? @relation(fields: [taxationId], references: [id])
 
+  InvoiceItem      InvoiceItem[]
+  SubscriptionItem SubscriptionItem[]
+  DealItem         DealItem[]
+  SaleItem         SaleItem[]
+  PurchaseItem     PurchaseItem[]
+  StockMovements   StockMovement[]
+
   @@unique([businessId, idAux], name: "idAuxIdentifier")
   @@map("items")
 }
@@ -300,8 +524,10 @@ model ItemGroup {
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  business   Business  @relation(fields: [businessId], references: [id])
-  item       Item[]
+
+  business Business @relation(fields: [businessId], references: [id])
+
+  item Item[]
 
   @@map("item_group")
 }
@@ -313,18 +539,24 @@ model ItemTaxation {
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  business   Business  @relation(fields: [businessId], references: [id])
-  item       Item[]
+
+  business Business @relation(fields: [businessId], references: [id])
+
+  item Item[]
 
   @@map("item_taxation")
 }
 
 model PriceList {
-  id        String    @id @default(uuid())
-  priceList String    @map("price_list")
-  status    String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  id         String     @id @default(uuid())
+  businessId String
+  priceList  String     @map("price_list")
+  status     String
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime?  @updatedAt @map("updated_at")
+  DealItem   DealItem[]
+
+  business Business @relation(fields: [businessId], references: [id])
 
   @@map("price_list")
 }
@@ -338,7 +570,884 @@ model Email {
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  business   Business? @relation(fields: [businessId], references: [id])
+
+  business Business? @relation(fields: [businessId], references: [id])
 
   @@map("emails")
+}
+
+model Invoice {
+  id String @id @default(uuid())
+
+  businessId String @map("business_id")
+  personId   String @map("person_id")
+
+  description String
+  notes       String?
+  paymentLink String  @map("payment_link")
+  status      String
+
+  //datas
+  issueDate        DateTime @map("issue_date") //data de emissão 
+  dueDate          DateTime @map("due_date") //data de vencimento
+  paymendDate      DateTime @map("paymend_date") //data do pgto
+  paymentLimitDate DateTime @map("payment_limit_date") //data limite de pgto
+
+  //valor
+  grossAmount    Float @map("gross_amount")
+  discountAmount Float @map("discount_amount") //valor do desconto
+  amount         Float // valor total
+  paymentAmount  Float @map("payment_amount") //valor do pgto
+
+  //protest/protesto
+  protestDays Int @map("protest_days") //dias para protesto
+
+  //late/multa
+  lateMode  String //PERCENT ou VALUE
+  lateValue Float  @map("late_value") //valor da multa
+
+  //interest/juros
+  interestMode  String //PERCENT ou VALUE
+  interestDays  Int    @map("interest_days") //dias para juros
+  interestValue Float  @map("interest_value") //valor dos juros
+
+  //discount/desconto
+  discountMode  String //PERCENT ou VALUE
+  discountDays  Int    @map("discount_days") //dias para desconto
+  discountValue Float  @map("discount_value") //valor do desconto
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  person   Person   @relation(fields: [personId], references: [id])
+
+  InvoiceItem       InvoiceItem[]
+  InvoicePayment    InvoicePayment[]
+  InvoiceEvents     InvoiceEvent[]
+  InvoiceAttachment InvoiceAttachment[]
+  InvoiceSplit      InvoiceSplit[]
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id              String    @id @default(uuid())
+  invoiceId       String    @map("invoice_id")
+  itemId          String    @map("item_id")
+  itemDescription String    @map("item_description")
+  quantity        Float
+  unitPrice       Float     @map("unit_price")
+  discount        Float
+  totalPrice      Float     @map("total_price")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @updatedAt @map("updated_at")
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+  item    Item    @relation(fields: [itemId], references: [id])
+
+  @@map("invoice_items")
+}
+
+model InvoicePayment {
+  id            String    @id @default(uuid())
+  invoiceId     String    @map("invoice_id")
+  transactionId String    @map("transaction_id") //deixar nulo para pagamento manual?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime? @updatedAt @map("updated_at")
+
+  invoice     Invoice     @relation(fields: [invoiceId], references: [id])
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("invoice_payments")
+}
+
+model InvoiceSplit {
+  id          String @id @default(uuid())
+  invoiceId   String @map("invoice_id")
+  recipientId String @map("recipient_id")
+  splitType   String @map("split_type") //FIXED, PERCENT
+  amount      Float
+  feeAmount   Float  @map("fee_amount")
+
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  recipient Business @relation(fields: [recipientId], references: [id])
+
+  @@map("invoice_splits")
+}
+
+model InvoiceEvent {
+  id        String    @id @default(uuid())
+  invoiceId String    @map("invoice_id")
+  event     String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@map("invoice_events")
+}
+
+model InvoiceAttachment {
+  id        String    @id @default(uuid())
+  invoiceId String    @map("invoice_id")
+  fileId    String    @map("file_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  file    File    @relation(fields: [fileId], references: [id])
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@map("invoice_attachments")
+}
+
+model Transaction {
+  id          String @id @default(uuid())
+  businessId  String @map("business_id")
+  personId    String @map("person_id")
+  description String
+  type        String //BOLETO, PIX, CARD, etc
+  currency    String //USD, BRL, EUR, etc
+
+  //datas
+  dueDate          DateTime @map("due_date")
+  paymendDate      DateTime @map("paymend_date")
+  paymentLimitDate DateTime @map("payment_limit_date")
+
+  //valores
+  amount        Float
+  paymentAmount Float @map("payment_amount")
+  feeAmount     Float @map("fee_amount")
+
+  business Business @relation(fields: [businessId], references: [id])
+  person   Person   @relation(fields: [personId], references: [id])
+
+  InvoicePayment   InvoicePayment[]
+  TransactionSplit TransactionSplit[]
+  Boleto           TransactionBoleto[]
+  Pix              TransactionPix[]
+  Card             TransactionCard[]
+  Receivable       Receivable[]
+
+  @@map("transactions")
+}
+
+model TransactionSplit {
+  id            String @id @default(uuid())
+  transactionId String @map("transaction_id")
+  recipientId   String @map("recipient_id")
+  splitType     String @map("split_type") //FIXED, PERCENT
+  amount        Float
+  feeAmount     Float  @map("fee_amount")
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  recipient   Business    @relation(fields: [recipientId], references: [id])
+
+  @@map("transaction_splits")
+}
+
+model TransactionBoleto {
+  id            String @id @default(uuid())
+  transactionId String @map("transaction_id")
+  instructions  String
+  documentType  String @map("document_type") //especie
+  digitableLine String @map("digitable_line")
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("transaction_boletos")
+}
+
+model TransactionPix {
+  id            String @id @default(uuid())
+  transactionId String @map("transaction_id")
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("transaction_pix")
+}
+
+model TransactionCard {
+  id                 String @id @default(uuid())
+  transactionId      String
+  numberInstallments Int
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("transaction_cards")
+}
+
+model Receivable {
+  id            String    @id @default(uuid())
+  businessId    String    @map("business_id")
+  transactionId String    @map("transaction_id")
+  dueDate       DateTime  @map("due_date")
+  amount        Float
+  status        String
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime? @updatedAt @map("updated_at")
+
+  business    Business    @relation(fields: [businessId], references: [id])
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("receivables")
+}
+
+model Account {
+  id         String @id @default(uuid())
+  businessId String @map("business_id")
+
+  number String
+
+  status    String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+
+  Ledger              Ledger[]
+  TransferFromAccount Transfer[] @relation("TransferFromAccount")
+  TransferToAccount   Transfer[] @relation("TransferToAccount")
+
+  @@map("accounts")
+}
+
+model Ledger {
+  id          String    @id @default(uuid())
+  accountId   String    @map("account_id")
+  type        String //CREDIT, DEBIT
+  amount      Float
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  TransferFrom Transfer? @relation("TransferFromLedger")
+  TransferTo   Transfer? @relation("TransferToLedger")
+
+  @@map("ledgers")
+}
+
+model CashFlow {
+  id              String   @id @default(uuid())
+  businessId      String   @map("business_id")
+  personId        String?  @map("person_id")
+  description     String
+  date            DateTime
+  amount          Float
+  type            String //IN, OUT
+  status          String
+  chartOfAccounts String?  @map("chart_of_accounts")
+  costCenter      String?
+  document        String?
+  notes           String?
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  person   Person?  @relation(fields: [personId], references: [id])
+
+  @@map("cash_flows")
+}
+
+model Transfer {
+  id String @id @default(uuid())
+
+  fromAccountId String @map("from_account_id")
+  toAccountId   String @map("to_account_id")
+
+  fromLedgerId String @unique @map("from_ledger_id")
+  toLedgerId   String @unique @map("to_ledger_id")
+
+  amount    Float
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  fromAccount Account @relation("TransferFromAccount", fields: [fromAccountId], references: [id])
+  toAccount   Account @relation("TransferToAccount", fields: [toAccountId], references: [id])
+
+  fromLedger Ledger @relation("TransferFromLedger", fields: [fromLedgerId], references: [id])
+  toLedger   Ledger @relation("TransferToLedger", fields: [toLedgerId], references: [id])
+
+  @@unique([fromLedgerId, toLedgerId])
+  @@map("transfers")
+}
+
+model Subscription {
+  id              String   @id @default(uuid())
+  businessId      String   @map("business_id")
+  price           Float
+  notes           String?
+  paymentMethod   String   @map("payment_method")
+  nextBillingDate DateTime @map("next_billing_date")
+  interval        String
+  status          String
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+
+  SubscriptionItem  SubscriptionItem[]
+  SubscriptionNFSe  SubscriptionNFSe[]
+  SubscriptionSplit SubscriptionSplit[]
+
+  @@map("subscriptions")
+}
+
+model SubscriptionItem {
+  id              String    @id @default(uuid())
+  subscriptionId  String    @map("subscription_id")
+  itemId          String    @map("item_id")
+  itemDescription String    @map("item_description")
+  quantity        Float
+  unitPrice       Float     @map("unit_price")
+  totalPrice      Float     @map("total_price")
+  status          String
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @updatedAt @map("updated_at")
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  item         Item         @relation(fields: [itemId], references: [id])
+
+  @@map("subscription_items")
+}
+
+model SubscriptionSplit {
+  id             String @id @default(uuid())
+  subscriptionId String @map("subscription_id")
+  recipientId    String @map("recipient_id")
+  splitType      String @map("split_type") //FIXED, PERCENT
+  amount         Float
+  feeAmount      Float  @map("fee_amount")
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  recipient    Business     @relation(fields: [recipientId], references: [id])
+
+  @@map("subscription_splits")
+}
+
+model SubscriptionNFSe {
+  id             String @id @default(uuid())
+  subscriptionId String @map("subscription_id")
+
+  serviceCode   String  @map("service_code")
+  issRetention  Boolean @map("retention_iss")
+  inssRetention Boolean @map("retention_inss")
+  inssRate      Float?  @map("inss_rate")
+
+  incidendeState String @map("incidende_state")
+  indicendeCity  String @map("incidende_city")
+
+  retentionState String @map("retention_state")
+  retentionCity  String @map("retention_city")
+
+  status String
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+
+  @@map("subscription_nfse")
+}
+
+model WebhookEvent {
+  id          String    @id @default(uuid())
+  businessId  String?   @map("business_id")
+  eventType   String?   @map("event_type")
+  payload     Json
+  status      String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+  processedAt DateTime? @map("processed_at")
+
+  business Business? @relation(fields: [businessId], references: [id])
+
+  @@map("webhook_events")
+}
+
+model Sale {
+  id               String    @id @default(uuid())
+  businessId       String    @map("business_id")
+  customerId       String?   @map("customer_id")
+  ownerId          String    @map("owner_id")
+  salesPersonId    String    @map("sales_person_id")
+  channelId        String?   @map("channel_id")
+  issueDate        DateTime  @map("issue_date") //data de emissão 
+  status           String
+  notes            String?
+  servicesAmount   Float     @default(0.0) @map("services_amount") // valor total dos serviços
+  productAmount    Float     @default(0.0) @map("product_amount") // valor total dos produtos
+  grossAmount      Float     @default(0.0) @map("gross_amount") //valor bruto
+  discountAmount   Float     @default(0.0) @map("discount_amount") //valor do desconto
+  amount           Float     @default(0.0) // valor total
+  commissionAmount Float     @default(0.0) @map("commission_amount") //valor da comissão
+  shippingAmount   Float     @default(0.0) @map("shipping_amount") //valor do frete
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime? @updatedAt @map("updated_at")
+
+  business    Business      @relation(fields: [businessId], references: [id])
+  owner       User          @relation(fields: [ownerId], references: [id])
+  channel     SalesChannel? @relation(fields: [channelId], references: [id])
+  salesPerson Person        @relation("SalesPerson", fields: [salesPersonId], references: [id])
+  customer    Person?       @relation("Customer", fields: [customerId], references: [id])
+
+  SaleItem   SaleItem[]
+  SaleReturn SaleReturn[]
+
+  @@map("sales")
+}
+
+model SalesChannel {
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  name       String
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+  Sale       Sale[]
+
+  @@map("sales_channels")
+}
+
+model SaleItem {
+  id               String    @id @default(uuid())
+  saleId           String    @map("sale_id")
+  itemId           String    @map("item_id")
+  itemDescription  String    @map("item_description")
+  quantity         Float
+  unitPrice        Float     @map("unit_price") //valor unitário
+  discountAmount   Float     @map("discount_amount") //valor do desconto
+  commissionAmount Float     @map("commission_amount") //valor da comissão
+  totalPrice       Float     @map("total_price")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime? @updatedAt @map("updated_at")
+
+  item           Item             @relation(fields: [itemId], references: [id])
+  sale           Sale             @relation(fields: [saleId], references: [id])
+  SaleReturnItem SaleReturnItem[]
+
+  @@map("sale_items")
+}
+
+model SaleReturn {
+  id         String    @id @default(uuid())
+  saleId     String    @map("sale_id")
+  returnDate DateTime  @map("return_date")
+  reason     String
+  notes      String?
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+
+  sale Sale @relation(fields: [saleId], references: [id])
+
+  ReturnItem SaleReturnItem[]
+
+  @@map("sale_returns")
+}
+
+model SaleReturnItem {
+  id         String    @id @default(uuid())
+  returnId   String    @map("return_id")
+  saleItemId String    @map("sale_item_id")
+  quantity   Float
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+
+  saleReturn     SaleReturn    @relation(fields: [returnId], references: [id])
+  saleItem       SaleItem      @relation(fields: [saleItemId], references: [id])
+  PurchaseItem   PurchaseItem? @relation(fields: [purchaseItemId], references: [id])
+  purchaseItemId String?
+
+  @@map("sale_return_items")
+}
+
+model Purchase {
+  id               String    @id @default(uuid())
+  businessId       String
+  supplierId       String
+  documentDate     DateTime  @map("document_date") // data do documento
+  documentNumber   String    @map("document_number") // número do documento
+  accessKey        String    @map("access_key") //
+  servicesAmount   Float     @default(0.0) @map("services_amount") // valor total dos serviços
+  productAmount    Float     @default(0.0) @map("product_amount") // valor total dos produtos
+  grossAmount      Float     @default(0.0) @map("gross_amount") //valor bruto
+  discountAmount   Float     @default(0.0) @map("discount_amount") //valor do desconto
+  commissionAmount Float     @default(0.0) @map("commission_amount") //valor da comissão
+  shippingAmount   Float     @default(0.0) @map("shipping_amount") //valor do frete
+  amount           Float     @default(0.0) // valor total
+  status           String
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  supplier Person   @relation(fields: [supplierId], references: [id])
+
+  PurchaseItem    PurchaseItem[]
+  PurchasePayment PurchasePayment[]
+
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id              String    @id @default(uuid())
+  purchaseId      String    @map("purchase_id")
+  itemId          String    @map("item_id")
+  itemDescription String    @map("item_description")
+  quantity        Float
+  unitPrice       Float     @map("unit_price") //valor unitário
+  totalPrice      Float     @map("total_price")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @updatedAt @map("updated_at")
+
+  item     Item     @relation(fields: [itemId], references: [id])
+  purchase Purchase @relation(fields: [purchaseId], references: [id])
+
+  SaleReturnItem SaleReturnItem[]
+
+  @@map("purchase_items")
+}
+
+model PurchasePayment {
+  id            String    @id @default(uuid())
+  purchaseId    String    @map("purchase_id")
+  paymentDate   DateTime  @map("payment_date") // data do pagamento
+  amount        Float     @map("amount") // valor do pagamento
+  paymentMethod String    @map("payment_method") // método de pagamento
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime? @updatedAt @map("updated_at")
+
+  purchase Purchase @relation(fields: [purchaseId], references: [id])
+
+  @@map("purchase_payments")
+}
+
+model StockMovement {
+  id          String    @id @default(uuid())
+  businessId  String    @map("business_id")
+  userId      String    @map("user_id")
+  itemId      String    @map("item_id")
+  description String
+  quantity    Float
+  type        String //IN, OUT, INVENTORY
+  sourceType  String?   @map("source_type") //SALE, PURCHASE, TRANSFER, etc
+  sourceId    String?   @map("source_id") // ID da origem (compra ou venda)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  item     Item     @relation(fields: [itemId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@map("stock_movements")
+}
+
+model Inventory {
+  id          String    @id @default(uuid())
+  businessId  String    @map("business_id")
+  description String
+  status      String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@map("inventories")
+}
+
+model InventoryItem {
+  id              String    @id @default(uuid())
+  inventoryId     String    @map("inventory_id")
+  itemId          String    @map("item_id")
+  quantity        Float
+  unitCost        Float     @map("unit_cost")
+  totalCost       Float     @map("total_cost")
+  countedQuantity Float     @map("counted_quantity")
+  systemQuantity  Float     @map("system_quantity")
+  difference      Float     @map("difference")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @updatedAt @map("updated_at")
+
+  @@map("inventory_items")
+}
+
+model Deal {
+  id                String    @id @default(uuid())
+  businessId        String    @map("business_id")
+  customerId        String?   @map("customer_id")
+  ownerId           String    @map("owner_id")
+  pipelineId        String    @map("pipeline_id")
+  stageId           String    @map("stage_id")
+  lostReasonId      String?   @map("lost_reason_id")
+  title             String
+  probability       Float?
+  expectedCloseDate DateTime? @map("expected_close_date") //data de fechamento esperada
+  notes             String?
+
+  //valor
+  grossAmount      Float  @default(0.0) @map("gross_amount")
+  discountAmount   Float? @default(0.0) @map("discount_amount")
+  amount           Float  @default(0.0)
+  commissionAmount Float? @default(0.0) @map("commission_amount")
+  shippingAmount   Float  @default(0.0) @map("shipping_amount")
+
+  //datas
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  closedAt  DateTime? @map("closed_at") //data de fechamento
+
+  lostReason LostReason? @relation(fields: [lostReasonId], references: [id])
+  stage      Stage       @relation(fields: [stageId], references: [id])
+  owner      User        @relation(fields: [ownerId], references: [id])
+  business   Business    @relation(fields: [businessId], references: [id])
+  person     Person?     @relation(fields: [customerId], references: [id])
+  pipeline   Pipeline    @relation(fields: [pipelineId], references: [id])
+
+  Activity Activity[]
+  DealItem DealItem[]
+
+  @@map("crm_deals")
+}
+
+model DealItem {
+  id               String  @id @default(uuid())
+  dealId           String  @map("deal_id")
+  itemId           String  @map("item_id")
+  itemDescription  String  @map("item_description")
+  priceListId      String? @map("price_list_id")
+  quantity         Float
+  unitPrice        Float   @map("unit_price")
+  discountAmount   Float?  @map("discount_amount")
+  commissionAmount Float?  @map("commission_amount")
+  totalPrice       Float   @map("total_price")
+
+  deal      Deal       @relation(fields: [dealId], references: [id])
+  item      Item       @relation(fields: [itemId], references: [id])
+  priceList PriceList? @relation(fields: [priceListId], references: [id])
+
+  @@map("crm_deal_items")
+}
+
+model Pipeline {
+  id         String @id @default(uuid())
+  businessId String @map("business_id")
+  name       String
+
+  Stage Stage[]
+  Deal  Deal[]
+
+  @@map("crm_pipelines")
+}
+
+model Stage {
+  id         String    @id @default(uuid())
+  name       String
+  pipelineId String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+  pipeline   Pipeline  @relation(fields: [pipelineId], references: [id])
+  Deal       Deal[]
+
+  @@map("crm_stages")
+}
+
+model LostReason {
+  id   String @id @default(uuid())
+  name String
+  Deal Deal[]
+
+  @@map("crm_lost_reasons")
+}
+
+model Activity {
+  id      String   @id @default(uuid())
+  dealId  String   @map("deal_id")
+  title   String
+  notes   String
+  type    String
+  status  String
+  dueDate DateTime @map("due_date")
+  dueTime String?  @map("due_time")
+
+  deal Deal @relation(fields: [dealId], references: [id])
+
+  @@map("crm_activities")
+}
+
+model ServiceOrder {
+  id               String  @id @default(uuid())
+  businessId       String  @map("business_id")
+  customerId       String  @map("customer_id")
+  ownerId          String  @map("owner_id")
+  technicianId     String  @map("technician_id")
+  requestedService String  @map("requested_service")
+  performedService String? @map("performed_service")
+  status           String
+  notes            String?
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  owner    User     @relation(fields: [ownerId], references: [id])
+
+  customer   Person @relation("Customer", fields: [customerId], references: [id])
+  technician Person @relation("Technician", fields: [technicianId], references: [id])
+
+  @@map("service_orders")
+}
+
+model Event {
+  id                String              @id @default(uuid())
+  businessId        String              @map("business_id")
+  title             String
+  description       String
+  status            String
+  startAt           DateTime            @map("start_at")
+  endAt             DateTime            @map("end_at")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime?           @updatedAt @map("updated_at")
+  Business          Business            @relation(fields: [businessId], references: [id])
+  EventTier         EventTier[]
+  EventRegistration EventRegistration[]
+
+  @@map("events")
+}
+
+model EventTier {
+  id        String    @id @default(uuid())
+  eventId   String    @map("event_id")
+  price     Float
+  quantity  Int
+  startAt   DateTime  @map("start_at")
+  endAt     DateTime  @map("end_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  event             Event               @relation(fields: [eventId], references: [id])
+  EventRegistration EventRegistration[]
+
+  @@map("event_tiers")
+}
+
+model EventRegistration {
+  id          String    @id @default(uuid())
+  eventId     String    @map("event_id")
+  eventTierId String    @map("event_tier_id")
+  ownerId     String    @map("owner_id")
+  personId    String    @map("person_id")
+  imageFileId String    @map("image_file_id")
+  amount      Float
+  status      String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  event     Event     @relation(fields: [eventId], references: [id])
+  eventTier EventTier @relation(fields: [eventTierId], references: [id])
+  person    Person    @relation(fields: [personId], references: [id])
+  owner     User      @relation(fields: [ownerId], references: [id])
+  imageFile File?     @relation(fields: [imageFileId], references: [id])
+
+  @@map("event_registrations")
+}
+
+model Campaign {
+  id           String    @id @default(uuid())
+  businessId   String    @map("business_id")
+  title        String
+  description  String
+  categoryId   String    @map("category_id")
+  goalAmount   Float     @map("goal_amount")
+  raisedAmount Float     @map("raised_amount")
+  imageFileId  String    @map("image_file_id")
+  status       String
+  startAt      DateTime  @map("start_at")
+  endAt        DateTime? @map("end_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime? @updatedAt @map("updated_at")
+
+  business             Business               @relation(fields: [businessId], references: [id])
+  category             CampaignCategory       @relation(fields: [categoryId], references: [id])
+  imageFile            File?                  @relation(fields: [imageFileId], references: [id])
+  CampaignContribution CampaignContribution[]
+
+  @@map("campaigns")
+}
+
+model CampaignCategory {
+  id       String     @id @default(uuid())
+  name     String
+  Campaign Campaign[]
+
+  @@map("campaign_categories")
+}
+
+model CampaignContribution {
+  id         String    @id @default(uuid())
+  campaignId String    @map("campaign_id")
+  ownerId    String    @map("owner_id")
+  personId   String    @map("person_id")
+  amount     Float
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+
+  owner  User   @relation(fields: [ownerId], references: [id])
+  person Person @relation(fields: [personId], references: [id])
+
+  @@map("campaign_contributions")
+}
+
+model Reservation {
+  id          String    @id @default(uuid())
+  businessId  String    @map("business_id")
+  personId    String    @map("person_id")
+  title       String
+  description String
+  amount      Float
+  status      String
+  startAt     DateTime  @map("start_at")
+  endAt       DateTime  @map("end_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  person   Person   @relation(fields: [personId], references: [id])
+
+  ReservationResource ReservationResource[]
+
+  @@map("reservations")
+}
+
+model Resource {
+  id        String    @id @default(uuid())
+  name      String
+  amount    Float
+  status    String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  ReservationResource ReservationResource[]
+
+  @@map("resources")
+}
+
+model ReservationResource {
+  id            String    @id @default(uuid())
+  reservationId String    @map("reservation_id")
+  resourceId    String    @map("resource_id")
+  amount        Float
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime? @updatedAt @map("updated_at")
+
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+  resource    Resource    @relation(fields: [resourceId], references: [id])
+
+  @@map("reservation_resources")
 }

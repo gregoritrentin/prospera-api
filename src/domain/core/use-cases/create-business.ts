@@ -21,10 +21,11 @@ interface CreateBusinessUseCaseRequest {
   neighborhood: string
   postalCode: string
   countryCode: string
-  state: string
-  city: string
+  stateCode: string
+  cityCode: string
   businessSize: string
   businessType: string
+  foundingDate: Date
   logoFileId?: string | undefined
   digitalCertificateFileId?: string | undefined
 }
@@ -56,10 +57,11 @@ export class CreateBusinessUseCase {
     neighborhood,
     postalCode,
     countryCode,
-    state,
-    city,
+    stateCode,
+    cityCode,
     businessSize,
     businessType,
+    foundingDate,
     logoFileId,
     digitalCertificateFileId
 
@@ -85,11 +87,12 @@ export class CreateBusinessUseCase {
       neighborhood,
       postalCode,
       countryCode,
-      state,
-      city,
+      stateCode,
+      cityCode,
       status: 'INACTIVE',
       businessSize,
       businessType,
+      foundingDate,
       logoFileId,
       digitalCertificateFileId
 

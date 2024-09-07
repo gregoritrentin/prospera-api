@@ -18,8 +18,8 @@ interface EditPersonUseCaseRequest {
     neighborhood: string
     postalCode: string
     countryCode: string
-    state: string
-    city: string
+    stateCode: string
+    cityCode: string
     status: string
     notes?: string | null
 }
@@ -50,8 +50,8 @@ export class EditPersonUseCase {
         neighborhood,
         postalCode,
         countryCode,
-        state,
-        city,
+        stateCode,
+        cityCode,
         status,
         notes,
 
@@ -76,8 +76,8 @@ export class EditPersonUseCase {
         person.neighborhood = neighborhood
         person.postalCode = postalCode
         person.countryCode = countryCode
-        person.state = state
-        person.city = city
+        person.stateCode = stateCode
+        person.cityCode = cityCode
         person.status = status
         person.notes = notes
 

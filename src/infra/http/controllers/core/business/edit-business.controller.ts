@@ -24,10 +24,11 @@ const editBusinessBodySchema = z.object({
     neighborhood: z.string(),
     postalCode: z.string(),
     countryCode: z.string(),
-    state: z.string(),
-    city: z.string(),
+    stateCode: z.string(),
+    cityCode: z.string(),
     businessSize: z.string(),
     businessType: z.string(),
+    foundingDate: z.date(),
     status: z.string(),
 })
 
@@ -59,10 +60,11 @@ export class EditBusinessController {
             neighborhood,
             postalCode,
             countryCode,
-            state,
-            city,
+            stateCode,
+            cityCode,
             businessSize,
             businessType,
+            foundingDate,
             status
         } = body
 
@@ -83,10 +85,11 @@ export class EditBusinessController {
             neighborhood,
             postalCode,
             countryCode,
-            state,
-            city,
+            stateCode,
+            cityCode,
             businessSize,
             businessType,
+            foundingDate,
             status
         })
 

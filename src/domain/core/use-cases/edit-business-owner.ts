@@ -17,8 +17,8 @@ interface EditBusinessOwnerUseCaseRequest {
     neighborhood: string
     postalCode: string
     countryCode: string
-    state: string
-    city: string
+    stateCode: string
+    cityCode: string
     status: string
     ownerType: string
 }
@@ -47,8 +47,8 @@ export class EditBusinessOwnerUseCase {
         neighborhood,
         postalCode,
         countryCode,
-        state,
-        city,
+        stateCode,
+        cityCode,
         status,
         ownerType,
 
@@ -69,8 +69,8 @@ export class EditBusinessOwnerUseCase {
         businessOwner.neighborhood = neighborhood
         businessOwner.postalCode = postalCode
         businessOwner.countryCode = countryCode
-        businessOwner.state = state
-        businessOwner.city = city
+        businessOwner.stateCode = stateCode
+        businessOwner.cityCode = cityCode
         businessOwner.status = status
         businessOwner.ownerType = ownerType
 
