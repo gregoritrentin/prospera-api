@@ -24,8 +24,8 @@ export interface BusinessProps {
   logoFileId?: string | null
   digitalCertificateFileId?: string | null
   businessSize: string
-  foundingDate: Date
   businessType: string
+  //foundingDate: Date
   createdAt: Date
   updatedAt?: Date | null
 }
@@ -113,9 +113,9 @@ export class Business extends AggregateRoot<BusinessProps> {
     return this.props.businessType
   }
 
-  get foundingDate() {
-    return this.props.foundingDate
-  }
+  // get foundingDate() {
+  //   return this.props.foundingDate
+  // }
 
   get createdAt() {
     return this.props.createdAt
@@ -223,10 +223,10 @@ export class Business extends AggregateRoot<BusinessProps> {
     this.touch()
   }
 
-  set foundingDate(foundingDate: Date) {
-    this.props.foundingDate = foundingDate
-    this.touch()
-  }
+  // set foundingDate(foundingDate: Date) {
+  //   this.props.foundingDate = foundingDate
+  //   this.touch()
+  // }
 
   set status(status: string) {
     this.props.status = status

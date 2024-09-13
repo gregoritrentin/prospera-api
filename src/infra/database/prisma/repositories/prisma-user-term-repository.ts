@@ -3,7 +3,7 @@ import { UserTermRepository } from '@/domain/core/repositories/user-term-reposit
 import { UserTerm } from "@/domain/core/entities/user-term";
 import { Injectable } from "@nestjs/common";
 import { PrismaUserTermMapper } from "@/infra/database/mappers/prisma-user-term-mapper";
-import { PrismaService } from "./prisma.service";
+import { PrismaService } from "../prisma.service";
 
 @Injectable()
 export class PrismaUserTermRepository implements UserTermRepository {

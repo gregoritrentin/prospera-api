@@ -42,7 +42,7 @@ const businessSchema = z.object({
     cityCode: z.string(),
     businessSize: z.string(),
     businessType: z.string(),
-    foundingDate: z.date(),
+    //foundingDate: z.date(),
     logoFileId: z.string().optional(),
     digitalCertificateFileId: z.string().optional(),
 });
@@ -60,7 +60,7 @@ const businessOwnerSchema = z.object({
     countryCode: z.string(),
     stateCode: z.string(),
     cityCode: z.string(),
-    birthDate: z.date(),
+    //birthDate: z.date(),
     status: z.string(),
     ownerType: z.string(),
 });

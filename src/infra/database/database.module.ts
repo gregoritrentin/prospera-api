@@ -28,7 +28,7 @@ import { PrismaBusinessOwnerRepository } from './prisma/repositories/prisma-busi
 import { TermRepository } from '@/domain/core/repositories/term-repository';
 import { PrismaTermRepository } from './prisma/repositories/prisma-term-repository';
 import { UserTermRepository } from '@/domain/core/repositories/user-term-repository';
-import { PrismaUserTermRepository } from './prisma/prisma-user-term-repository';
+import { PrismaUserTermRepository } from '@/infra/database/prisma/repositories/prisma-user-term-repository';
 import { BusinessAppRepository } from '@/domain/core/repositories/business-app-repository';
 import { PrismaBusinessAppRepository } from './prisma/repositories/prisma-business-app-repository';
 

@@ -18,7 +18,7 @@ interface CreateBusinessOwnerUseCaseRequest {
     countryCode: string
     stateCode: string
     cityCode: string
-    birthDate: Date
+    //birthDate: Date
     status: string
     ownerType: string
 }
@@ -48,7 +48,7 @@ export class CreateBusinessOwnerUseCase {
         countryCode,
         stateCode,
         cityCode,
-        birthDate,
+        //birthDate,
         status,
         ownerType
 
@@ -67,7 +67,7 @@ export class CreateBusinessOwnerUseCase {
             countryCode,
             stateCode,
             cityCode,
-            birthDate,
+            //birthDate,
             status: 'PENDING',
             ownerType,
         })

@@ -28,7 +28,7 @@ const editBusinessBodySchema = z.object({
     cityCode: z.string(),
     businessSize: z.string(),
     businessType: z.string(),
-    foundingDate: z.date(),
+    //foundingDate: z.date(),
     status: z.string(),
 })
 
@@ -64,7 +64,7 @@ export class EditBusinessController {
             cityCode,
             businessSize,
             businessType,
-            foundingDate,
+            //foundingDate,
             status
         } = body
 
@@ -89,7 +89,7 @@ export class EditBusinessController {
             cityCode,
             businessSize,
             businessType,
-            foundingDate,
+            //foundingDate,
             status
         })
 

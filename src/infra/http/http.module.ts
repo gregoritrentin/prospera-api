@@ -157,6 +157,8 @@ import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-c
 import { SendAndCreateEmailUseCase } from "@/domain/email/use-cases/send-and-create-email";
 import { SetDefaultBusinessUseCase } from "@/domain/core/use-cases/set-default-business";
 import { SignUpController } from "./controllers/core/sign-up.controller";
+import { GetPersonController } from "./controllers/person/get-person.controller";
+import { GetPersonUseCase } from "@/domain/person/use-cases/get-person";
 
 @Module({
   imports: [DatabaseModule, EmailModule, CryptographyModule, StorageModule],
@@ -231,6 +233,7 @@ import { SignUpController } from "./controllers/core/sign-up.controller";
     EditPersonController,
     DeletePersonController,
     FetchPersonController,
+    GetPersonController,
 
     //item
     CreateItemController,
@@ -312,13 +315,12 @@ import { SignUpController } from "./controllers/core/sign-up.controller";
     DeleteUserTermUseCase,
     FetchUserTermUseCase,
 
-
-
     //person
     CreatePersonUseCase,
     EditPersonUseCase,
     DeletePersonUseCase,
     FetchPersonUseCase,
+    GetPersonUseCase,
 
     //item
     CreateItemUseCase,

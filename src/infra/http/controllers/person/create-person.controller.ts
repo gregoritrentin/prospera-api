@@ -18,7 +18,6 @@ const createPersonBodySchema = z.object({
   countryCode: z.string(),
   stateCode: z.string(),
   cityCode: z.string(),
-  status: z.string(),
   notes: z.string(),
 })
 
@@ -48,7 +47,6 @@ export class CreatePersonController {
       countryCode,
       stateCode,
       cityCode,
-      status,
       notes
     } = body
 
@@ -68,7 +66,7 @@ export class CreatePersonController {
       countryCode,
       stateCode,
       cityCode,
-      status,
+      status: 'ACTIVE',
       notes
     })
 

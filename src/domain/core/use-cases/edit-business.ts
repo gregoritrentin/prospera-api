@@ -25,7 +25,7 @@ interface EditBusinessUseCaseRequest {
     cityCode: string
     businessSize: string
     businessType: string
-    foundingDate: Date
+    //foundingDate: Date
     status: string
 }
 
@@ -61,7 +61,7 @@ export class EditBusinessUseCase {
         cityCode,
         businessSize,
         businessType,
-        foundingDate,
+        //foundingDate,
         status,
 
     }: EditBusinessUseCaseRequest): Promise<EditBusinessUseCaseResponse> {
@@ -88,7 +88,7 @@ export class EditBusinessUseCase {
         business.cityCode = cityCode
         business.businessSize = businessSize
         business.businessType = businessType
-        business.foundingDate = foundingDate
+        //business.foundingDate = foundingDate
         business.status = status
 
         await this.businessRepository.save(business)

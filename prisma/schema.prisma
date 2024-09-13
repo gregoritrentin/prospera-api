@@ -243,7 +243,6 @@ model Business {
   cityCode                 String    @map("city_code")
   businessType             String    @map("business_type")
   businessSize             String    @map("business_syze")
-  foundingDate             DateTime  @map("founding_date")
   logoFileId               String?   @unique @map("logo_file_id")
   digitalCertificateFileId String?   @unique @map("digital_certificate_file_id")
   status                   String
@@ -331,7 +330,6 @@ model BusinessOwners {
   countryCode  String    @map("country_code")
   stateCode    String    @map("state_code")
   cityCode     String    @map("city_code")
-  birthDate    DateTime  @map("birth_date")
   ownerType    String    @map("owner_type")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime? @updatedAt @map("updated_at")

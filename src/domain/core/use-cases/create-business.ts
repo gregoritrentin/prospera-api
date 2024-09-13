@@ -25,7 +25,7 @@ interface CreateBusinessUseCaseRequest {
   cityCode: string
   businessSize: string
   businessType: string
-  foundingDate: Date
+  //foundingDate: Date
   logoFileId?: string | undefined
   digitalCertificateFileId?: string | undefined
 }
@@ -61,7 +61,7 @@ export class CreateBusinessUseCase {
     cityCode,
     businessSize,
     businessType,
-    foundingDate,
+    //foundingDate,
     logoFileId,
     digitalCertificateFileId
 
@@ -92,7 +92,7 @@ export class CreateBusinessUseCase {
       status: 'INACTIVE',
       businessSize,
       businessType,
-      foundingDate,
+      //foundingDate: 
       logoFileId,
       digitalCertificateFileId
 

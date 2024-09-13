@@ -22,7 +22,7 @@ const createBusinessBodySchema = z.object({
   cityCode: z.string(),
   businessSize: z.string(),
   businessType: z.string(),
-  foundingDate: z.date(),
+  //foundingDate: z.date(),
   logoFileId: z.string().optional(),
   digitalCertificateFileId: z.string().optional(),
 })
@@ -57,7 +57,7 @@ export class CreateBusinessController {
       cityCode,
       businessSize,
       businessType,
-      foundingDate,
+      //foundingDate,
       logoFileId,
       digitalCertificateFileId
 
@@ -83,7 +83,7 @@ export class CreateBusinessController {
       cityCode,
       businessSize,
       businessType,
-      foundingDate,
+      //foundingDate,
       logoFileId,
       digitalCertificateFileId,
     })

@@ -17,7 +17,7 @@ const createBusinessOwnerBodySchema = z.object({
     countryCode: z.string(),
     stateCode: z.string(),
     cityCode: z.string(),
-    birthDate: z.date(),
+    //birthDate: z.date(),
     status: z.string(),
     ownerType: z.string(),
 })
@@ -48,7 +48,7 @@ export class CreateBusinessOwnerController {
             countryCode,
             stateCode,
             cityCode,
-            birthDate,
+            //birthDate,
             status,
             ownerType,
 
@@ -69,7 +69,7 @@ export class CreateBusinessOwnerController {
             stateCode,
             cityCode,
             status,
-            birthDate,
+            //birthDate,
             ownerType,
         })
 
