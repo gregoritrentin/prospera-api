@@ -5,6 +5,8 @@ import { EnvService } from './env/env.service'
 import { AuthModule } from './auth/auth.module'
 import { HttpModule } from './http/http.module'
 import { EnvModule } from './env/env.module'
+import { QueueModule } from './queues/queue.module'
+import { TaskSchedulingModule } from './task-scheduling/task-scheduling.module'
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { EnvModule } from './env/env.module'
     AuthModule,
     HttpModule,
     EnvModule,
+    QueueModule,
+    TaskSchedulingModule,
   ],
   providers: [EnvService],
 })

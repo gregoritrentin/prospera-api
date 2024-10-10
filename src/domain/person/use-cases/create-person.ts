@@ -1,5 +1,5 @@
 import { Person } from '@/domain/person/entities/person'
-import { PersonRepository } from '@/domain/person/repositories/person-repository'
+import { PersonsRepository } from '@/domain/person/repositories/persons-repository'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Either, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
@@ -31,7 +31,7 @@ type CreatePersonUseCaseResponse = Either<
 
 @Injectable()
 export class CreatePersonUseCase {
-  constructor(private personRepository: PersonRepository) { }
+  constructor(private personRepository: PersonsRepository) { }
 
   async execute({
     businessId,

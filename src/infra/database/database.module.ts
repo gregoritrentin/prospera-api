@@ -1,17 +1,19 @@
 import { Module } from '@nestjs/common'
+import { EnvModule } from '../env/env.module'
 import { PrismaService } from './prisma/prisma.service';
+import { RedisService } from './redis/redis.service';
 
-import { BusinessRepository } from '@/domain/core/repositories/business-repository';
-import { AppRepository } from '@/domain/core/repositories/app-repository';
-import { UserRepository } from '@/domain/core/repositories/user-repository';
-import { UserBusinessRepository } from '@/domain/core/repositories/user-business-repository';
-import { PersonRepository } from '@/domain/person/repositories/person-repository';
-import { MarketplaceRepository } from '@/domain/core/repositories/marketplace-repository';
+import { BusinessRepository } from '@/domain/application/repositories/business-repository';
+import { AppRepository } from '@/domain/application/repositories/app-repository';
+import { UserRepository } from '@/domain/application/repositories/user-repository';
+import { UserBusinessRepository } from '@/domain/application/repositories/user-business-repository';
+import { PersonsRepository } from '@/domain/person/repositories/persons-repository';
+import { MarketplaceRepository } from '@/domain/application/repositories/marketplace-repository';
 import { PrismaMarketplaceRepository } from './prisma/repositories/prisma-marketplace-repository';
 import { PrismaBusinessRepository } from './prisma/repositories/prisma-business-repository';
 import { PrismaUserRepository } from '@/infra/database/prisma/repositories/prisma-user-repository';
 import { PrismaUserBusinessRepository } from '@/infra/database/prisma/repositories/prisma-user-business-repository';
-import { PrismaPersonRepository } from '@/infra/database/prisma/repositories/prisma-person-repository';
+import { PrismaPersonsRepository } from '@/infra/database/prisma/repositories/prisma-person-repository';
 import { PrismaAppRepository } from '@/infra/database/prisma/repositories/prisma-app-repository';
 import { PrismaItemRepository } from './prisma/repositories/prisma-item-repository';
 import { ItemRepository } from '@/domain/item/repositories/item-repository';
@@ -23,20 +25,24 @@ import { FileRepository } from '@/domain/file/repository/file-repository';
 import { PrismaFilesRepository } from './prisma/repositories/prisma-file-repository';
 import { EmailRepository } from '@/domain/email/repositories/email-repository';
 import { PrismaEmailRepository } from './prisma/repositories/prisma-email-repository';
-import { BusinessOwnerRepository } from '@/domain/core/repositories/business-owner-repository';
+import { BusinessOwnerRepository } from '@/domain/application/repositories/business-owner-repository';
 import { PrismaBusinessOwnerRepository } from './prisma/repositories/prisma-business-owner-repository';
-import { TermRepository } from '@/domain/core/repositories/term-repository';
+import { TermRepository } from '@/domain/application/repositories/term-repository';
 import { PrismaTermRepository } from './prisma/repositories/prisma-term-repository';
-import { UserTermRepository } from '@/domain/core/repositories/user-term-repository';
+import { UserTermRepository } from '@/domain/application/repositories/user-term-repository';
 import { PrismaUserTermRepository } from '@/infra/database/prisma/repositories/prisma-user-term-repository';
-import { BusinessAppRepository } from '@/domain/core/repositories/business-app-repository';
+import { BusinessAppRepository } from '@/domain/application/repositories/business-app-repository';
 import { PrismaBusinessAppRepository } from './prisma/repositories/prisma-business-app-repository';
-
-
+import { BoletoRepository } from '@/domain/transaction/repositories/boleto-repository';
+import { PrismaBoletoRepository } from './prisma/repositories/prisma-boleto-repository';
+import { PixRepository } from '@/domain/transaction/repositories/pix-repository';
+import { PrismaPixRepository } from './prisma/repositories/prisma-pix-repository';
 
 @Module({
+    imports: [EnvModule],
     providers: [
         PrismaService,
+        RedisService,
 
         {
             provide: BusinessRepository,
@@ -115,14 +121,23 @@ import { PrismaBusinessAppRepository } from './prisma/repositories/prisma-busine
 
         },
         {
-            provide: PersonRepository,
-            useClass: PrismaPersonRepository,
+            provide: PersonsRepository,
+            useClass: PrismaPersonsRepository,
 
+        },
+        {
+            provide: BoletoRepository,
+            useClass: PrismaBoletoRepository,
+        },
+        {
+            provide: PixRepository,
+            useClass: PrismaPixRepository,
         },
 
     ],
     exports: [
         PrismaService,
+        RedisService,
         UserRepository,
         AppRepository,
         UserBusinessRepository,
@@ -132,14 +147,14 @@ import { PrismaBusinessAppRepository } from './prisma/repositories/prisma-busine
         UserTermRepository,
         MarketplaceRepository,
         BusinessOwnerRepository,
-        PersonRepository,
+        PersonsRepository,
         ItemRepository,
         ItemGroupRepository,
         ItemTaxationRepository,
-
         FileRepository,
         EmailRepository,
-
+        BoletoRepository,
+        PixRepository,
     ],
 })
 export class DatabaseModule { }

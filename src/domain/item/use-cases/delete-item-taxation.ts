@@ -1,7 +1,6 @@
 import { Either, left, right } from '@/core/either'
+import { AppError } from '@/core/errors/app-errors'
 import { ItemTaxationRepository } from '@/domain/item/repositories/item-taxation-repository'
-import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
-import { NotAllowedError } from '@/core/errors/not-allowed-error'
 import { Injectable } from '@nestjs/common'
 
 interface DeleteItemTaxationUseCaseRequest {
@@ -10,7 +9,7 @@ interface DeleteItemTaxationUseCaseRequest {
 }
 
 type DeleteItemTaxationUseCaseResponse = Either<
-    ResourceNotFoundError | NotAllowedError,
+    AppError,
     null
 >
 
@@ -25,11 +24,11 @@ export class DeleteItemTaxationUseCase {
         const itemTaxation = await this.itemTaxationRepository.findById(taxationId, businessId)
 
         if (!itemTaxation) {
-            return left(new ResourceNotFoundError())
+            return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'))
         }
 
         if (businessId !== itemTaxation.businessId.toString()) {
-            return left(new NotAllowedError())
+            return left(AppError.notAllowed('errors.NOT_ALLOWED'))
         }
 
         await this.itemTaxationRepository.delete(itemTaxation)

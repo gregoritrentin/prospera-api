@@ -1,6 +1,5 @@
 import { Either, left, right } from '@/core/either'
-import { NotAllowedError } from '@/core/errors/not-allowed-error'
-import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
+import { AppError } from '@/core/errors/app-errors'
 import { ItemTaxation } from '@/domain/item/entities/item-taxation'
 import { ItemTaxationRepository } from '@/domain/item/repositories/item-taxation-repository'
 import { Injectable } from '@nestjs/common'
@@ -13,7 +12,7 @@ interface EditItemTaxationUseCaseRequest {
 }
 
 type EditGroupUseCaseResponse = Either<
-    ResourceNotFoundError | NotAllowedError,
+    AppError,
     {
         itemTaxation: ItemTaxation
     }
@@ -35,11 +34,11 @@ export class EditItemTaxationUseCase {
         const itemTaxation = await this.itemTaxationRepository.findById(taxationId, businessId)
 
         if (!itemTaxation) {
-            return left(new ResourceNotFoundError())
+            return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'))
         }
 
         if (businessId !== itemTaxation.businessId.toString()) {
-            return left(new NotAllowedError())
+            return left(AppError.notAllowed('errors.NOT_ALLOWED'))
         }
 
         itemTaxation.taxation = taxation

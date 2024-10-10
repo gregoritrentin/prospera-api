@@ -15,6 +15,8 @@ export class PrismaPersonDetailsMapper {
             personId: new UniqueEntityID(raw.id),
             personName: raw.name,
             document: raw.document,
+            phone: raw.phone,
+            email: raw.email,
             addressLine1: raw.addressLine1,
             addressLine2: raw.addressLine2,
             addressLine3: raw.addressLine3,

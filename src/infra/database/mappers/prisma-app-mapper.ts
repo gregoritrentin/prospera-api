@@ -1,6 +1,6 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { App as PrismaApp, Prisma } from '@prisma/client'
-import { App } from '@/domain/core/entities/app'
+import { App } from '@/domain/application/entities/app'
 
 export class PrismaAppMapper {
     static toDomain(raw: PrismaApp): App {

@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { CreateMarketplaceUseCase } from '@/domain/core/use-cases/create-marketplace'
+import { CreateMarketplaceUseCase } from '@/domain/application/use-cases/create-marketplace'
 
 const createMarketplaceBodySchema = z.object({
   name: z.string(),

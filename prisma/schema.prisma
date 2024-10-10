@@ -243,6 +243,7 @@ model Business {
   cityCode                 String    @map("city_code")
   businessType             String    @map("business_type")
   businessSize             String    @map("business_syze")
+  foundingDate             DateTime  @default(now()) @map("founding_date")
   logoFileId               String?   @unique @map("logo_file_id")
   digitalCertificateFileId String?   @unique @map("digital_certificate_file_id")
   status                   String
@@ -275,7 +276,6 @@ model Business {
   Sale                 Sale[]
   PriceList            PriceList[]
   Invoice              Invoice[]
-  Transaction          Transaction[]
   Receivable           Receivable[]
   ServiceOrder         ServiceOrder[]
   Ticket               Ticket[]
@@ -290,6 +290,8 @@ model Business {
   StockMovement        StockMovement[]
   Inventory            Inventory[]
   CashFlow             CashFlow[]
+  TransactionBoleto    TransactionBoleto[]
+  TransactionPix       TransactionPix[]
 
   @@map("business")
 }
@@ -311,6 +313,7 @@ model File {
   digitalCertificateBusiness Business?           @relation("DigitalCertificateFile")
   EventRegistration          EventRegistration[]
   Campaign                   Campaign[]
+  TransactionBoleto          TransactionBoleto[]
 
   @@map("files")
 }
@@ -330,6 +333,7 @@ model BusinessOwners {
   countryCode  String    @map("country_code")
   stateCode    String    @map("state_code")
   cityCode     String    @map("city_code")
+  birthDate    DateTime  @default(now()) @map("birth_date")
   ownerType    String    @map("owner_type")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime? @updatedAt @map("updated_at")
@@ -471,7 +475,6 @@ model Person {
 
   deal                 Deal[]
   invoice              Invoice[]
-  transaction          Transaction[]
   eventRegistration    EventRegistration[]
   campaignContribution CampaignContribution[]
   reservation          Reservation[]
@@ -481,6 +484,8 @@ model Person {
   technicianOrders     ServiceOrder[]         @relation("Technician")
   Purchase             Purchase[]
   CashFlow             CashFlow[]
+  TransactionBoleto    TransactionBoleto[]
+  TransactionPix       TransactionPix[]
 
   @@unique([businessId, document], name: "documentIdentifier")
   @@map("persons")
@@ -655,8 +660,9 @@ model InvoicePayment {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime? @updatedAt @map("updated_at")
 
-  invoice     Invoice     @relation(fields: [invoiceId], references: [id])
-  transaction Transaction @relation(fields: [transactionId], references: [id])
+  invoice             Invoice            @relation(fields: [invoiceId], references: [id])
+  TransactionBoleto   TransactionBoleto? @relation(fields: [transactionBoletoId], references: [id])
+  transactionBoletoId String?
 
   @@map("invoice_payments")
 }
@@ -700,80 +706,85 @@ model InvoiceAttachment {
   @@map("invoice_attachments")
 }
 
-model Transaction {
-  id          String @id @default(uuid())
-  businessId  String @map("business_id")
-  personId    String @map("person_id")
-  description String
-  type        String //BOLETO, PIX, CARD, etc
-  currency    String //USD, BRL, EUR, etc
+model TransactionBoleto {
+  id           String  @id @default(uuid())
+  businessId   String  @map("business_id")
+  personId     String  @map("person_id")
+  documentType String  @map("document_type")
+  ourNumber    String? @map("our_number")
+  description  String?
+  status       String
 
   //datas
-  dueDate          DateTime @map("due_date")
-  paymendDate      DateTime @map("paymend_date")
-  paymentLimitDate DateTime @map("payment_limit_date")
+  dueDate          DateTime  @map("due_date")
+  paymentDate      DateTime? @map("paymend_date")
+  paymentLimitDate DateTime? @map("payment_limit_date")
 
   //valores
   amount        Float
-  paymentAmount Float @map("payment_amount")
-  feeAmount     Float @map("fee_amount")
+  feeAmount     Float  @map("fee_amount")
+  paymentAmount Float? @map("payment_amount")
+
+  digitableLine String? @map("digitable_line")
+  barcode       String?
+  pixQrCode     String? @map("pix_qr_code")
+  pixId         String? @map("pix_id")
+  pdfFileId     String? @map("file_pdf_id")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
 
   business Business @relation(fields: [businessId], references: [id])
   person   Person   @relation(fields: [personId], references: [id])
+  pdfFile  File?    @relation(fields: [pdfFileId], references: [id])
 
-  InvoicePayment   InvoicePayment[]
-  TransactionSplit TransactionSplit[]
-  Boleto           TransactionBoleto[]
-  Pix              TransactionPix[]
-  Card             TransactionCard[]
-  Receivable       Receivable[]
+  InvoicePayment InvoicePayment[]
+  Receivable     Receivable[]
 
-  @@map("transactions")
+  @@map("transactios_boletos")
+}
+
+model TransactionPix {
+  id           String  @id @default(uuid())
+  businessId   String  @map("business_id")
+  personId     String? @map("person_id")
+  documentType String  @map("document_type")
+  description  String?
+  status       String
+
+  //datas
+  dueDate          DateTime? @map("due_date")
+  paymentDate      DateTime? @map("paymend_date")
+  paymentLimitDate DateTime? @map("payment_limit_date")
+
+  //valores
+  amount        Float
+  feeAmount     Float  @map("fee_amount")
+  paymentAmount Float? @map("payment_amount")
+
+  pixId     String? @map("pix_id")
+  pixQrCode String? @map("pix_qr_code")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  person   Person?  @relation(fields: [personId], references: [id])
+
+  @@map("transactios_pix")
 }
 
 model TransactionSplit {
   id            String @id @default(uuid())
-  transactionId String @map("transaction_id")
+  transactionId String @unique @map("transaction_id")
   recipientId   String @map("recipient_id")
   splitType     String @map("split_type") //FIXED, PERCENT
   amount        Float
   feeAmount     Float  @map("fee_amount")
 
-  transaction Transaction @relation(fields: [transactionId], references: [id])
-  recipient   Business    @relation(fields: [recipientId], references: [id])
+  recipient Business @relation(fields: [recipientId], references: [id])
 
   @@map("transaction_splits")
-}
-
-model TransactionBoleto {
-  id            String @id @default(uuid())
-  transactionId String @map("transaction_id")
-  instructions  String
-  documentType  String @map("document_type") //especie
-  digitableLine String @map("digitable_line")
-
-  transaction Transaction @relation(fields: [transactionId], references: [id])
-
-  @@map("transaction_boletos")
-}
-
-model TransactionPix {
-  id            String @id @default(uuid())
-  transactionId String @map("transaction_id")
-
-  transaction Transaction @relation(fields: [transactionId], references: [id])
-
-  @@map("transaction_pix")
-}
-
-model TransactionCard {
-  id                 String @id @default(uuid())
-  transactionId      String
-  numberInstallments Int
-
-  transaction Transaction @relation(fields: [transactionId], references: [id])
-
-  @@map("transaction_cards")
 }
 
 model Receivable {
@@ -786,8 +797,9 @@ model Receivable {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime? @updatedAt @map("updated_at")
 
-  business    Business    @relation(fields: [businessId], references: [id])
-  transaction Transaction @relation(fields: [transactionId], references: [id])
+  business            Business           @relation(fields: [businessId], references: [id])
+  TransactionBoleto   TransactionBoleto? @relation(fields: [transactionBoletoId], references: [id])
+  transactionBoletoId String?
 
   @@map("receivables")
 }
@@ -1000,6 +1012,24 @@ model Sale {
   @@map("sales")
 }
 
+model SaleItem {
+  id               String @id @default(uuid())
+  saleId           String @map("sale_id")
+  itemId           String @map("item_id")
+  itemDescription  String @map("item_description")
+  quantity         Float
+  unitPrice        Float  @map("unit_price") //valor unitário
+  discountAmount   Float  @map("discount_amount") //valor do desconto
+  commissionAmount Float  @map("commission_amount") //valor da comissão
+  totalPrice       Float  @map("total_price")
+
+  item           Item             @relation(fields: [itemId], references: [id])
+  sale           Sale             @relation(fields: [saleId], references: [id])
+  SaleReturnItem SaleReturnItem[]
+
+  @@map("sale_items")
+}
+
 model SalesChannel {
   id         String    @id @default(uuid())
   businessId String    @map("business_id")
@@ -1010,26 +1040,6 @@ model SalesChannel {
   Sale       Sale[]
 
   @@map("sales_channels")
-}
-
-model SaleItem {
-  id               String    @id @default(uuid())
-  saleId           String    @map("sale_id")
-  itemId           String    @map("item_id")
-  itemDescription  String    @map("item_description")
-  quantity         Float
-  unitPrice        Float     @map("unit_price") //valor unitário
-  discountAmount   Float     @map("discount_amount") //valor do desconto
-  commissionAmount Float     @map("commission_amount") //valor da comissão
-  totalPrice       Float     @map("total_price")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime? @updatedAt @map("updated_at")
-
-  item           Item             @relation(fields: [itemId], references: [id])
-  sale           Sale             @relation(fields: [saleId], references: [id])
-  SaleReturnItem SaleReturnItem[]
-
-  @@map("sale_items")
 }
 
 model SaleReturn {

@@ -1,14 +1,16 @@
 import { Module } from "@nestjs/common"
 import { DatabaseModule } from "../database/database.module";
 import { EmailModule } from "../email/email.module";
-import { StorageModule } from "../storage/storage.module";
+import { FileModule } from "../file/file.module";
 import { CryptographyModule } from "@/infra/cryptography/cryptografhy.module";
+import { BoletoModule } from "../boleto/boleto.module";
+import { PixModule } from "../pix/pix.module";
 
 //app
-import { CreateAppUseCase } from "@/domain/core/use-cases/create-app";
-import { FetchAppUseCase } from "@/domain/core/use-cases/fetch-app";
-import { EditAppUseCase } from "@/domain/core/use-cases/edit-app";
-import { DeleteAppUseCase } from "@/domain/core/use-cases/delete-app";
+import { CreateAppUseCase } from "@/domain/application/use-cases/create-app";
+import { FetchAppUseCase } from "@/domain/application/use-cases/fetch-app";
+import { EditAppUseCase } from "@/domain/application/use-cases/edit-app";
+import { DeleteAppUseCase } from "@/domain/application/use-cases/delete-app";
 
 import { CreateAppController } from "@/infra/http/controllers/core/app/create-app.controller";
 import { EditAppController } from "@/infra/http/controllers/core/app/edit-app-controller";
@@ -20,9 +22,9 @@ import { CreateMarketplaceController } from "./controllers/core/marketplace/crea
 import { EditMarketplaceController } from "./controllers/core/marketplace/edit-marketplace.controller";
 import { FetchMarketplaceController } from "@/infra/http/controllers/core/marketplace/fetch-marketplace.controler";
 
-import { CreateMarketplaceUseCase } from "@/domain/core/use-cases/create-marketplace";
-import { EditMarketplaceUseCase } from "@/domain/core/use-cases/edit-marketplace";
-import { FetchMarketplaceUseCase } from "@/domain/core/use-cases/fetch-marketplace";
+import { CreateMarketplaceUseCase } from "@/domain/application/use-cases/create-marketplace";
+import { EditMarketplaceUseCase } from "@/domain/application/use-cases/edit-marketplace";
+import { FetchMarketplaceUseCase } from "@/domain/application/use-cases/fetch-marketplace";
 
 //user 
 import { AuthenticateUserController } from "./controllers/core/auth/authenticate-user.controller";
@@ -34,14 +36,14 @@ import { FetchUserController } from "@/infra/http/controllers/core/user/fetch-us
 import { GetUserController } from "@/infra/http/controllers/core/user/get-user.controller";
 import { SetUserPhotoController } from "@/infra/http/controllers/core/user/set-user-photo.controller";
 
-import { AuthenticateUserUseCase } from "@/domain/core/use-cases/authenticate-user";
-import { AuthenticateBusinessUseCase } from "@/domain/core/use-cases/authenticate-business";
-import { CreateUserUseCase } from '@/domain/core/use-cases/create-user';
-import { EditUserUseCase } from "@/domain/core/use-cases/edit-user";
-import { DeleteUserUseCase } from "@/domain/core/use-cases/delete-user";
-import { FetchUserUseCase } from "@/domain/core/use-cases/fetch-user";
-import { GetUserUseCase } from "@/domain/core/use-cases/get-user";
-import { SetUserPhotoUseCase } from "@/domain/core/use-cases/set-user-photo";
+import { AuthenticateUserUseCase } from "@/domain/application/use-cases/authenticate-user";
+import { AuthenticateBusinessUseCase } from "@/domain/application/use-cases/authenticate-business";
+import { CreateUserUseCase } from '@/domain/application/use-cases/create-user';
+import { EditUserUseCase } from "@/domain/application/use-cases/edit-user";
+import { DeleteUserUseCase } from "@/domain/application/use-cases/delete-user";
+import { FetchUserUseCase } from "@/domain/application/use-cases/fetch-user";
+import { GetUserUseCase } from "@/domain/application/use-cases/get-user";
+import { SetUserPhotoUseCase } from "@/domain/application/use-cases/set-user-photo";
 import { SetDefaultBusinessController } from "./controllers/core/user/set-default-business.controller";
 
 //term
@@ -50,19 +52,19 @@ import { CreateTermController } from "./controllers/core/term/create-term.contro
 import { DeleteTermController } from "./controllers/core/term/delete-term.controller";
 import { EditTermController } from "./controllers/core/term/edit-term.controller";
 
-import { CreateTermUseCase } from "@/domain/core/use-cases/create-term";
-import { DeleteTermUseCase } from "@/domain/core/use-cases/delete-term";
-import { EditTermUseCase } from "@/domain/core/use-cases/edit-term";
-import { FetchTermUseCase } from "@/domain/core/use-cases/fetch-term";
+import { CreateTermUseCase } from "@/domain/application/use-cases/create-term";
+import { DeleteTermUseCase } from "@/domain/application/use-cases/delete-term";
+import { EditTermUseCase } from "@/domain/application/use-cases/edit-term";
+import { FetchTermUseCase } from "@/domain/application/use-cases/fetch-term";
 
 //user-term
 import { CreateUserTermController } from "@/infra/http/controllers/core/term/create-user-term.controller";
 import { DeleteUserTermController } from "./controllers/core/term/delete-user-term.controller";
 import { FetchUserTermController } from "./controllers/core/term/fetch-user-term.controller";
 
-import { CreateUserTermUseCase } from "@/domain/core/use-cases/create-user-term";
-import { DeleteUserTermUseCase } from "@/domain/core/use-cases/delete-user-term";
-import { FetchUserTermUseCase } from "@/domain/core/use-cases/fetch-user-terms";
+import { CreateUserTermUseCase } from "@/domain/application/use-cases/create-user-term";
+import { DeleteUserTermUseCase } from "@/domain/application/use-cases/delete-user-term";
+import { FetchUserTermUseCase } from "@/domain/application/use-cases/fetch-user-terms";
 
 //business
 import { CreateBusinessController } from "@/infra/http/controllers/core/business/create-business.controller";
@@ -71,42 +73,38 @@ import { DeleteBusinessController } from "@/infra/http/controllers/core/business
 import { FetchBusinessController } from "@/infra/http/controllers/core/business/fetch-business.controller";
 import { GetBusinessController } from "@/infra/http/controllers/core/user/get-business.controller"
 
-import { CreateBusinessUseCase } from "@/domain/core/use-cases/create-business";
-import { EditBusinessUseCase } from "@/domain/core/use-cases/edit-business";
-import { DeleteBusinessUseCase } from '@/domain/core/use-cases/delele-business';
-import { FetchBusinessUseCase } from "@/domain/core/use-cases/fetch-business";
-import { GetBusinessUseCase } from '@/domain/core/use-cases/get-business';
+import { CreateBusinessUseCase } from "@/domain/application/use-cases/create-business";
+import { EditBusinessUseCase } from "@/domain/application/use-cases/edit-business";
+import { DeleteBusinessUseCase } from '@/domain/application/use-cases/delele-business';
+import { FetchBusinessUseCase } from "@/domain/application/use-cases/fetch-business";
+import { GetBusinessUseCase } from '@/domain/application/use-cases/get-business';
 
 //business-owner
 import { CreateBusinessOwnerController } from "@/infra/http/controllers/core/business/create-business-owner.controller";
 import { EditBusinessOwnerController } from "@/infra/http/controllers/core/business/edit-business-owner.controller";
 import { FetchBusinessOwnerController } from "@/infra/http/controllers/core/business/fetch-business-owner.controller";
 
-import { CreateBusinessOwnerUseCase } from "@/domain/core/use-cases/create-business-owner";
-import { EditBusinessOwnerUseCase } from "@/domain/core/use-cases/edit-business-owner";
-import { FetchBusinessOwnerUseCase } from "@/domain/core/use-cases/fetch-user-owner";
+import { CreateBusinessOwnerUseCase } from "@/domain/application/use-cases/create-business-owner";
+import { EditBusinessOwnerUseCase } from "@/domain/application/use-cases/edit-business-owner";
+import { FetchBusinessOwnerUseCase } from "@/domain/application/use-cases/fetch-user-owner";
 
 //business-app
 import { CreateBusinessAppController } from "@/infra/http/controllers/core/business/create-business-app.controller";
 import { EditBusinessAppController } from "@/infra/http/controllers/core/business/edit-business-app.controller";
 import { FetchBusinessAppController } from "@/infra/http/controllers/core/business/fetch-business-app.controller";
 
-import { CreateBusinessAppUseCase } from "@/domain/core/use-cases/create-business-app";
-import { EditBusinessAppUseCase } from "@/domain/core/use-cases/edit-business-app";
-import { FetchBusinessAppUseCase } from "@/domain/core/use-cases/fetch-business-apps";
+import { CreateBusinessAppUseCase } from "@/domain/application/use-cases/create-business-app";
+import { EditBusinessAppUseCase } from "@/domain/application/use-cases/edit-business-app";
+import { FetchBusinessAppUseCase } from "@/domain/application/use-cases/fetch-business-apps";
 
 //user-business
 import { CreateUserBusinessController } from "@/infra/http/controllers/core/user/create-user-business.controller";
 import { EditUserBusinessController } from "@/infra/http/controllers/core/user/edit-user-business.controller";
 import { FetchUserBusinessController } from "@/infra/http/controllers/core/user/fetch-user-business.controller";
 
-import { CreateUserBusinessUseCase } from "@/domain/core/use-cases/create-user-business";
-import { EditUserBusinessUseCase } from "@/domain/core/use-cases/edit-user-business";
-import { FetchUserBusinessUseCase } from "@/domain/core/use-cases/fetch-user-business";
-
-
-
-
+import { CreateUserBusinessUseCase } from "@/domain/application/use-cases/create-user-business";
+import { EditUserBusinessUseCase } from "@/domain/application/use-cases/edit-user-business";
+import { FetchUserBusinessUseCase } from "@/domain/application/use-cases/fetch-user-business";
 
 //person
 import { CreatePersonController } from "./controllers/person/create-person.controller";
@@ -152,16 +150,37 @@ import { EditItemTaxationUseCase } from "@/domain/item/use-cases/edit-item-taxat
 import { DeleteItemTaxationUseCase } from "@/domain/item/use-cases/delete-item-taxation";
 import { FetchItemTaxationUseCase } from "@/domain/item/use-cases/fech-item-taxation";
 
+//transaction-boleto
+import { CreateBoletoController } from "@/infra/http/controllers/transaction/create-boleto.controller";
+import { CreateBoletoUseCase } from "@/domain/transaction/use-cases/create-boleto";
+import { PrintBoletoController } from "@/infra/http/controllers/transaction/print-boleto.controller";
+import { PrintBoletoUseCase } from "@/domain/transaction/use-cases/print-boleto";
+
+
 
 import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-create-file";
 import { SendAndCreateEmailUseCase } from "@/domain/email/use-cases/send-and-create-email";
-import { SetDefaultBusinessUseCase } from "@/domain/core/use-cases/set-default-business";
+import { SetDefaultBusinessUseCase } from "@/domain/application/use-cases/set-default-business";
 import { SignUpController } from "./controllers/core/sign-up.controller";
 import { GetPersonController } from "./controllers/person/get-person.controller";
 import { GetPersonUseCase } from "@/domain/person/use-cases/get-person";
+import { CancelBoletoController } from "./controllers/transaction/cancel-boleto.controller";
+import { CancelBoletoUseCase } from "@/domain/transaction/use-cases/cancel-boleto";
+import { FetchBoletoController } from "./controllers/transaction/fetch-boleto.controller";
+import { FetchBoletoUseCase } from "@/domain/transaction/use-cases/fetch-boletos";
+import { GetBoletoController } from "./controllers/transaction/get-boleto.controller";
+import { GetBoletoUseCase } from "@/domain/transaction/use-cases/get-boleto";
+import { QueueModule } from "../queues/queue.module";
+import { CreatePixController } from "./controllers/transaction/create-pix.controller";
+import { CreatePixUseCase } from "@/domain/transaction/use-cases/create-pix";
+import { FetchPixUseCase } from "@/domain/transaction/use-cases/fetch-pixes";
+import { FetchPixController } from "./controllers/transaction/fetch-pix.controller";
+import { GetPixController } from "./controllers/transaction/get-pix.controller";
+import { GetPixUseCase } from "@/domain/transaction/use-cases/get-pix";
+
 
 @Module({
-  imports: [DatabaseModule, EmailModule, CryptographyModule, StorageModule],
+  imports: [DatabaseModule, BoletoModule, PixModule, EmailModule, CryptographyModule, FileModule, QueueModule],
   controllers: [
 
     //sign-up
@@ -253,6 +272,18 @@ import { GetPersonUseCase } from "@/domain/person/use-cases/get-person";
     DeleteItemTaxationController,
     FetchItemTaxationController,
 
+    //transaction boleto
+    CreateBoletoController,
+    PrintBoletoController,
+    CancelBoletoController,
+    FetchBoletoController,
+    GetBoletoController,
+
+    //transaction pix
+    CreatePixController,
+    GetPixController,
+    FetchPixController,
+
   ],
   providers: [
 
@@ -340,8 +371,18 @@ import { GetPersonUseCase } from "@/domain/person/use-cases/get-person";
     DeleteItemTaxationUseCase,
     FetchItemTaxationUseCase,
 
+    //transaction boleto
+    CreateBoletoUseCase,
+    PrintBoletoUseCase,
+    CancelBoletoUseCase,
+    FetchBoletoUseCase,
+    GetBoletoUseCase,
 
-
+    //transaction pix
+    CreatePixUseCase,
+    FetchPixUseCase,
+    GetPixUseCase,
   ],
+
 })
 export class HttpModule { }

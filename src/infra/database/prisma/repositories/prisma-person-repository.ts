@@ -3,12 +3,12 @@ import { Person } from "@/domain/person/entities/person";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { PrismaPersonMapper } from "../../mappers/prisma-person-mapper";
-import { PersonRepository } from "@/domain/person/repositories/person-repository";
+import { PersonsRepository } from "@/domain/person/repositories/persons-repository";
 import { PersonDetails } from "@/domain/person/entities/value-objects/person-details";
 import { PrismaPersonDetailsMapper } from "@/infra/database/mappers/prisma-person-details-mapper";
 
 @Injectable()
-export class PrismaPersonRepository implements PersonRepository {
+export class PrismaPersonsRepository implements PersonsRepository {
     constructor(private prisma: PrismaService) { }
 
     async findById(id: string, businessId: string): Promise<Person | null> {

@@ -5,7 +5,7 @@ import {
     HttpCode,
     Param,
 } from '@nestjs/common'
-import { DeleteUserUseCase } from '@/domain/core/use-cases/delete-user'
+import { DeleteUserUseCase } from '@/domain/application/use-cases/delete-user'
 
 @Controller('/user/:id')
 export class DeleteUserController {

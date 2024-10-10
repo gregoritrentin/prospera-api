@@ -2,19 +2,20 @@ import { Either, left, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
 import { File } from '@/domain/file/entities/file'
 import { FileRepository } from '@/domain/file/repository/file-repository'
-import { Uploader } from '@/domain/storage/uploader'
-import { InvalidFileTypeError } from '@/core/errors/invalid-file-type-error'
+import { FileProvider } from '@/domain/interfaces/file-provider'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { AppError } from '@/core/errors/app-errors'
 
 interface UploadAndCreateFileRequest {
     businessId: string
+    folderName: string
     fileName: string
     fileType: string
     body: Buffer
 }
 
 type UploadAndCreateFileResponse = Either<
-    InvalidFileTypeError,
+    AppError,
     { file: File }
 >
 
@@ -22,21 +23,22 @@ type UploadAndCreateFileResponse = Either<
 export class UploadAndCreateFileUseCase {
     constructor(
         private fileRepository: FileRepository,
-        private uploader: Uploader,
+        private fileProvider: FileProvider,
     ) { }
 
     async execute({
         businessId,
+        folderName,
         fileName,
         fileType,
         body,
     }: UploadAndCreateFileRequest): Promise<UploadAndCreateFileResponse> {
 
-        if (!/^(image\/(jpeg|png))$/.test(fileType)) {
-            return left(new InvalidFileTypeError(fileType))
-        }
+        // if (!/^(image\/(jpeg|png))$/.test(fileType)) {
+        //     return left(new InvalidFileTypeError(fileType))
+        // }
 
-        const { url } = await this.uploader.upload({ businessId, fileName, fileType, body })
+        const { url } = await this.fileProvider.upload({ businessId, folderName, fileName, fileType, body })
 
         const file = File.create({
             businessId: new UniqueEntityID(businessId),

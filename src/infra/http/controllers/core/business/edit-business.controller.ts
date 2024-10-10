@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { EditBusinessUseCase } from '@/domain/core/use-cases/edit-business'
+import { EditBusinessUseCase } from '@/domain/application/use-cases/edit-business'
 
 const editBusinessBodySchema = z.object({
     marketplaceId: z.string(),
@@ -28,7 +28,7 @@ const editBusinessBodySchema = z.object({
     cityCode: z.string(),
     businessSize: z.string(),
     businessType: z.string(),
-    //foundingDate: z.date(),
+    foundingDate: z.string().transform((str) => new Date(str)),
     status: z.string(),
 })
 
@@ -64,7 +64,7 @@ export class EditBusinessController {
             cityCode,
             businessSize,
             businessType,
-            //foundingDate,
+            foundingDate,
             status
         } = body
 
@@ -89,7 +89,7 @@ export class EditBusinessController {
             cityCode,
             businessSize,
             businessType,
-            //foundingDate,
+            foundingDate,
             status
         })
 

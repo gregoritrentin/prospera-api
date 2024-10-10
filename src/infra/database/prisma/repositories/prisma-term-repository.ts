@@ -1,8 +1,8 @@
 import { PaginationParams } from "@/core/repositories/pagination-params";
-import { Term } from '@/domain/core/entities/term'
+import { Term } from '@/domain/application/entities/term'
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-import { TermRepository } from "@/domain/core/repositories/term-repository";
+import { TermRepository } from "@/domain/application/repositories/term-repository";
 import { PrismaTermMapper } from "@/infra/database/mappers/prisma-term-mapper";
 
 @Injectable()

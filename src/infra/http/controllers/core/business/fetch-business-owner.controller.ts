@@ -3,7 +3,7 @@ import {
     Controller,
     Param,
 } from '@nestjs/common'
-import { FetchBusinessOwnerUseCase } from '@/domain/core/use-cases/fetch-user-owner'
+import { FetchBusinessOwnerUseCase } from '@/domain/application/use-cases/fetch-user-owner'
 
 @Controller('/business/owner/:id')
 export class FetchBusinessOwnerController {

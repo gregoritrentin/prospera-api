@@ -1,5 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { UserTerm } from '@/domain/core/entities/user-term'
+import { UserTerm } from '@/domain/application/entities/user-term'
 import { UserTerms as PrismaUserTerm, Prisma } from '@prisma/client'
 
 export class PrismaUserTermMapper {

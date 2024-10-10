@@ -1,0 +1,36 @@
+{
+    "errors": {
+      "SALE_NO_ITEMS": "The sale must have at least one item.",
+      "PRODUCT_AMOUNT_MISMATCH": "The total product amount does not match the sum of the items.",
+      "GROSS_AMOUNT_MISMATCH": "The gross amount does not match the sum of products and services.",
+      "TOTAL_AMOUNT_MISMATCH": "The total amount does not match the expected calculation.",
+      "COMMISSION_AMOUNT_MISMATCH": "The total commission amount does not match the sum of the item commissions.",
+      "RESOURCE_NOT_FOUND": "Resource not found",
+      "NOT_ALLOWED": "Operation not allowed",
+
+      "BUSINESS_NOT_FOUND": "Negócio não encontrado com o ID: {{businessId}}",
+      "PERSON_NOT_FOUND": "Pessoa não encontrada com o ID: {{personId}}", 
+      "BOLETO_CREATION_FAILED": "Falha ao criar o boleto: {{details}}",
+      "INVALID_AMOUNT": "Valor inválido. Esperado: {{expected}}, Atual: {{actual}}",
+      "INVALID_DUE_DATE": "Data de vencimento inválida",
+      "TRANSACTION_NOT_FOUND": "Transação não encontrada com o ID: {{transactionId}}",
+      "INVALID_TRANSACTION_STATUS": "Status de transação inválido. Atual: {{currentStatus}}, Requerido: {{requiredStatus}}",
+      "PAYMENT_PROVIDER_ERROR": "Erro do provedor de pagamento: {{providerError}}",
+      "INSUFFICIENT_FUNDS": "Fundos insuficientes para completar a transação",
+      "DUPLICATE_TRANSACTION": "Transação duplicada detectada com o ID: {{transactionId}}",
+      "INVALID_CURRENCY": "Moeda inválida: {{currency}}",
+      "INVALID_DATA": "Dados inválidos: {{details}}",
+
+
+      "PIX_CREATION_FAILED": "Falha ao criar o PixAAAAAAAA"
+
+    },
+    "messages": {
+      "messages": {
+        "RECORD_CREATED": "Record created successfully",
+        "RECORD_UPDATED": "Record updated successfully",
+        "RECORD_RETRIEVED": "Record retrieved successfully",
+        "RECORD_DELETED": "Record deleted successfully"      
+      }
+    }
+  }

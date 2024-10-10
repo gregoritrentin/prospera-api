@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "business" ADD COLUMN     "founding_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "business_owners" ADD COLUMN     "birth_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

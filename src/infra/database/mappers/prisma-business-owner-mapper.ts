@@ -1,5 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { BusinessOwner } from '@/domain/core/entities/business-owner'
+import { BusinessOwner } from '@/domain/application/entities/business-owner'
 import { BusinessOwners as PrismaBusinessOwner, Prisma } from '@prisma/client'
 
 export class PrismaBusinessOwnerMapper {
@@ -18,7 +18,7 @@ export class PrismaBusinessOwnerMapper {
             countryCode: raw.countryCode,
             stateCode: raw.stateCode,
             cityCode: raw.cityCode,
-            //birthDate: raw.birthDate,
+            birthDate: raw.birthDate,
             status: raw.status,
             ownerType: raw.ownerType,
             createdAt: raw.createdAt,
@@ -44,7 +44,7 @@ export class PrismaBusinessOwnerMapper {
             countryCode: businessOwner.countryCode,
             stateCode: businessOwner.stateCode,
             cityCode: businessOwner.cityCode,
-            //birthDate: businessOwner.birthDate,
+            birthDate: businessOwner.birthDate,
             status: businessOwner.status,
             ownerType: businessOwner.ownerType,
             createdAt: businessOwner.createdAt,

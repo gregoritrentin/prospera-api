@@ -3,7 +3,7 @@ import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
 
 import { UserPresenter } from '@/infra/http/presenters/user-presenter'
-import { FetchUserUseCase } from '@/domain/core/use-cases/fetch-user'
+import { FetchUserUseCase } from '@/domain/application/use-cases/fetch-user'
 
 
 const pageQueryParamSchema = z

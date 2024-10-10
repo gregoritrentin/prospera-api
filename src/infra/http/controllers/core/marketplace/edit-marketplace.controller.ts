@@ -9,10 +9,11 @@ import {
 import { UserPayload } from '@/infra/auth/jwt.strategy'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { EditMarketplaceUseCase } from '@/domain/core/use-cases/edit-marketplace'
+import { EditMarketplaceUseCase } from '@/domain/application/use-cases/edit-marketplace'
 
 const editMarketplaceBodySchema = z.object({
     name: z.string(),
+    status: z.string(),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(editMarketplaceBodySchema)
@@ -31,12 +32,14 @@ export class EditMarketplaceController {
     ) {
         const {
             name,
+            status
 
         } = body
 
         const result = await this.editMarketplace.execute({
             marketplaceId,
             name,
+            status,
 
         })
 

@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { CreateAppUseCase } from '@/domain/core/use-cases/create-app'
+import { CreateAppUseCase } from '@/domain/application/use-cases/create-app'
 
 const createAppBodySchema = z.object({
     name: z.string(),

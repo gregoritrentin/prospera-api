@@ -17,6 +17,7 @@ export class PersonPresenter {
             countryCode: person.countryCode,
             stateCode: person.stateCode,
             cityCode: person.cityCode,
+            status: person.status,
             createdAt: person.createdAt,
             updatedAt: person.updatedAt
         }

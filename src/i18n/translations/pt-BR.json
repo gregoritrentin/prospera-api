@@ -1,0 +1,24 @@
+{
+    "errors": {
+      "SALE_NO_ITEMS": "A venda deve ter pelo menos um item.",
+      "PRODUCT_AMOUNT_MISMATCH": "O valor total dos produtos não corresponde à soma dos itens.",
+      "GROSS_AMOUNT_MISMATCH": "O valor bruto não corresponde à soma dos produtos e serviços.",
+      "TOTAL_AMOUNT_MISMATCH": "O valor total não corresponde ao cálculo esperado.",
+      "COMMISSION_AMOUNT_MISMATCH": "O valor total da comissão não corresponde à soma das comissões dos itens.",
+      "RESOURCE_NOT_FOUND": "Recurso não encontrado",
+      "INVALID_AMOUNT": "Valor inválido.",
+      "NOT_ALLOWED": "Operação não permitida",
+  
+      "SICREDI_ERROR_CREATE_BOLETO": "Erro ao criar boleto no Sicredi",
+      "SICREDI_ERROR_CANCEL_BOLETO": "Erro ao cancelar boleto no Sicredi",
+      "SICREDI_ERROR_PRINT_BOLETO": "Erro ao imprimir boleto no Sicredi",
+      "PIX_CREATION_FAILED": "Falha ao criar o Pix: {{details}}"
+    
+    },
+    "messages": {
+      "RECORD_CREATED": "Registro criado com sucesso.",
+      "RECORD_UPDATED": "Registro atualizado com sucesso",
+      "RECORD_RETRIEVED": "Registro recuperado com sucesso",
+      "RECORD_DELETED": "Registro excluído com sucesso"      
+    }
+  }

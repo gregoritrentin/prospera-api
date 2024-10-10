@@ -1,7 +1,6 @@
 import { Either, left, right } from '@/core/either'
-import { PersonRepository } from '@/domain/person/repositories/person-repository'
-import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
-import { NotAllowedError } from '@/core/errors/not-allowed-error'
+import { AppError } from '@/core/errors/app-errors'
+import { PersonsRepository } from '@/domain/person/repositories/persons-repository'
 import { Injectable } from '@nestjs/common'
 
 interface DeletePersonUseCaseRequest {
@@ -10,29 +9,29 @@ interface DeletePersonUseCaseRequest {
 }
 
 type DeletePersonUseCaseResponse = Either<
-    ResourceNotFoundError | NotAllowedError,
+    AppError,
     null
 >
 
 @Injectable()
 export class DeletePersonUseCase {
-    constructor(private personRepository: PersonRepository) { }
+    constructor(private personsRepository: PersonsRepository) { }
 
     async execute({
         businessId,
         personId,
     }: DeletePersonUseCaseRequest): Promise<DeletePersonUseCaseResponse> {
-        const person = await this.personRepository.findById(personId, businessId)
+        const person = await this.personsRepository.findById(personId, businessId)
 
         if (!person) {
-            return left(new ResourceNotFoundError())
+            return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'))
         }
 
         if (businessId !== person.businessId.toString()) {
-            return left(new NotAllowedError())
+            return left(AppError.notAllowed('errors.NOT_ALLOWED'))
         }
 
-        await this.personRepository.delete(person)
+        await this.personsRepository.delete(person)
 
         return right(null)
     }

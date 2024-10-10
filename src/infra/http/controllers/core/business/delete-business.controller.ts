@@ -5,7 +5,7 @@ import {
     HttpCode,
     Param,
 } from '@nestjs/common'
-import { DeleteBusinessUseCase } from '@/domain/core/use-cases/delele-business'
+import { DeleteBusinessUseCase } from '@/domain/application/use-cases/delele-business'
 
 @Controller('/business/:id')
 export class DeleteBusinessController {

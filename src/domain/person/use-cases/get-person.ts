@@ -1,10 +1,8 @@
 import { Either, left, right } from '@/core/either'
-import { PersonRepository } from '@/domain/person/repositories/person-repository'
-import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
-import { NotAllowedError } from '@/core/errors/not-allowed-error'
+import { PersonsRepository } from '@/domain/person/repositories/persons-repository'
 import { Injectable } from '@nestjs/common'
-import { PersonDetails } from '../entities/value-objects/person-details'
 import { Person } from '../entities/person'
+import { AppError } from '@/core/errors/app-errors'
 
 interface GetPersonUseCaseRequest {
     businessId: string
@@ -12,7 +10,7 @@ interface GetPersonUseCaseRequest {
 }
 
 type GetPersonUseCaseResponse = Either<
-    ResourceNotFoundError | NotAllowedError,
+    AppError,
     {
         person: Person
     }
@@ -20,20 +18,20 @@ type GetPersonUseCaseResponse = Either<
 
 @Injectable()
 export class GetPersonUseCase {
-    constructor(private personRepository: PersonRepository) { }
+    constructor(private personsRepository: PersonsRepository) { }
 
     async execute({
         businessId,
         personId,
     }: GetPersonUseCaseRequest): Promise<GetPersonUseCaseResponse> {
-        const person = await this.personRepository.findById(personId, businessId)
+        const person = await this.personsRepository.findById(personId, businessId)
 
         if (!person) {
-            return left(new ResourceNotFoundError())
+            return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'))
         }
 
         if (businessId !== person.businessId.toString()) {
-            return left(new NotAllowedError())
+            return left(AppError.notAllowed('errors.RESOURCE_NOT_ALLOWED'))
         }
 
         return right({

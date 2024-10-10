@@ -26,7 +26,7 @@ const editPersonBodySchema = z.object({
     stateCode: z.string(),
     cityCode: z.string(),
     status: z.string(),
-    notes: z.string(),
+    notes: z.string().optional(),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(editPersonBodySchema)

@@ -1,6 +1,6 @@
 import { PaginationParams } from "@/core/repositories/pagination-params";
-import { BusinessRepository } from "@/domain/core/repositories/business-repository";
-import { Business } from "@/domain/core/entities/business";
+import { BusinessRepository } from "@/domain/application/repositories/business-repository";
+import { Business } from "@/domain/application/entities/business";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { PrismaBusinessMapper } from "../../mappers/prisma-business-mapper";

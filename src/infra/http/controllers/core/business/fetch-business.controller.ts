@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '@/infra/auth/jwt-auth.guard'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
 import { BusinessPresenter } from '@/infra/http/presenters/business-presenter'
-import { FetchBusinessUseCase } from '@/domain/core/use-cases/fetch-business'
+import { FetchBusinessUseCase } from '@/domain/application/use-cases/fetch-business'
 
 const pageQueryParamSchema = z
   .string()

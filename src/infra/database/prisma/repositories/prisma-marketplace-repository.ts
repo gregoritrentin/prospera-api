@@ -1,6 +1,6 @@
 import { PaginationParams } from "@/core/repositories/pagination-params";
-import { MarketplaceRepository } from "@/domain/core/repositories/marketplace-repository";
-import { Marketplace } from "@/domain/core/entities/marketplace";
+import { MarketplaceRepository } from "@/domain/application/repositories/marketplace-repository";
+import { Marketplace } from "@/domain/application/entities/marketplace";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { PrismaMarketplaceMapper } from "../../mappers/prisma-marketplace-mapper";

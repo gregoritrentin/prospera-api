@@ -34,6 +34,7 @@ export class CreatePersonController {
     @Body(bodyValidationPipe) body: CreatePersonBodySchema,
     @CurrentUser() user: UserPayload,
   ) {
+
     const {
       name,
       email,

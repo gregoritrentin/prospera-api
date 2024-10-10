@@ -1,4 +1,4 @@
-import { UserTerm } from "@/domain/core/entities/user-term";
+import { UserTerm } from "@/domain/application/entities/user-term";
 
 export class UserTermPresenter {
     static toHttp(userTerm: UserTerm) {

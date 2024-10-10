@@ -1,6 +1,6 @@
 import { PaginationParams } from "@/core/repositories/pagination-params";
-import { UserTermRepository } from '@/domain/core/repositories/user-term-repository'
-import { UserTerm } from "@/domain/core/entities/user-term";
+import { UserTermRepository } from '@/domain/application/repositories/user-term-repository'
+import { UserTerm } from "@/domain/application/entities/user-term";
 import { Injectable } from "@nestjs/common";
 import { PrismaUserTermMapper } from "@/infra/database/mappers/prisma-user-term-mapper";
 import { PrismaService } from "../prisma.service";

@@ -1,17 +1,19 @@
-import { EmailSender } from '@/domain/mailer/email-sender'
+import { EmailProvider } from '@/domain/interfaces/email-provider'
 import { Module } from '@nestjs/common'
-import { SendGridMailer } from './sendgrid-mailer'
+import { SendGridService } from './sendgrid-service'
 import { EnvModule } from '../env/env.module'
+import { DatabaseModule } from '../database/database.module'
+
 
 @Module({
-    imports: [EnvModule],
+    imports: [EnvModule, DatabaseModule],
     providers: [
         {
-            provide: EmailSender,
-            useClass: SendGridMailer,
+            provide: EmailProvider,
+            useClass: SendGridService,
         },
     ],
-    exports: [EmailSender],
+    exports: [EmailProvider],
 
 })
 export class EmailModule { }

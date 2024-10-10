@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { EditBusinessAppUseCase } from '@/domain/core/use-cases/edit-business-app'
+import { EditBusinessAppUseCase } from '@/domain/application/use-cases/edit-business-app'
 
 const editBusinessAppBodySchema = z.object({
 

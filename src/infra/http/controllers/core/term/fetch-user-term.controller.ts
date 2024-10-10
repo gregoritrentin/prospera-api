@@ -3,7 +3,7 @@ import {
     Controller,
     Param,
 } from '@nestjs/common'
-import { FetchUserTermUseCase } from '@/domain/core/use-cases/fetch-user-terms'
+import { FetchUserTermUseCase } from '@/domain/application/use-cases/fetch-user-terms'
 
 @Controller('/user/term/:id')
 export class FetchUserTermController {

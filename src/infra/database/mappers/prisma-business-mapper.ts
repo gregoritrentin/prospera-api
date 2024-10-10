@@ -1,5 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { Business } from '@/domain/core/entities/business'
+import { Business } from '@/domain/application/entities/business'
 import { Business as PrismaBusiness, Prisma } from '@prisma/client'
 
 export class PrismaBusinessMapper {
@@ -22,7 +22,7 @@ export class PrismaBusinessMapper {
             status: raw.status,
             businessSize: raw.businessSize,
             businessType: raw.businessType,
-            //foundingDate: raw.foundingDate,
+            foundingDate: raw.foundingDate,
             createdAt: raw.createdAt,
             updatedAt: raw.updatedAt,
         },
@@ -49,7 +49,7 @@ export class PrismaBusinessMapper {
             status: business.status,
             businessSize: business.businessSize,
             businessType: business.businessType,
-            //foundingDate: business.foundingDate,
+            foundingDate: business.foundingDate,
             createdAt: business.createdAt,
             updatedAt: business.updatedAt,
         }

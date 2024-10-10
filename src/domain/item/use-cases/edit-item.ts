@@ -1,6 +1,5 @@
 import { Either, left, right } from '@/core/either'
-import { NotAllowedError } from '@/core/errors/not-allowed-error'
-import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
+import { AppError } from '@/core/errors/app-errors'
 import { Item } from '@/domain/item/entities/item'
 import { ItemRepository } from '@/domain/item/repositories/item-repository'
 import { Injectable } from '@nestjs/common'
@@ -21,7 +20,7 @@ interface EditItemUseCaseRequest {
 }
 
 type EditPersonUseCaseResponse = Either<
-    ResourceNotFoundError | NotAllowedError,
+    AppError,
     {
         item: Item
     }
@@ -51,11 +50,11 @@ export class EditItemUseCase {
         const item = await this.itemRepository.findById(itemId, businessId)
 
         if (!item) {
-            return left(new ResourceNotFoundError())
+            return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'))
         }
 
         if (businessId !== item.businessId.toString()) {
-            return left(new NotAllowedError())
+            return left(AppError.notAllowed('errors.NOT_ALLOWED'))
         }
 
         item.description = description
@@ -63,8 +62,8 @@ export class EditItemUseCase {
         item.price = price
         item.status = status
         item.itemType = itemType
-
         item.idAux = idAux
+
         // item.groupId = groupId
         // item.taxationId = taxationId
         // item.ncm = ncm

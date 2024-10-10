@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '@/infra/auth/jwt-auth.guard'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
 import { MarketplacePresenter } from '@/infra/http/presenters/marketplace-presenter'
-import { FetchMarketplaceUseCase } from '@/domain/core/use-cases/fetch-marketplace'
+import { FetchMarketplaceUseCase } from '@/domain/application/use-cases/fetch-marketplace'
 
 const pageQueryParamSchema = z
   .string()

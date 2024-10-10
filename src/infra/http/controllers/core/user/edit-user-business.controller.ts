@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { EditUserBusinessUseCase } from '@/domain/core/use-cases/edit-user-business'
+import { EditUserBusinessUseCase } from '@/domain/application/use-cases/edit-user-business'
 
 const editUserBusinessBodySchema = z.object({
     role: z.string(),

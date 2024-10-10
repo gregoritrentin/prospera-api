@@ -6,10 +6,9 @@ import {
     Param,
     Put,
 } from '@nestjs/common'
-import { UserPayload } from '@/infra/auth/jwt.strategy'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { EditUserUseCase } from '@/domain/core/use-cases/edit-user'
+import { EditUserUseCase } from '@/domain/application/use-cases/edit-user'
 
 const editUserBodySchema = z.object({
     name: z.string(),

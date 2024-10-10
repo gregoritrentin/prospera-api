@@ -16,7 +16,6 @@ export class GetPersonController {
     constructor(private getPerson: GetPersonUseCase) { }
 
     @Get()
-    //@HttpCode(204)
     async handle(
         @CurrentUser() user: UserPayload,
         @Param('id') personId: string,

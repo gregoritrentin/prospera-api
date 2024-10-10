@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma.service'
-import { UserRepository } from '@/domain/core/repositories/user-repository'
-import { User } from '@/domain/core/entities/users'
+import { UserRepository } from '@/domain/application/repositories/user-repository'
+import { User } from '@/domain/application/entities/users'
 import { PrismaUserMapper } from '@/infra/database/mappers/prisma-user-mapper'
 import { PaginationParams } from '@/core/repositories/pagination-params'
-import { UserDetails } from '@/domain/core/entities/value-objects/user-details'
+import { UserDetails } from '@/domain/application/entities/value-objects/user-details'
 import { PrismaUserDetailsMapper } from '../../mappers/prisma-user-details-mapper'
 
 @Injectable()

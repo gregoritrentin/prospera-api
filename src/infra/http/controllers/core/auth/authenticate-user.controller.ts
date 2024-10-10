@@ -8,9 +8,9 @@ import {
 } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { AuthenticateUserUseCase } from '@/domain/core/use-cases/authenticate-user'
-import { WrongCredentialsError } from '@/domain/core/use-cases/errors/wrong-credentials-error'
+import { AuthenticateUserUseCase } from '@/domain/application/use-cases/authenticate-user'
 import { Public } from '@/infra/auth/public'
+import { AppError } from '@/core/errors/app-errors'
 
 const authenticateBodySchema = z.object({
   email: z.string().email(),
@@ -40,7 +40,7 @@ export class AuthenticateUserController {
       const error = result.value
 
       switch (error.constructor) {
-        case WrongCredentialsError:
+        case AppError.invalidCredentials:
           throw new UnauthorizedException(error.message)
         default:
           throw new BadRequestException(error.message)

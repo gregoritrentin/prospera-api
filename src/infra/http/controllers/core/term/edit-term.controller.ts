@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { EditTermUseCase } from '@/domain/core/use-cases/edit-term'
+import { EditTermUseCase } from '@/domain/application/use-cases/edit-term'
 
 const editTermBodySchema = z.object({
     title: z.string(),

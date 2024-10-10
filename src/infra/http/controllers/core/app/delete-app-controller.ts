@@ -5,7 +5,7 @@ import {
     HttpCode,
     Param,
 } from '@nestjs/common'
-import { DeleteAppUseCase } from '@/domain/core/use-cases/delete-app'
+import { DeleteAppUseCase } from '@/domain/application/use-cases/delete-app'
 
 
 @Controller('/app/:id')

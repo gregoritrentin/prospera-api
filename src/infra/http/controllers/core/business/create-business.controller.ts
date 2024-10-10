@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { CreateBusinessUseCase } from '@/domain/core/use-cases/create-business'
+import { CreateBusinessUseCase } from '@/domain/application/use-cases/create-business'
 import { Public } from '@/infra/auth/public'
 import { CurrentUser } from '@/infra/auth/current-user-decorator'
 import { UserPayload } from '@/infra/auth/jwt.strategy'
@@ -22,7 +22,7 @@ const createBusinessBodySchema = z.object({
   cityCode: z.string(),
   businessSize: z.string(),
   businessType: z.string(),
-  //foundingDate: z.date(),
+  foundingDate: z.string().transform((str) => new Date(str)),
   logoFileId: z.string().optional(),
   digitalCertificateFileId: z.string().optional(),
 })
@@ -57,7 +57,7 @@ export class CreateBusinessController {
       cityCode,
       businessSize,
       businessType,
-      //foundingDate,
+      foundingDate,
       logoFileId,
       digitalCertificateFileId
 
@@ -83,7 +83,7 @@ export class CreateBusinessController {
       cityCode,
       businessSize,
       businessType,
-      //foundingDate,
+      foundingDate,
       logoFileId,
       digitalCertificateFileId,
     })

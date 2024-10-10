@@ -9,6 +9,8 @@ export class PersonDetailsPresenter {
             personId: personDetails.personId.toString(),
             personName: personDetails.personName,
             document: personDetails.document,
+            phone: personDetails.phone,
+            email: personDetails.email,
             addressLine1: personDetails.addressLine1,
             addressLine2: personDetails.addressLine2,
             addressLine3: personDetails.addressLine3,

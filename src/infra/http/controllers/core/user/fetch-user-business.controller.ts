@@ -2,7 +2,7 @@ import { BadRequestException, Get, Controller, UseGuards, Query } from '@nestjs/
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
 import { UserBusinessDetailsPresenter } from '@/infra/http/presenters/user-business-details-presenter'
-import { FetchUserBusinessUseCase } from '@/domain/core/use-cases/fetch-user-business'
+import { FetchUserBusinessUseCase } from '@/domain/application/use-cases/fetch-user-business'
 import { UserPayload } from '@/infra/auth/jwt.strategy'
 import { CurrentUser } from '@/infra/auth/current-user-decorator'
 

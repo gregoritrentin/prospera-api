@@ -1,5 +1,5 @@
 import { BusinessApps as PrismaBusinessApp, App as PrismaApp } from '@prisma/client'
-import { BusinessAppDetails } from '@/domain/core/entities/value-objects/business-app-details'
+import { BusinessAppDetails } from '@/domain/application/entities/value-objects/business-app-details'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
 type PrismaBusinessAppDetails = PrismaBusinessApp & {

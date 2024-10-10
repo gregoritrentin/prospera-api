@@ -1,5 +1,5 @@
-import { BusinessOwnerRepository } from "@/domain/core/repositories/business-owner-repository";
-import { BusinessOwner } from "@/domain/core/entities/business-owner";
+import { BusinessOwnerRepository } from "@/domain/application/repositories/business-owner-repository";
+import { BusinessOwner } from "@/domain/application/entities/business-owner";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { PrismaBusinessOwnerMapper } from "../../mappers/prisma-business-owner-mapper";

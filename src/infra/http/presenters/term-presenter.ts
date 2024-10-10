@@ -1,5 +1,4 @@
-import { Term } from "@/domain/core/entities/term";
-import { title } from "process";
+import { Term } from "@/domain/application/entities/term";
 
 export class TermPresenter {
     static toHttp(term: Term) {

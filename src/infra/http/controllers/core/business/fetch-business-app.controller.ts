@@ -3,7 +3,7 @@ import {
     Controller,
     Param,
 } from '@nestjs/common'
-import { FetchBusinessAppUseCase } from '@/domain/core/use-cases/fetch-business-apps'
+import { FetchBusinessAppUseCase } from '@/domain/application/use-cases/fetch-business-apps'
 
 @Controller('/business/app/:id')
 export class FetchBusinessAppController {

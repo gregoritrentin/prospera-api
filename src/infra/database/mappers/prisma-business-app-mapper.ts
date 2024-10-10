@@ -1,5 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { BusinessApp } from '@/domain/core/entities/business-app'
+import { BusinessApp } from '@/domain/application/entities/business-app'
 import { BusinessApps as PrismaBusinessApp, Prisma } from '@prisma/client'
 
 export class PrismaBusinessAppMapper {

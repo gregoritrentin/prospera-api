@@ -1,53 +1,45 @@
 import { Either, left, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
-import { Email } from '@/domain/email/entities/email'
-import { EmailRepository } from '@/domain/email/repositories/email-repository'
-import { EmailSender } from '@/domain/mailer/email-sender'
+import { Queue } from 'bull'
+import { InjectQueue } from '@nestjs/bull'
 
-interface SendAndCreateEmailRequest {
+interface SendEmailRequest {
     to: string
     subject: string
     body: string
-    status: string
 }
 
-type SendAndCreateEmailResponse = Either<
+type SendEmailResponse = Either<
     null,
-    { email: Email }
+    { jobId: string }
 >
 
 @Injectable()
 export class SendAndCreateEmailUseCase {
     constructor(
-        private emailRepository: EmailRepository,
-        private emailSender: EmailSender,
+        @InjectQueue('email') private emailQueue: Queue
     ) { }
 
     async execute({
         to,
         subject,
         body,
-    }: SendAndCreateEmailRequest): Promise<SendAndCreateEmailResponse> {
+    }: SendEmailRequest): Promise<SendEmailResponse> {
+        try {
 
-        //enviando e-mail        
-        await this.emailSender.send({
-            to,
-            subject,
-            body,
-        })
+            const job = await this.emailQueue.add('send-email', {
+                to,
+                subject,
+                body,
+            })
 
-        //gravando no banco
-        const email = Email.create({
-            to,
-            subject,
-            body,
-            status: 'PENDING',
-        })
+            return right({
+                jobId: job.id.toString(),
+            })
 
-        await this.emailRepository.create(email)
-
-        return right({
-            email,
-        })
+        } catch (error) {
+            console.error('Erro ao enfileirar e-mail:', error)
+            return left(null)
+        }
     }
 }

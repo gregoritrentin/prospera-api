@@ -1,7 +1,7 @@
 import { PaginationParams } from "@/core/repositories/pagination-params";
-import { UserBusinessRepository } from '@/domain/core/repositories/user-business-repository'
-import { UserBusiness } from "@/domain/core/entities/user-business";
-import { UserBusinessDetails } from "@/domain/core/entities/value-objects/user-business-details";
+import { UserBusinessRepository } from '@/domain/application/repositories/user-business-repository'
+import { UserBusiness } from "@/domain/application/entities/user-business";
+import { UserBusinessDetails } from "@/domain/application/entities/value-objects/user-business-details";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { PrismaUserBusinessMapper } from "../../mappers/prisma-user-business-mapper";

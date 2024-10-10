@@ -1,6 +1,6 @@
 import { BadRequestException, Get, Controller } from '@nestjs/common'
 import { UserPresenter } from '@/infra/http/presenters/user-presenter'
-import { GetBusinessUseCase } from '@/domain/core/use-cases/get-business'
+import { GetBusinessUseCase } from '@/domain/application/use-cases/get-business'
 import { CurrentUser } from '@/infra/auth/current-user-decorator'
 import { UserPayload } from '@/infra/auth/jwt.strategy'
 import { BusinessPresenter } from '@/infra/http/presenters/business-presenter'

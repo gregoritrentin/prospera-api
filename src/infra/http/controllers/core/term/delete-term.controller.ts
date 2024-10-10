@@ -5,7 +5,7 @@ import {
     HttpCode,
     Param,
 } from '@nestjs/common'
-import { DeleteTermUseCase } from '@/domain/core/use-cases/delete-term'
+import { DeleteTermUseCase } from '@/domain/application/use-cases/delete-term'
 
 @Controller('/term/:id')
 export class DeleteTermController {

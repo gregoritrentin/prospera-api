@@ -1,7 +1,6 @@
 import { Either, left, right } from '@/core/either'
+import { AppError } from '@/core/errors/app-errors'
 import { ItemGroupRepository } from '@/domain/item/repositories/item-group-repository'
-import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
-import { NotAllowedError } from '@/core/errors/not-allowed-error'
 import { Injectable } from '@nestjs/common'
 
 interface DeleteItemGroupUseCaseRequest {
@@ -10,7 +9,7 @@ interface DeleteItemGroupUseCaseRequest {
 }
 
 type DeleteItemGroupUseCaseResponse = Either<
-    ResourceNotFoundError | NotAllowedError,
+    AppError,
     null
 >
 
@@ -25,11 +24,11 @@ export class DeleteItemGroupUseCase {
         const itemGroup = await this.itemGroupRepository.findById(groupId, businessId)
 
         if (!itemGroup) {
-            return left(new ResourceNotFoundError())
+            return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'))
         }
 
         if (businessId !== itemGroup.businessId.toString()) {
-            return left(new NotAllowedError())
+            return left(AppError.notAllowed('errors.NOT_ALLOWED'))
         }
 
         await this.itemGroupRepository.delete(itemGroup)

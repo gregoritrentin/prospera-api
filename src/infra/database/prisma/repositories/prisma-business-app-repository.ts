@@ -1,11 +1,11 @@
-import { BusinessAppRepository } from "@/domain/core/repositories/business-app-repository";
-import { BusinessApp } from "@/domain/core/entities/business-app";
+import { BusinessAppRepository } from "@/domain/application/repositories/business-app-repository";
+import { BusinessApp } from "@/domain/application/entities/business-app";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { PrismaBusinessAppMapper } from "../../mappers/prisma-business-app-mapper";
 import { PrismaBusinessAppDetailsMapper } from "@/infra/database/mappers/prisma-business-app-detail-mapper";
 
-import { BusinessAppDetails } from "@/domain/core/entities/value-objects/business-app-details";
+import { BusinessAppDetails } from "@/domain/application/entities/value-objects/business-app-details";
 
 
 @Injectable()

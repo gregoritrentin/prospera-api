@@ -1,6 +1,5 @@
 import { Either, left, right } from '@/core/either'
-import { NotAllowedError } from '@/core/errors/not-allowed-error'
-import { ResourceNotFoundError } from '@/core/errors/resource-not-found-error'
+import { AppError } from '@/core/errors/app-errors'
 import { ItemGroup } from '@/domain/item/entities/item-group'
 import { ItemGroupRepository } from '@/domain/item/repositories/item-group-repository'
 import { Injectable } from '@nestjs/common'
@@ -13,7 +12,7 @@ interface EditItemGroupUseCaseRequest {
 }
 
 type EditGroupUseCaseResponse = Either<
-    ResourceNotFoundError | NotAllowedError,
+    AppError,
     {
         itemGroup: ItemGroup
     }
@@ -35,11 +34,11 @@ export class EditItemGroupUseCase {
         const itemGroup = await this.itemGroupRepository.findById(groupId, businessId)
 
         if (!itemGroup) {
-            return left(new ResourceNotFoundError())
+            return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'))
         }
 
         if (businessId !== itemGroup.businessId.toString()) {
-            return left(new NotAllowedError())
+            return left(AppError.notAllowed('errors.NOT_ALLOWED'))
         }
 
         itemGroup.group = group

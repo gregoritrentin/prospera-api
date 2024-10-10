@@ -7,6 +7,8 @@ export interface PersonDetailsProps {
     personId: UniqueEntityID
     personName: string
     document: string
+    phone: string
+    email: string
     addressLine1: string
     addressLine2: string
     addressLine3?: string | null
@@ -42,6 +44,13 @@ export class PersonDetails extends ValueObject<PersonDetailsProps> {
         return this.props.document
     }
 
+    get email() {
+        return this.props.email
+    }
+
+    get phone() {
+        return this.props.phone
+    }
     get addressLine1() {
         return this.props.addressLine1
     }

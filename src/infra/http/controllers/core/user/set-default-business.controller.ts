@@ -9,8 +9,8 @@ import {
 import { UserPayload } from '@/infra/auth/jwt.strategy'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { EditUserUseCase } from '@/domain/core/use-cases/edit-user'
-import { SetDefaultBusinessUseCase } from '@/domain/core/use-cases/set-default-business'
+import { EditUserUseCase } from '@/domain/application/use-cases/edit-user'
+import { SetDefaultBusinessUseCase } from '@/domain/application/use-cases/set-default-business'
 
 const setDefaultBusinessBodySchema = z.object({
 

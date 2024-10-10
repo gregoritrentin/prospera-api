@@ -1,7 +1,5 @@
-
-import { InvalidFileTypeError } from '@/core/errors/invalid-file-type-error'
 import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file'
-import { SetBusinessLogoUseCase } from '@/domain/core/use-cases/set-business-logo'
+import { SetBusinessLogoUseCase } from '@/domain/application/use-cases/set-business-logo'
 import { CurrentUser } from '@/infra/auth/current-user-decorator'
 import { UserPayload } from '@/infra/auth/jwt.strategy'
 import {
@@ -16,6 +14,7 @@ import {
     UseInterceptors,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { AppError } from '@/core/errors/app-errors'
 
 @Controller('user/upload-photo/:id')
 export class SetUserPhotoController {
@@ -48,6 +47,7 @@ export class SetUserPhotoController {
 
         const result = await this.uploadBusinessLogo.execute({
             businessId: business,
+            folderName: 'others',
             fileName: fileMulter.originalname,
             fileType: fileMulter.mimetype,
             body: fileMulter.buffer,
@@ -57,7 +57,7 @@ export class SetUserPhotoController {
             const error = result.value
 
             switch (error.constructor) {
-                case InvalidFileTypeError:
+                case AppError.invalidFileType:
                     throw new BadRequestException(error.message)
                 default:
                     throw new BadRequestException(error.message)

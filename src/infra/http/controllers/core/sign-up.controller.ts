@@ -10,13 +10,13 @@ import {
 import { Request } from 'express';
 import { z } from 'zod'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
-import { CreateUserUseCase } from '@/domain/core/use-cases/create-user'
+import { CreateUserUseCase } from '@/domain/application/use-cases/create-user'
 import { Public } from '@/infra/auth/public'
-import { CreateBusinessUseCase } from '@/domain/core/use-cases/create-business'
-import { CreateBusinessOwnerUseCase } from '@/domain/core/use-cases/create-business-owner'
-import { SetDefaultBusinessUseCase } from '@/domain/core/use-cases/set-default-business'
-import { CreateUserTermUseCase } from '@/domain/core/use-cases/create-user-term'
-import { CreateUserBusinessUseCase } from '@/domain/core/use-cases/create-user-business';
+import { CreateBusinessUseCase } from '@/domain/application/use-cases/create-business'
+import { CreateBusinessOwnerUseCase } from '@/domain/application/use-cases/create-business-owner'
+import { SetDefaultBusinessUseCase } from '@/domain/application/use-cases/set-default-business'
+import { CreateUserTermUseCase } from '@/domain/application/use-cases/create-user-term'
+import { CreateUserBusinessUseCase } from '@/domain/application/use-cases/create-user-business';
 
 const userSchema = z.object({
     name: z.string(),
@@ -42,7 +42,7 @@ const businessSchema = z.object({
     cityCode: z.string(),
     businessSize: z.string(),
     businessType: z.string(),
-    //foundingDate: z.date(),
+    foundingDate: z.string().transform((str) => new Date(str)),
     logoFileId: z.string().optional(),
     digitalCertificateFileId: z.string().optional(),
 });
@@ -60,7 +60,7 @@ const businessOwnerSchema = z.object({
     countryCode: z.string(),
     stateCode: z.string(),
     cityCode: z.string(),
-    //birthDate: z.date(),
+    birthDate: z.string().transform((str) => new Date(str)),
     status: z.string(),
     ownerType: z.string(),
 });

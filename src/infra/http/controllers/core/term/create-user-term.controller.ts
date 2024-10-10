@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
-import { CreateUserTermUseCase } from '@/domain/core/use-cases/create-user-term'
+import { CreateUserTermUseCase } from '@/domain/application/use-cases/create-user-term'
 
 const createUserTermBodySchema = z.object({
     termId: z.string(),
