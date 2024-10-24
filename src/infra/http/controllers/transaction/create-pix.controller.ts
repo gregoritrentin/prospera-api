@@ -5,7 +5,7 @@ import { CurrentUser } from '@/infra/auth/current-user-decorator';
 import { CreatePixUseCase } from '@/domain/transaction/use-cases/create-pix';
 import { UserPayload } from '@/infra/auth/jwt.strategy';
 import { I18nService } from '@/i18n/i18n.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
 import { createZodDto } from 'nestjs-zod';
 import { AppError } from '@/core/errors/app-errors';
 
@@ -33,11 +33,26 @@ export class CreatePixController {
 
     @Post()
     @HttpCode(201)
-    @ApiOperation({ summary: 'Create a new Pix transaction' })
+
+    @ApiOperation({
+        summary: 'Create a new Pix',
+        description: 'Create a new Pix transaction. Requires Bearer Token authentication.'
+    })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer Token',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'Accept-Language',
+        description: 'Preferred language for the response. If not provided, defaults to en-US.',
+        required: false,
+        schema: { type: 'string', default: 'en-US', enum: ['en-US', 'pt-BR'] },
+    })
     @ApiBody({ type: PixRequest })
-    @ApiResponse({ status: 201, description: 'Pix transaction created successfully' })
+    @ApiResponse({ status: 201, description: 'Pix created successfully' })
     @ApiResponse({ status: 400, description: 'Bad request' })
-    @ApiBearerAuth()
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
 
     async handle(
 

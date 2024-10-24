@@ -3,6 +3,7 @@ import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
 export interface SaleDetailsProps {
     businessId: UniqueEntityID
+    businessName: string
     customerId?: UniqueEntityID
     customerName?: string
     ownerId: UniqueEntityID
@@ -28,6 +29,10 @@ export interface SaleDetailsProps {
 export class SaleDetails extends AggregateRoot<SaleDetailsProps> {
     get businessId() {
         return this.props.businessId
+    }
+
+    get businessName() {
+        return this.props.businessName
     }
 
     get customerId() {

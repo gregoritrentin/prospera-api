@@ -27,7 +27,7 @@ export class PrintBoletoUseCase {
     async execute({
         businessId,
         boletoId,
-        language = 'pt-BR',
+        language = 'en-US',
     }: PrintBoletoRequest): Promise<PrintBoletoResponse> {
         try {
             const job = await this.boletoQueueProducer.addPrintBoletoJob({

@@ -25,18 +25,19 @@ export const envSchema = z.object({
   SICREDI_BENEFICIARIO: z.string(),
   SICREDI_POSTO: z.string(),
 
+  SICREDI_CHAVE_PIX: z.string(),
+
   SICREDI_CLIENT_ID: z.string(),
   SICREDI_CLIENT_SECRET: z.string(),
+
+  SICREDI_MULTIPAG_CLIENT_ID: z.string(),
+  SICREDI_MULTIPAG_CLIENT_SECRET: z.string(),
+
   SICREDI_API_KEY: z.string(),
   SICREDI_CODIGO_ACESSO: z.string(),
 
   SICREDI_BOLETO_API: z.string(),
-  SICREDI_BOLETO_AUTH: z.string(),
-
   SICREDI_PIX_API: z.string(),
-  SICREDI_PIX_AUTH: z.string(),
-  SICREDI_CHAVE_PIX: z.string(),
-
   SICREDI_MULTIPAG_API: z.string(),
   SICREDI_MULTIPAG_AUTH: z.string(),
 

@@ -13,8 +13,10 @@ export enum ErrorCode {
 
     // Códigos de erro específicos da aplicação
     INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
+    INVALID_OPERATION = 'INVALID_OPERATION',
     INVALID_TOKEN = 'INVALID_TOKEN',
     INVALID_FILE_TYPE = 'INVALID_FILE_TYPE',
+    INVALID_DATA = 'INVALID_DATA',
     RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
     UNIQUE_CONSTRAINT_VIOLATION = 'UNIQUE_CONSTRAINT_VIOLATION',
     VALIDATION_ERROR = 'VALIDATION_ERROR',
@@ -31,7 +33,45 @@ export enum ErrorCode {
     BOLETO_PRINT_FAILED = 'BOLETO_PRINT_FAILED',
 
     PIX_CREATION_FAILED = 'PIX_CREATION_FAILED',
+
+
+    PAYMENT_PIX_CREATION_FAILED = 'PAYMENT_PIX_CREATION_FAILED',
+    PAYMENT_PIX_UPDATE_FAILED = 'PAYMENT_PIX_UPDATE_FAILED',
+    PAYMENT_PIX_PROOF_FETCH_FAILED = 'PAYMENT_PIX_PROOF_FETCH_FAILED',
+    PAYMENT_PIX_CANCELATION_FAILED = 'PAYMENT_PIX_CANCELATION_FAILED',
+
+    //INVOICE
+    INVOICE_CANCELATION_FAILED = 'INVOICE_CANCELATION_FAILED',
+
+
+    INVALID_PIX_KEY = 'INVALID_PIX_KEY',
+
+    //SALE
+    SALE_NO_ITEMS = 'SALE_NO_ITEMS',
+    PRODUCT_AMOUNT_MISMATCH = 'PRODUCT_AMOUNT_MISMATCH',
+    GROSS_AMOUNT_MISMATCH = 'GROSS_AMOUNT_MISMATCH',
+    TOTAL_AMOUNT_MISMATCH = 'TOTAL_AMOUNT_MISMATCH',
+    COMMISSION_AMOUNT_MISMATCH = 'COMMISSION_AMOUNT_MISMATCH',
 }
+
+// static productAmountMismatch(expected: number, actual: number): SaleValidationError {
+//     return new SaleValidationError('PRODUCT_AMOUNT_MISMATCH', 'errors.PRODUCT_AMOUNT_MISMATCH', { expected, actual });
+// }
+
+// static grossAmountMismatch(expected: number, actual: number): SaleValidationError {
+//     return new SaleValidationError('GROSS_AMOUNT_MISMATCH', 'errors.GROSS_AMOUNT_MISMATCH', { expected, actual });
+// }
+
+// static totalAmountMismatch(expected: number, actual: number): SaleValidationError {
+//     return new SaleValidationError('TOTAL_AMOUNT_MISMATCH', 'errors.TOTAL_AMOUNT_MISMATCH', { expected, actual });
+// }
+
+// static commissionAmountMismatch(expected: number, actual: number): SaleValidationError {
+//     return new SaleValidationError('COMMISSION_AMOUNT_MISMATCH', 'errors.COMMISSION_AMOUNT_MISMATCH', { expected, actual });
+// }
+
+
+
 
 export class AppError extends Error {
     constructor(
@@ -125,6 +165,24 @@ export class AppError extends Error {
         );
     }
 
+    static invalidOperation(message: string): AppError {
+        return new AppError(
+            ErrorCode.INVALID_OPERATION,
+            'errors.INVALID_OPERATION',
+            { message },
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static invalidData(message: string): AppError {
+        return new AppError(
+            ErrorCode.INVALID_DATA,
+            'errors.INVALID_DATA',
+            { message },
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
     static invalidFileType(details?: Record<string, any>): AppError {
         return new AppError(
             ErrorCode.INVALID_FILE_TYPE,
@@ -156,6 +214,15 @@ export class AppError extends Error {
         return new AppError(
             ErrorCode.INVALID_DATE,
             'errors.INVALID_DATE',
+            {},
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static invalidPixKey(): AppError {
+        return new AppError(
+            ErrorCode.INVALID_PIX_KEY,
+            'errors.INVALID_PIX_KEY',
             {},
             HttpStatus.BAD_REQUEST
         );
@@ -194,6 +261,61 @@ export class AppError extends Error {
             'errors.PIX_CREATION_FAILED',
             details,
             HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static paymentPixCreationFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.PAYMENT_PIX_CREATION_FAILED,
+            'errors.PAYMENT_PIX_CREATION_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static paymentPixUpdateFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.PAYMENT_PIX_UPDATE_FAILED,
+            'errors.PAYMENT_PIX_UPDATE_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static paymentPixProofFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.PAYMENT_PIX_PROOF_FETCH_FAILED,
+            'errors.PAYMENT_PIX_PROOF_FETCH_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static paymentPixCancelationFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.PAYMENT_PIX_CANCELATION_FAILED,
+            'errors.PAYMENT_PIX_CANCELATION_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+
+    static invoiceCancelationFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.INVOICE_CANCELATION_FAILED,
+            'errors.INVOICE_CANCELATION_FAILED',
+            details,
+            HttpStatus.FORBIDDEN
+        );
+    }
+
+    static saleNoItems(): AppError {
+        return new AppError(
+            ErrorCode.SALE_NO_ITEMS,
+            'errors.SALE_NO_ITEMS',
+            {},
+            HttpStatus.BAD_REQUEST
         );
     }
 

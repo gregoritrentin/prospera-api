@@ -14,11 +14,6 @@ export class RedisService extends Redis {
                 const delay = Math.min(times * 50, 2000);
                 return delay;
             },
-            tls: {
-                rejectUnauthorized: false,
-                minVersion: 'TLSv1.2',
-                maxVersion: 'TLSv1.3'
-            },
             connectTimeout: 20000,
         });
 
@@ -26,21 +21,6 @@ export class RedisService extends Redis {
 
         this.on('error', (error) => {
             this.logger.error(`Redis connection error: ${error.message}`, error.stack);
-            if (error.message.includes('SSL routines')) {
-                this.logger.warn('SSL error detected. Attempting to reconnect without SSL...');
-                this.disconnect();
-                const noSslOptions = {
-                    ...this.options,
-                    tls: undefined,
-                };
-                const newRedisInstance = new Redis(noSslOptions);
-                newRedisInstance.on('connect', () => {
-                    this.logger.log('Successfully reconnected to Redis Cloud without SSL');
-                });
-                newRedisInstance.on('error', (error) => {
-                    this.logger.error(`Redis reconnection error: ${error.message}`, error.stack);
-                });
-            }
         });
 
         this.on('connect', () => {

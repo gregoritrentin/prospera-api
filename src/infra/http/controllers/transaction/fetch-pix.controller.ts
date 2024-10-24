@@ -1,8 +1,8 @@
 import { BadRequestException, Get, Controller, Query } from '@nestjs/common';
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe';
 import { z } from 'zod';
-import { ApiTags, ApiOperation, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { PixDetailsPresenter } from '@/infra/http/presenters/pix-details-presenter';
+import { ApiTags, ApiOperation, ApiQuery, ApiResponse, ApiHeader } from '@nestjs/swagger';
+import { TransactionPixDetailsPresenter } from '@/infra/http/presenters/transaction-pix-details-presenter';
 import { FetchPixUseCase } from '@/domain/transaction/use-cases/fetch-pixes';
 import { CurrentUser } from '@/infra/auth/current-user-decorator';
 import { UserPayload } from '@/infra/auth/jwt.strategy';
@@ -22,13 +22,27 @@ type PageQueryParamSchema = z.infer<typeof pageQueryParamSchema>;
 class PageQueryDto extends createZodDto(z.object({ page: pageQueryParamSchema })) { }
 
 @ApiTags('Pix')
-@ApiBearerAuth()
 @Controller('/pix')
 export class FetchPixController {
     constructor(private fetchPix: FetchPixUseCase) { }
 
     @Get()
-    @ApiOperation({ summary: 'Fetch Pixs', description: 'Retrieve a list of Pixs for the authenticated user' })
+    @ApiOperation({ summary: 'Fetch Boletos', description: 'Retrieve a list of Boletos for the authenticated user' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer Token',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'Accept-Language',
+        description: 'Preferred language for the response. If not provided, defaults to en-US.',
+        required: false,
+        schema: { type: 'string', default: 'en-US', enum: ['en-US', 'pt-BR'] },
+    })
+    @ApiResponse({ status: 200, description: 'Boleto retrieved successfully', })
+    @ApiResponse({ status: 400, description: 'Bad request' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+
     @ApiQuery({
         name: 'page',
         required: false,
@@ -37,16 +51,16 @@ export class FetchPixController {
     })
     @ApiResponse({
         status: 200,
-        description: 'List of Pixs retrieved successfully',
+        description: 'List of Boletos retrieved successfully',
         schema: {
             type: 'object',
             properties: {
-                pixs: {
+                boletos: {
                     type: 'array',
                     items: {
                         type: 'object',
-                        // Define the properties of a Pix here
-                        // This should match the structure returned by PixDetailsPresenter.toHttp
+                        // Define the properties of a Boleto here
+                        // This should match the structure returned by BoletoDetailsPresenter.toHttp
                     },
                 },
             },
@@ -69,6 +83,6 @@ export class FetchPixController {
 
         const pixs = result.value.pixs;
 
-        return { pixs: pixs.map(PixDetailsPresenter.toHttp) };
+        return { pixs: pixs.map(TransactionPixDetailsPresenter.toHttp) };
     }
 }

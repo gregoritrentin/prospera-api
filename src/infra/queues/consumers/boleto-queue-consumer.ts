@@ -2,7 +2,7 @@ import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { BoletoProvider } from '@/domain/interfaces/boleto-provider';
-import { BoletoRepository } from '@/domain/transaction/repositories/boleto-repository';
+import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository';
 import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { AppError } from '@/core/errors/app-errors';
@@ -28,7 +28,7 @@ export class BoletoQueueConsumer {
 
     constructor(
         private boletoProvider: BoletoProvider,
-        private boletoRepository: BoletoRepository,
+        private boletoRepository: TransactionRepository,
         private uploadAndCreateFileUseCase: UploadAndCreateFileUseCase,
         private i18n: I18nService
     ) { }
@@ -70,7 +70,7 @@ export class BoletoQueueConsumer {
 
             const { file } = uploadResult.value;
 
-            boleto.pdfFileId = file.id.toString();
+            boleto.fileId = file.id.toString();
             await this.boletoRepository.save(boleto);
 
             this.logger.log(`Boleto printed successfully. Job ID: ${job.id}`);

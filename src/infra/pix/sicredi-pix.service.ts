@@ -84,15 +84,12 @@ export class SicrediPixService implements OnModuleInit {
     private async authenticate(): Promise<void> {
         const clientId = this.envService.get('SICREDI_CLIENT_ID');
         const clientSecret = this.envService.get('SICREDI_CLIENT_SECRET');
-        const authUrl = `${this.envService.get('SICREDI_PIX_AUTH')}/oauth/token`;
+        const authUrl = `${this.envService.get('SICREDI_PIX_API')}/oauth/token`;
 
         this.logger.log(`Autenticando com a API Sicredi. URL de autenticação: ${authUrl}`);
 
         try {
             const authHeader = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
-            // this.logger.log('Cabeçalho de autenticação preparado');
-            // this.logger.debug(`Client ID: ${clientId}`);
-            // this.logger.debug(`Client Secret (primeiros 4 caracteres): ${clientSecret.substring(0, 4)}****`);
 
             const response = await this.api.post(authUrl, null, {
                 params: {
@@ -104,9 +101,6 @@ export class SicrediPixService implements OnModuleInit {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             });
-
-            // this.logger.log('Resposta de autenticação recebida');
-            // this.logger.debug('Dados da resposta de autenticação:', response.data);
 
             this.accessToken = response.data.access_token;
             this.tokenExpiresAt = Date.now() + (response.data.expires_in * 1000);

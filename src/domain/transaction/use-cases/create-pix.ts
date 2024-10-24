@@ -1,9 +1,9 @@
 import { right, left, Either } from '@/core/either';
 import { Injectable } from '@nestjs/common';
-import { Pix } from '@/domain/transaction/entities/pix';
+import { Transaction, TransactionType } from '@/domain/transaction/entities/transaction';
 import { Person } from '@/domain/person/entities/person';
 import { Business } from '@/domain/application/entities/business';
-import { PixRepository } from '@/domain/transaction/repositories/pix-repository';
+import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository';
 import { PersonsRepository } from '@/domain/person/repositories/persons-repository';
 import { BusinessRepository } from '@/domain/application/repositories/business-repository';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
@@ -23,7 +23,7 @@ interface CreatePixUseCaseRequest {
 type CreatePixUseCaseResponse = Either<
     AppError,
     {
-        pix: Pix
+        pix: Transaction
     }
 >;
 
@@ -31,7 +31,7 @@ type CreatePixUseCaseResponse = Either<
 export class CreatePixUseCase {
     constructor(
         private pixProvider: PixProvider,
-        private pixRepository: PixRepository,
+        private pixRepository: TransactionRepository,
         private personsRepository: PersonsRepository,
         private businessRepository: BusinessRepository,
     ) { }
@@ -117,7 +117,7 @@ export class CreatePixUseCase {
         if (input.documentType === 'DUEDATE') {
             baseRequest.calendario = {
                 dataDeVencimento: input.dueDate!.toISOString().split('T')[0],
-                validadeAposVencimento: 30, // 30 dias de validade após o vencimento, ajuste conforme necessário
+                validadeAposVencimento: 60,
             };
         }
 
@@ -136,21 +136,20 @@ export class CreatePixUseCase {
         return baseRequest;
     }
 
-    private createPixFromResponse(input: CreatePixUseCaseRequest, response: any): Pix {
-        return Pix.create({
+    private createPixFromResponse(input: CreatePixUseCaseRequest, response: any): Transaction {
+        return Transaction.create({
             businessId: new UniqueEntityID(input.businessId),
             personId: input.personId ? new UniqueEntityID(input.personId) : null,
-            documentType: input.documentType,
             description: input.description,
             status: 'PENDING',
             dueDate: input.dueDate || null,
             paymentLimitDate: input.paymentLimitDate || null,
             amount: input.amount,
             feeAmount: 0,
-            pixQrCode: response.pixCopiaECola || null,
-            pixId: response.txid || null,  // Garantindo que o txid seja atribuído ao pixId
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            pixQrCode: response.pixCopiaECola,
+            pixId: response.txid,
+            type: TransactionType.PIX,
+
         });
     }
 }

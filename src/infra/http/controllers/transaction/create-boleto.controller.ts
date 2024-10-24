@@ -23,7 +23,7 @@ const createBoletoBodySchema = z.object({
     description: z.string().nullable().optional(),
     dueDate: z.string().datetime(),
     paymentLimitDate: z.string().datetime().nullable().optional(),
-    amount: z.number() //.positive(),
+    amount: z.number().positive(),
 });
 
 class BoletoRequest extends createZodDto(createBoletoBodySchema) { }
@@ -45,20 +45,20 @@ export class CreateBoletoController {
     })
     @ApiHeader({
         name: 'Authorization',
-        description: 'Bearer Token. Example: Bearer YOUR_TOKEN_HERE',
+        description: 'Bearer Token',
         required: true,
     })
     @ApiHeader({
         name: 'Accept-Language',
-        description: 'Preferred language for the response. If not provided, defaults to pt-BR.',
+        description: 'Preferred language for the response. If not provided, defaults to en-US.',
         required: false,
-        schema: { type: 'string', default: 'pt-BR', enum: ['pt-BR', 'en-US'] }, // Ajuste os idiomas conforme necessário
+        schema: { type: 'string', default: 'en-US', enum: ['en-US', 'pt-BR'] },
     })
 
     @ApiBody({ type: BoletoRequest })
     @ApiResponse({ status: 201, description: 'Boleto created successfully' })
     @ApiResponse({ status: 400, description: 'Bad request' })
-    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing Bearer Token' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
 
     async handle(
 
@@ -66,7 +66,7 @@ export class CreateBoletoController {
         @CurrentUser() user: UserPayload,
         @Req() req: Request) {
 
-        const language = ((req.headers['accept-language'] as string) || 'pt-BR') as Language;
+        const language = ((req.headers['accept-language'] as string) || 'en-US') as Language;
 
         const businessId = user.bus;
 

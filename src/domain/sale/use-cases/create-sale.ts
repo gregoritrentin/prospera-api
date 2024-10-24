@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { Either, left, right } from '@/core/either';
 import { Sale } from '@/domain/sale/entities/sale';
@@ -6,7 +5,7 @@ import { SaleItem } from '@/domain/sale/entities/sale-item';
 import { SalesRepository } from '@/domain/sale/repositories/sales-repository';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
-import { SaleValidationError } from '@/domain/sale/errors/sale-validation-error';
+import { AppError } from '@/core/errors/app-errors';
 
 interface SaleItemRequest {
     itemId: string;
@@ -30,7 +29,7 @@ interface CreateSaleUseCaseRequest {
 }
 
 type CreateSaleUseCaseResponse = Either<
-    SaleValidationError,
+    AppError,
     {
         sale: Sale;
         message: string;
@@ -66,32 +65,31 @@ export class CreateSaleUseCase {
         });
     }
 
-    private validateSale(request: CreateSaleUseCaseRequest, language: Language): true | SaleValidationError {
-        if (request.items.length === 0) {
-            return new SaleValidationError(
-                'errors.SALE_NO_ITEMS',
-                this.i18nService.translate('errors.SALE_NO_ITEMS', language)
-            );
-        }
+    private validateSale(request: CreateSaleUseCaseRequest, language: Language): true | AppError {
 
-        const calculatedTotals = this.calculateTotals(request.items);
+        // if (request.items.length === 0) {
+        //     return new AppError('errors.SALE_NO_ITEMS')
+        //         ;
+        // }
 
-        if (Math.abs(calculatedTotals.productAmount - calculatedTotals.totalAmount) > 0.01) {
-            return new SaleValidationError(
-                'errors.PRODUCT_AMOUNT_MISMATCH',
-                this.i18nService.translate('errors.PRODUCT_AMOUNT_MISMATCH', language),
-                { expected: calculatedTotals.totalAmount, actual: calculatedTotals.productAmount }
-            );
-        }
+        // const calculatedTotals = this.calculateTotals(request.items);
 
-        // Adicione mais validações conforme necessário, por exemplo:
-        if (Math.abs(calculatedTotals.commissionAmount - request.items.reduce((sum, item) => sum + item.commissionAmount, 0)) > 0.01) {
-            return new SaleValidationError(
-                'errors.COMMISSION_AMOUNT_MISMATCH',
-                this.i18nService.translate('errors.COMMISSION_AMOUNT_MISMATCH', language),
-                { expected: calculatedTotals.commissionAmount, actual: request.items.reduce((sum, item) => sum + item.commissionAmount, 0) }
-            );
-        }
+        // if (Math.abs(calculatedTotals.productAmount - calculatedTotals.totalAmount) > 0.01) {
+        //     return new SaleValidationError(
+        //         'errors.PRODUCT_AMOUNT_MISMATCH',
+        //         this.i18nService.translate('errors.PRODUCT_AMOUNT_MISMATCH', language),
+        //         { expected: calculatedTotals.totalAmount, actual: calculatedTotals.productAmount }
+        //     );
+        // }
+
+        // // Adicione mais validações conforme necessário, por exemplo:
+        // if (Math.abs(calculatedTotals.commissionAmount - request.items.reduce((sum, item) => sum + item.commissionAmount, 0)) > 0.01) {
+        //     return new SaleValidationError(
+        //         'errors.COMMISSION_AMOUNT_MISMATCH',
+        //         this.i18nService.translate('errors.COMMISSION_AMOUNT_MISMATCH', language),
+        //         { expected: calculatedTotals.commissionAmount, actual: request.items.reduce((sum, item) => sum + item.commissionAmount, 0) }
+        //     );
+        // }
 
         return true;
     }

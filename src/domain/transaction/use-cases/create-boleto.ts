@@ -1,9 +1,11 @@
 import { right, left, Either } from '@/core/either';
+import { TransactionType } from '@/domain/transaction/entities/transaction';
+
 import { Injectable } from '@nestjs/common';
-import { Boleto } from '@/domain/transaction/entities/boleto';
+import { Transaction } from '@/domain/transaction/entities/transaction';
 import { Person } from '@/domain/person/entities/person';
 import { Business } from '@/domain/application/entities/business';
-import { BoletoRepository } from '@/domain/transaction/repositories/boleto-repository';
+import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository';
 import { PersonsRepository } from '@/domain/person/repositories/persons-repository';
 import { BusinessRepository } from '@/domain/application/repositories/business-repository';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
@@ -24,7 +26,7 @@ interface CreateBoletoUseCaseRequest {
 }
 
 interface CreateBoletoUseCaseResponse {
-    boleto: Boleto;
+    boleto: Transaction;
     message: string;
 }
 
@@ -34,7 +36,7 @@ type CreateBoletoResult = Either<AppError, CreateBoletoUseCaseResponse>;
 export class CreateBoletoUseCase {
     constructor(
         private boletoProvider: BoletoProvider,
-        private boletoRepository: BoletoRepository,
+        private boletoRepository: TransactionRepository,
         private personsRepository: PersonsRepository,
         private businessRepository: BusinessRepository,
         private i18nService: I18nService,
@@ -116,12 +118,12 @@ export class CreateBoletoUseCase {
         };
     }
 
-    private createBoletoFromSicrediResponse(input: CreateBoletoUseCaseRequest, sicrediResponse: any): Boleto {
+    private createBoletoFromSicrediResponse(input: CreateBoletoUseCaseRequest, sicrediResponse: any): Transaction {
         if (!sicrediResponse) {
             throw new Error(this.i18nService.translate('errors.SICREDI_ERROR_CREATE_BOLETO'));
         }
 
-        return Boleto.create({
+        return Transaction.create({
             businessId: new UniqueEntityID(input.businessId),
             personId: new UniqueEntityID(input.personId),
             amount: input.amount,
@@ -130,12 +132,12 @@ export class CreateBoletoUseCase {
             digitableLine: sicrediResponse.linhaDigitavel,
             barcode: sicrediResponse.codigoBarras,
             status: 'PENDING',
-            documentType: 'DUPLICATA_MERCANTIL_INDICACAO',
             feeAmount: 1,
-            pixQrCode: sicrediResponse.qrCode || null,
-            pixId: sicrediResponse.txid || null,
+            pixQrCode: sicrediResponse.qrCode,
+            pixId: sicrediResponse.txid,
             ourNumber: sicrediResponse.nossoNumero || null,
-            pdfFileId: null,
+            fileId: null,
+            type: TransactionType.BOLETO,
         });
     }
 

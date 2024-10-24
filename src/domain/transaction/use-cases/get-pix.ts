@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Either, left, right } from '@/core/either';
-import { PixRepository } from '@/domain/transaction/repositories/pix-repository';
+import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository';
 import { I18nService, Language } from '@/i18n/i18n.service';
-import { PixDetails } from '../entities/value-objects/pix-details';
+import { TransactionDetails } from '../entities/value-objects/transaction-details';
 import { AppError } from '@/core/errors/app-errors';
 
 interface GetSaleUseCaseRequest {
@@ -13,7 +13,7 @@ interface GetSaleUseCaseRequest {
 type GetSaleUseCaseResponse = Either<
     AppError,
     {
-        pix: PixDetails;
+        pix: TransactionDetails;
         message: string;
     }
 >;
@@ -21,7 +21,7 @@ type GetSaleUseCaseResponse = Either<
 @Injectable()
 export class GetPixUseCase {
     constructor(
-        private pixsRepository: PixRepository,
+        private pixsRepository: TransactionRepository,
         private i18nService: I18nService
     ) { }
 

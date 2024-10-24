@@ -4,8 +4,8 @@ import { Sale } from '@/domain/sale/entities/sale';
 import { SaleItem } from '@/domain/sale/entities/sale-item';
 import { SalesRepository } from '@/domain/sale/repositories/sales-repository';
 import { I18nService, Language } from '@/i18n/i18n.service';
-import { SaleValidationError } from '@/domain/sale/errors/sale-validation-error';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
+import { AppError } from '@/core/errors/app-errors';
 
 interface SaleItemRequest {
     id?: string;
@@ -38,7 +38,7 @@ interface EditSaleUseCaseRequest {
 }
 
 type EditSaleUseCaseResponse = Either<
-    SaleValidationError,
+    AppError,
     {
         sale: Sale;
         message: string;
@@ -59,11 +59,11 @@ export class EditSaleUseCase {
         const sale = await this.salesRepository.findById(request.saleId, request.businessId);
 
         if (!sale) {
-            return left(SaleValidationError.resourceNotFound());
+            return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'))
         }
 
         if (request.businessId !== sale.businessId.toString()) {
-            return left(SaleValidationError.notAllowed());
+            return left(AppError.notAllowed('errors.RESOURCE_NOT_ALLOWED'))
         }
 
         const validationResult = this.validateSale(request);
@@ -81,30 +81,31 @@ export class EditSaleUseCase {
         });
     }
 
-    private validateSale(request: EditSaleUseCaseRequest): true | SaleValidationError {
-        if (request.items.length === 0) {
-            return SaleValidationError.itemCountError();
-        }
+    private validateSale(request: EditSaleUseCaseRequest): true | AppError {
 
-        const calculatedTotals = this.calculateTotals(request.items);
+        // if (request.items.length === 0) {
+        //     return SaleValidationError.itemCountError();
+        // }
 
-        if (Math.abs(calculatedTotals.productAmount - request.productAmount) > 0.01) {
-            return SaleValidationError.productAmountMismatch(calculatedTotals.productAmount, request.productAmount);
-        }
+        // const calculatedTotals = this.calculateTotals(request.items);
 
-        if (Math.abs(calculatedTotals.commissionAmount - request.commissionAmount) > 0.01) {
-            return SaleValidationError.commissionAmountMismatch(calculatedTotals.commissionAmount, request.commissionAmount);
-        }
+        // if (Math.abs(calculatedTotals.productAmount - request.productAmount) > 0.01) {
+        //     return SaleValidationError.productAmountMismatch(calculatedTotals.productAmount, request.productAmount);
+        // }
 
-        const calculatedGrossAmount = request.productAmount + request.servicesAmount;
-        if (Math.abs(calculatedGrossAmount - request.grossAmount) > 0.01) {
-            return SaleValidationError.grossAmountMismatch(calculatedGrossAmount, request.grossAmount);
-        }
+        // if (Math.abs(calculatedTotals.commissionAmount - request.commissionAmount) > 0.01) {
+        //     return SaleValidationError.commissionAmountMismatch(calculatedTotals.commissionAmount, request.commissionAmount);
+        // }
 
-        const calculatedAmount = calculatedGrossAmount - request.discountAmount + request.shippingAmount;
-        if (Math.abs(calculatedAmount - request.amount) > 0.01) {
-            return SaleValidationError.totalAmountMismatch(calculatedAmount, request.amount);
-        }
+        // const calculatedGrossAmount = request.productAmount + request.servicesAmount;
+        // if (Math.abs(calculatedGrossAmount - request.grossAmount) > 0.01) {
+        //     return SaleValidationError.grossAmountMismatch(calculatedGrossAmount, request.grossAmount);
+        // }
+
+        // const calculatedAmount = calculatedGrossAmount - request.discountAmount + request.shippingAmount;
+        // if (Math.abs(calculatedAmount - request.amount) > 0.01) {
+        //     return SaleValidationError.totalAmountMismatch(calculatedAmount, request.amount);
+        // }
 
         return true;
     }

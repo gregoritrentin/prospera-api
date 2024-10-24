@@ -1,19 +1,13 @@
+import { PaginationParams } from '@/core/repositories/pagination-params';
 import { WhatsApp } from '@/domain/whatsapp/entities/whatsapp';
 
-export interface WhatsAppSenderParams {
-    to: string
-    content: string
-}
-
 export abstract class WhatsAppRepository {
-    //abstract initialize(): Promise<void>;
 
-    abstract send(props: WhatsAppSenderParams): Promise<{ sendId: string }>;
-    //abstract sendMessage(whatsapp: WhatsApp): Promise<void>;
+    abstract create(whatsapp: WhatsApp): Promise<void>
+    abstract save(whatsapp: WhatsApp): Promise<void>
+    abstract findById(id: string): Promise<WhatsApp | null>
+    abstract findMany({ page }: PaginationParams): Promise<WhatsApp[]>
 
-    //abstract onQRCode(callback: (qr: string) => void): void;
-    //abstract onReady(callback: () => void): void;
-    //abstract onDisconnected(callback: () => void): void;
 }
 
 

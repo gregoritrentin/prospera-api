@@ -7,6 +7,57 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum CalculationMode {
+  NONE
+  PERCENT
+  VALUE
+}
+
+enum YesNo {
+  YES
+  NO
+}
+
+enum PaymentType {
+  PIX_KEY
+  PIX_BANK_DETAILS
+}
+
+enum TransactionType {
+  BOLETO
+  PIX
+  CARD
+}
+
+enum MovementType {
+  CREDIT
+  DEBIT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum UserGender {
+  MALE
+  FEMAILE
+}
+
+enum InvoiceStatus {
+  CREATED
+  OPEN
+  PAID
+  CANCELED
+}
+
 model User {
   id              String    @id @default(uuid())
   name            String
@@ -25,24 +76,24 @@ model User {
   updatedAt       DateTime? @updatedAt @map("updated_at")
   suspendedAt     DateTime? @map("suspended_at")
 
-  Business Business? @relation(fields: [defaultBusiness], references: [id])
-  File     File?     @relation(fields: [photoFileId], references: [id])
+  business Business? @relation(fields: [defaultBusiness], references: [id])
+  file     File?     @relation(fields: [photoFileId], references: [id])
   state    State?    @relation(fields: [stateId], references: [id])
   country  Country?  @relation(fields: [countryId], references: [id])
 
-  UserBusiness         UserBusiness[]
-  UserTerms            UserTerms[]
-  Deal                 Deal[]
-  Sale                 Sale[]
-  ServiceOrder         ServiceOrder[]
-  FeatureSuggestion    FeatureSuggestion[]
-  FeatureVote          FeatureVote[]
-  EventRegistration    EventRegistration[]
-  CampaignContribution CampaignContribution[]
-  TicketAgent          Ticket[]               @relation("TicketAgent")
-  TicketOwner          Ticket[]               @relation("TicketOwner")
-  StockMovement        StockMovement[]
-  LoginLog             LoginLog[]
+  userBusiness         UserBusiness[]
+  userTerms            UserTerms[]
+  ddeal                Deal[]
+  sale                 Sale[]
+  serviceOrder         ServiceOrder[]
+  featureSuggestion    FeatureSuggestion[]
+  featureVote          FeatureVote[]
+  eventRegistration    EventRegistration[]
+  campaignContribution CampaignContribution[]
+  ticketAgent          Ticket[]               @relation("TicketAgent")
+  ticketOwner          Ticket[]               @relation("TicketOwner")
+  stockMovement        StockMovement[]
+  loginLog             LoginLog[]
 
   @@map("users")
 }
@@ -68,7 +119,7 @@ model Terms {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
-  UserTerms UserTerms[]
+  userTerms UserTerms[]
 
   @@map("terms")
 }
@@ -78,11 +129,11 @@ model Country {
   name String
   code String @unique
 
-  State          State[]
-  User           User[]
-  Business       Business[]
-  Person         Person[]
-  BusinessOwners BusinessOwners[]
+  state          State[]
+  user           User[]
+  business       Business[]
+  person         Person[]
+  businessOwners BusinessOwners[]
 
   @@map("countries")
 }
@@ -94,11 +145,11 @@ model State {
   countryId String @map("country_id")
 
   country        Country          @relation(fields: [countryId], references: [id])
-  City           City[]
-  User           User[]
-  Business       Business[]
-  Person         Person[]
-  BusinessOwners BusinessOwners[]
+  city           City[]
+  user           User[]
+  business       Business[]
+  person         Person[]
+  businessOwners BusinessOwners[]
 
   @@map("states")
 }
@@ -110,9 +161,9 @@ model City {
   code    String @unique
 
   state          State            @relation(fields: [stateId], references: [id])
-  Business       Business[]
-  Person         Person[]
-  BusinessOwners BusinessOwners[]
+  business       Business[]
+  person         Person[]
+  businessOwners BusinessOwners[]
 
   @@map("cities")
 }
@@ -155,7 +206,7 @@ model KnowledgeBase {
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
 
-  category KnowledgeBaseCategory @relation(fields: [categoryId], references: [id])
+  knowledgeBaseCategory KnowledgeBaseCategory @relation(fields: [categoryId], references: [id])
 
   @@map("knowledge_base")
 }
@@ -175,7 +226,7 @@ model FeatureSuggestion {
 
   business    Business      @relation(fields: [businessId], references: [id])
   owner       User          @relation(fields: [ownerId], references: [id])
-  FeatureVote FeatureVote[]
+  featureVote FeatureVote[]
 
   @@map("feature_suggestions")
 }
@@ -257,41 +308,44 @@ model Business {
   state                  State        @relation(fields: [stateCode], references: [code])
   city                   City         @relation(fields: [cityCode], references: [code])
 
-  Person               Person[]
-  UserBusiness         UserBusiness[]
-  BusinessApps         BusinessApps[]
-  BusinessOwners       BusinessOwners[]
-  BusinessBankAccounts BusinessBankAccounts[]
-  Items                Item[]
-  ItemGroup            ItemGroup[]
-  ItemTaxation         ItemTaxation[]
-  User                 User[]
-  Email                Email[]
-  File                 File[]
-  BusinessPlan         BusinessPlan[]
-  Account              Account[]
-  Subscription         Subscription[]
-  Event                Event[]
-  Deal                 Deal[]
-  Sale                 Sale[]
-  PriceList            PriceList[]
-  Invoice              Invoice[]
-  Receivable           Receivable[]
-  ServiceOrder         ServiceOrder[]
-  Ticket               Ticket[]
-  FeatureSuggestion    FeatureSuggestion[]
-  InvoiceSplit         InvoiceSplit[]
-  TransactionSplit     TransactionSplit[]
-  SubscriptionSplit    SubscriptionSplit[]
-  WebhookEvent         WebhookEvent[]
-  Campaign             Campaign[]
-  Reservation          Reservation[]
-  Purchase             Purchase[]
-  StockMovement        StockMovement[]
-  Inventory            Inventory[]
-  CashFlow             CashFlow[]
-  TransactionBoleto    TransactionBoleto[]
-  TransactionPix       TransactionPix[]
+  person               Person[]
+  userBusiness         UserBusiness[]
+  businessApps         BusinessApps[]
+  businessOwners       BusinessOwners[]
+  businessBankAccounts BusinessBankAccounts[]
+  items                Item[]
+  itemGroup            ItemGroup[]
+  itemTaxation         ItemTaxation[]
+  user                 User[]
+  emailMessages        Email[]
+  file                 File[]
+  businessPlan         BusinessPlan[]
+  account              Account[]
+  subscription         Subscription[]
+  event                Event[]
+  deal                 Deal[]
+  sale                 Sale[]
+  priceList            PriceList[]
+  invoice              Invoice[]
+  receivable           Receivable[]
+  serviceOrder         ServiceOrder[]
+  ticket               Ticket[]
+  featureSuggestion    FeatureSuggestion[]
+  invoiceSplit         InvoiceSplit[]
+  transactionSplit     TransactionSplit[]
+  subscriptionSplit    SubscriptionSplit[]
+  webhookEvent         WebhookEvent[]
+  campaign             Campaign[]
+  reservation          Reservation[]
+  purchase             Purchase[]
+  stockMovement        StockMovement[]
+  inventory            Inventory[]
+  cashFlow             CashFlow[]
+  payment              Payment[]
+  whatsApp             WhatsApp[]
+  transaction          Transaction[]
+  salesChannel         SalesChannel[]
+  pipeline             Pipeline[]
 
   @@map("business")
 }
@@ -306,14 +360,13 @@ model File {
 
   business Business @relation(fields: [businessId], references: [id])
 
-  User              User[]
-  InvoiceAttachment InvoiceAttachment[]
-
+  user                       User[]
+  invoiceAttachment          InvoiceAttachment[]
   logoBusiness               Business?           @relation("LogoFile")
   digitalCertificateBusiness Business?           @relation("DigitalCertificateFile")
-  EventRegistration          EventRegistration[]
-  Campaign                   Campaign[]
-  TransactionBoleto          TransactionBoleto[]
+  eventRegistration          EventRegistration[]
+  campaign                   Campaign[]
+  transaction                Transaction[]
 
   @@map("files")
 }
@@ -338,10 +391,11 @@ model BusinessOwners {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime? @updatedAt @map("updated_at")
   status       String
-  business     Business  @relation(fields: [businessId], references: [id])
-  country      Country   @relation(fields: [countryCode], references: [code])
-  state        State     @relation(fields: [stateCode], references: [code])
-  city         City      @relation(fields: [cityCode], references: [code])
+
+  business Business @relation(fields: [businessId], references: [id])
+  country  Country  @relation(fields: [countryCode], references: [code])
+  state    State    @relation(fields: [stateCode], references: [code])
+  city     City     @relation(fields: [cityCode], references: [code])
 
   @@map("business_owners")
 }
@@ -368,7 +422,7 @@ model Bank {
   name String
   code String @unique
 
-  BusinessBankAccounts BusinessBankAccounts[]
+  businessBankAccounts BusinessBankAccounts[]
 
   @@map("banks")
 }
@@ -381,7 +435,7 @@ model Plan {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @updatedAt @map("updated_at")
 
-  BusinessPlan BusinessPlan[]
+  businessPlan BusinessPlan[]
 
   @@map("plans")
 }
@@ -413,7 +467,7 @@ model App {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @updatedAt @map("updated_at")
 
-  BusinessApps BusinessApps[]
+  businessApps BusinessApps[]
 
   @@map("apps")
 }
@@ -442,7 +496,7 @@ model Marketplaces {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
-  Business Business[]
+  business Business[]
 
   @@map("marketplaces")
 }
@@ -482,10 +536,11 @@ model Person {
   salesAsPerson        Sale[]                 @relation("SalesPerson")
   customerOrders       ServiceOrder[]         @relation("Customer")
   technicianOrders     ServiceOrder[]         @relation("Technician")
-  Purchase             Purchase[]
-  CashFlow             CashFlow[]
-  TransactionBoleto    TransactionBoleto[]
-  TransactionPix       TransactionPix[]
+  purchase             Purchase[]
+  cashFlow             CashFlow[]
+  payment              Payment[]
+  transaction          Transaction[]
+  subscription         Subscription[]
 
   @@unique([businessId, document], name: "documentIdentifier")
   @@map("persons")
@@ -510,12 +565,12 @@ model Item {
   itemGroup    ItemGroup?    @relation(fields: [groupId], references: [id])
   itemTaxation ItemTaxation? @relation(fields: [taxationId], references: [id])
 
-  InvoiceItem      InvoiceItem[]
-  SubscriptionItem SubscriptionItem[]
-  DealItem         DealItem[]
-  SaleItem         SaleItem[]
-  PurchaseItem     PurchaseItem[]
-  StockMovements   StockMovement[]
+  invoiceItem      InvoiceItem[]
+  subscriptionItem SubscriptionItem[]
+  dealItem         DealItem[]
+  saleItem         SaleItem[]
+  purchaseItem     PurchaseItem[]
+  stockMovements   StockMovement[]
 
   @@unique([businessId, idAux], name: "idAuxIdentifier")
   @@map("items")
@@ -580,45 +635,53 @@ model Email {
   @@map("emails")
 }
 
+model WhatsApp {
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  to         String
+  content    String
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@map("whatsapps")
+}
+
 model Invoice {
   id String @id @default(uuid())
 
-  businessId String @map("business_id")
-  personId   String @map("person_id")
-
-  description String
-  notes       String?
-  paymentLink String  @map("payment_link")
-  status      String
-
+  businessId       String          @map("business_id")
+  personId         String          @map("person_id")
+  description      String?
+  notes            String?
+  paymentLink      String          @map("payment_link")
+  status           InvoiceStatus
   //datas
-  issueDate        DateTime @map("issue_date") //data de emissão 
-  dueDate          DateTime @map("due_date") //data de vencimento
-  paymendDate      DateTime @map("paymend_date") //data do pgto
-  paymentLimitDate DateTime @map("payment_limit_date") //data limite de pgto
-
+  issueDate        DateTime        @map("issue_date") //data de emissão 
+  dueDate          DateTime        @map("due_date") //data de vencimento
+  paymendDate      DateTime        @map("paymend_date") //data do pgto
+  paymentLimitDate DateTime?       @map("payment_limit_date") //data limite de pgto
   //valor
-  grossAmount    Float @map("gross_amount")
-  discountAmount Float @map("discount_amount") //valor do desconto
-  amount         Float // valor total
-  paymentAmount  Float @map("payment_amount") //valor do pgto
-
+  grossAmount      Float           @map("gross_amount")
+  discountAmount   Float           @map("discount_amount") //valor do desconto
+  amount           Float // valor total
+  paymentAmount    Float           @map("payment_amount") //valor do pgto
   //protest/protesto
-  protestDays Int @map("protest_days") //dias para protesto
-
+  protestMode      YesNo
+  protestDays      Int             @map("protest_days") //dias para protesto
   //late/multa
-  lateMode  String //PERCENT ou VALUE
-  lateValue Float  @map("late_value") //valor da multa
-
+  lateMode         CalculationMode
+  lateValue        Float           @map("late_value") //valor da multa
   //interest/juros
-  interestMode  String //PERCENT ou VALUE
-  interestDays  Int    @map("interest_days") //dias para juros
-  interestValue Float  @map("interest_value") //valor dos juros
-
+  interestMode     CalculationMode
+  interestDays     Int             @map("interest_days") //dias para juros
+  interestValue    Float           @map("interest_value") //valor dos juros
   //discount/desconto
-  discountMode  String //PERCENT ou VALUE
-  discountDays  Int    @map("discount_days") //dias para desconto
-  discountValue Float  @map("discount_value") //valor do desconto
+  discountMode     CalculationMode
+  discountDays     Int             @map("discount_days") //dias para desconto
+  discountValue    Float           @map("discount_value") //valor do desconto
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
@@ -626,26 +689,24 @@ model Invoice {
   business Business @relation(fields: [businessId], references: [id])
   person   Person   @relation(fields: [personId], references: [id])
 
-  InvoiceItem       InvoiceItem[]
-  InvoicePayment    InvoicePayment[]
-  InvoiceEvents     InvoiceEvent[]
-  InvoiceAttachment InvoiceAttachment[]
-  InvoiceSplit      InvoiceSplit[]
+  invoiceItem        InvoiceItem[]
+  invoiceEvents      InvoiceEvent[]
+  invoiceAttachment  InvoiceAttachment[]
+  invoiceSplit       InvoiceSplit[]
+  invoiceTransaction InvoiceTransaction[]
 
   @@map("invoices")
 }
 
 model InvoiceItem {
-  id              String    @id @default(uuid())
-  invoiceId       String    @map("invoice_id")
-  itemId          String    @map("item_id")
-  itemDescription String    @map("item_description")
+  id              String @id @default(uuid())
+  invoiceId       String @map("invoice_id")
+  itemId          String @map("item_id")
+  itemDescription String @map("item_description")
   quantity        Float
-  unitPrice       Float     @map("unit_price")
+  unitPrice       Float  @map("unit_price")
   discount        Float
-  totalPrice      Float     @map("total_price")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime? @updatedAt @map("updated_at")
+  totalPrice      Float  @map("total_price")
 
   invoice Invoice @relation(fields: [invoiceId], references: [id])
   item    Item    @relation(fields: [itemId], references: [id])
@@ -653,27 +714,25 @@ model InvoiceItem {
   @@map("invoice_items")
 }
 
-model InvoicePayment {
-  id            String    @id @default(uuid())
-  invoiceId     String    @map("invoice_id")
-  transactionId String    @map("transaction_id") //deixar nulo para pagamento manual?
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime? @updatedAt @map("updated_at")
+model InvoiceTransaction {
+  id            String @id @default(uuid())
+  invoiceId     String @map("invoice_id")
+  transactionId String @map("transaction_id")
+  amount        Float
 
-  invoice             Invoice            @relation(fields: [invoiceId], references: [id])
-  TransactionBoleto   TransactionBoleto? @relation(fields: [transactionBoletoId], references: [id])
-  transactionBoletoId String?
+  invoice     Invoice     @relation(fields: [invoiceId], references: [id])
+  transaction Transaction @relation(fields: [transactionId], references: [id])
 
   @@map("invoice_payments")
 }
 
 model InvoiceSplit {
-  id          String @id @default(uuid())
-  invoiceId   String @map("invoice_id")
-  recipientId String @map("recipient_id")
-  splitType   String @map("split_type") //FIXED, PERCENT
+  id          String          @id @default(uuid())
+  invoiceId   String          @map("invoice_id")
+  recipientId String          @map("recipient_id")
+  splitType   CalculationMode @map("split_type")
   amount      Float
-  feeAmount   Float  @map("fee_amount")
+  feeAmount   Float           @map("fee_amount")
 
   invoice   Invoice  @relation(fields: [invoiceId], references: [id])
   recipient Business @relation(fields: [recipientId], references: [id])
@@ -682,11 +741,10 @@ model InvoiceSplit {
 }
 
 model InvoiceEvent {
-  id        String    @id @default(uuid())
-  invoiceId String    @map("invoice_id")
+  id        String   @id @default(uuid())
+  invoiceId String   @map("invoice_id")
   event     String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   invoice Invoice @relation(fields: [invoiceId], references: [id])
 
@@ -694,11 +752,10 @@ model InvoiceEvent {
 }
 
 model InvoiceAttachment {
-  id        String    @id @default(uuid())
-  invoiceId String    @map("invoice_id")
-  fileId    String    @map("file_id")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  id        String   @id @default(uuid())
+  invoiceId String   @map("invoice_id")
+  fileId    String   @map("file_id")
+  createdAt DateTime @default(now()) @map("created_at")
 
   file    File    @relation(fields: [fileId], references: [id])
   invoice Invoice @relation(fields: [invoiceId], references: [id])
@@ -706,83 +763,54 @@ model InvoiceAttachment {
   @@map("invoice_attachments")
 }
 
-model TransactionBoleto {
-  id           String  @id @default(uuid())
-  businessId   String  @map("business_id")
-  personId     String  @map("person_id")
-  documentType String  @map("document_type")
-  ourNumber    String? @map("our_number")
-  description  String?
-  status       String
-
+model Transaction {
+  id               String          @id @default(uuid())
+  businessId       String          @map("business_id")
+  personId         String?         @map("person_id")
+  description      String?
+  status           String
+  type             TransactionType
   //datas
-  dueDate          DateTime  @map("due_date")
-  paymentDate      DateTime? @map("paymend_date")
-  paymentLimitDate DateTime? @map("payment_limit_date")
-
+  dueDate          DateTime?       @map("due_date")
+  paymentDate      DateTime?       @map("paymend_date")
+  paymentLimitDate DateTime?       @map("payment_limit_date")
   //valores
-  amount        Float
-  feeAmount     Float  @map("fee_amount")
-  paymentAmount Float? @map("payment_amount")
-
-  digitableLine String? @map("digitable_line")
-  barcode       String?
-  pixQrCode     String? @map("pix_qr_code")
-  pixId         String? @map("pix_id")
-  pdfFileId     String? @map("file_pdf_id")
-
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
-
-  business Business @relation(fields: [businessId], references: [id])
-  person   Person   @relation(fields: [personId], references: [id])
-  pdfFile  File?    @relation(fields: [pdfFileId], references: [id])
-
-  InvoicePayment InvoicePayment[]
-  Receivable     Receivable[]
-
-  @@map("transactios_boletos")
-}
-
-model TransactionPix {
-  id           String  @id @default(uuid())
-  businessId   String  @map("business_id")
-  personId     String? @map("person_id")
-  documentType String  @map("document_type")
-  description  String?
-  status       String
-
-  //datas
-  dueDate          DateTime? @map("due_date")
-  paymentDate      DateTime? @map("paymend_date")
-  paymentLimitDate DateTime? @map("payment_limit_date")
-
-  //valores
-  amount        Float
-  feeAmount     Float  @map("fee_amount")
-  paymentAmount Float? @map("payment_amount")
-
-  pixId     String? @map("pix_id")
-  pixQrCode String? @map("pix_qr_code")
-
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  amount           Float
+  feeAmount        Float           @map("fee_amount")
+  paymentAmount    Float?          @map("payment_amount")
+  //boleto
+  ourNumber        String?         @map("our_number")
+  digitableLine    String?         @map("digitable_line")
+  barcode          String?
+  //pix
+  pixQrCode        String?         @map("pix_qr_code")
+  pixId            String?         @map("pix_id")
+  fileId           String?         @map("file_id")
+  //outros
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime?       @updatedAt @map("updated_at")
 
   business Business @relation(fields: [businessId], references: [id])
   person   Person?  @relation(fields: [personId], references: [id])
+  file     File?    @relation(fields: [fileId], references: [id])
 
-  @@map("transactios_pix")
+  invoiceTransaction InvoiceTransaction[]
+  transactionSplit   TransactionSplit[]
+  receivable         Receivable[]
+
+  @@map("transactions")
 }
 
 model TransactionSplit {
-  id            String @id @default(uuid())
-  transactionId String @unique @map("transaction_id")
-  recipientId   String @map("recipient_id")
-  splitType     String @map("split_type") //FIXED, PERCENT
+  id            String          @id @default(uuid())
+  transactionId String          @unique @map("transaction_id")
+  recipientId   String          @map("recipient_id")
+  splitType     CalculationMode @map("split_type")
   amount        Float
-  feeAmount     Float  @map("fee_amount")
+  feeAmount     Float           @map("fee_amount")
 
-  recipient Business @relation(fields: [recipientId], references: [id])
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  recipient   Business    @relation(fields: [recipientId], references: [id])
 
   @@map("transaction_splits")
 }
@@ -797,47 +825,98 @@ model Receivable {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime? @updatedAt @map("updated_at")
 
-  business            Business           @relation(fields: [businessId], references: [id])
-  TransactionBoleto   TransactionBoleto? @relation(fields: [transactionBoletoId], references: [id])
-  transactionBoletoId String?
+  business    Business    @relation(fields: [businessId], references: [id])
+  transaction Transaction @relation(fields: [transactionId], references: [id])
 
   @@map("receivables")
 }
 
+model Payment {
+  id                     String      @id @default(uuid())
+  businessId             String      @map("business_id")
+  personId               String?     @map("person_id")
+  paymentId              String?     @map("payment_id")
+  paymentType            PaymentType @map("payment_type")
+  description            String?
+  status                 String
+  amount                 Float
+  feeAmount              Float       @map("fee_amount")
+  paymentDate            DateTime    @map("paymend_date")
+  pixMessage             String?     @map("pix_message")
+  pixKey                 String?     @map("pix_key")
+  beneficiaryIspb        String?
+  beneficiaryBranch      String?
+  beneficiaryAccount     String?
+  beneficiaryAccountType String?
+  beneficiaryName        String?
+  beneficiaryDocument    String?
+  createdAt              DateTime    @default(now()) @map("created_at")
+  updatedAt              DateTime?   @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  person   Person?  @relation(fields: [personId], references: [id])
+
+  @@index([paymentId])
+  @@index([status])
+  @@index([paymentType])
+  @@map("payments")
+}
+
 model Account {
-  id         String @id @default(uuid())
-  businessId String @map("business_id")
-
-  number String
-
-  status    String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  id         String    @id @default(uuid())
+  businessId String    @map("business_id")
+  number     String
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
 
   business Business @relation(fields: [businessId], references: [id])
 
-  Ledger              Ledger[]
-  TransferFromAccount Transfer[] @relation("TransferFromAccount")
-  TransferToAccount   Transfer[] @relation("TransferToAccount")
+  accountMovement     AccountMovement[]
+  transferFromAccount Transfer[]        @relation("TransferFromAccount")
+  transferToAccount   Transfer[]        @relation("TransferToAccount")
 
   @@map("accounts")
 }
 
-model Ledger {
-  id          String    @id @default(uuid())
-  accountId   String    @map("account_id")
-  type        String //CREDIT, DEBIT
+model AccountMovement {
+  id          String       @id @default(uuid())
+  accountId   String       @map("account_id")
+  type        MovementType
   amount      Float
   description String?
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime? @updatedAt @map("updated_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime?    @updatedAt @map("updated_at")
 
   account Account @relation(fields: [accountId], references: [id])
 
-  TransferFrom Transfer? @relation("TransferFromLedger")
-  TransferTo   Transfer? @relation("TransferToLedger")
+  transferFrom Transfer? @relation("TransferFromAccountMovement")
+  transferTo   Transfer? @relation("TransferToAccountMovement")
 
-  @@map("ledgers")
+  @@map("account_movement")
+}
+
+model Transfer {
+  id String @id @default(uuid())
+
+  fromAccountId String @map("from_account_id")
+  toAccountId   String @map("to_account_id")
+
+  fromAccountMovementId String @unique @map("from_account_movement_id")
+  toAccountMovementId   String @unique @map("to_account_movement_id")
+
+  amount    Float
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  fromAccount Account @relation("TransferFromAccount", fields: [fromAccountId], references: [id])
+  toAccount   Account @relation("TransferToAccount", fields: [toAccountId], references: [id])
+
+  fromAccountMovement AccountMovement @relation("TransferFromAccountMovement", fields: [fromAccountMovementId], references: [id])
+  toAccountMovement   AccountMovement @relation("TransferToAccountMovement", fields: [toAccountMovementId], references: [id])
+
+  @@unique([fromAccountMovementId, toAccountMovementId])
+  @@map("transfers")
 }
 
 model CashFlow {
@@ -863,32 +942,10 @@ model CashFlow {
   @@map("cash_flows")
 }
 
-model Transfer {
-  id String @id @default(uuid())
-
-  fromAccountId String @map("from_account_id")
-  toAccountId   String @map("to_account_id")
-
-  fromLedgerId String @unique @map("from_ledger_id")
-  toLedgerId   String @unique @map("to_ledger_id")
-
-  amount    Float
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
-
-  fromAccount Account @relation("TransferFromAccount", fields: [fromAccountId], references: [id])
-  toAccount   Account @relation("TransferToAccount", fields: [toAccountId], references: [id])
-
-  fromLedger Ledger @relation("TransferFromLedger", fields: [fromLedgerId], references: [id])
-  toLedger   Ledger @relation("TransferToLedger", fields: [toLedgerId], references: [id])
-
-  @@unique([fromLedgerId, toLedgerId])
-  @@map("transfers")
-}
-
 model Subscription {
   id              String   @id @default(uuid())
   businessId      String   @map("business_id")
+  personId        String   @map("person_id")
   price           Float
   notes           String?
   paymentMethod   String   @map("payment_method")
@@ -900,10 +957,11 @@ model Subscription {
   updatedAt DateTime? @updatedAt @map("updated_at")
 
   business Business @relation(fields: [businessId], references: [id])
+  person   Person   @relation(fields: [personId], references: [id])
 
-  SubscriptionItem  SubscriptionItem[]
-  SubscriptionNFSe  SubscriptionNFSe[]
-  SubscriptionSplit SubscriptionSplit[]
+  subscriptionItem  SubscriptionItem[]
+  subscriptionNFSe  SubscriptionNFSe[]
+  subscriptionSplit SubscriptionSplit[]
 
   @@map("subscriptions")
 }
@@ -1000,14 +1058,14 @@ model Sale {
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime? @updatedAt @map("updated_at")
 
-  business    Business      @relation(fields: [businessId], references: [id])
-  owner       User          @relation(fields: [ownerId], references: [id])
-  channel     SalesChannel? @relation(fields: [channelId], references: [id])
-  salesPerson Person        @relation("SalesPerson", fields: [salesPersonId], references: [id])
-  customer    Person?       @relation("Customer", fields: [customerId], references: [id])
+  business     Business      @relation(fields: [businessId], references: [id])
+  owner        User          @relation(fields: [ownerId], references: [id])
+  salesChannel SalesChannel? @relation(fields: [channelId], references: [id])
+  salesPerson  Person        @relation("SalesPerson", fields: [salesPersonId], references: [id])
+  customer     Person?       @relation("Customer", fields: [customerId], references: [id])
 
-  SaleItem   SaleItem[]
-  SaleReturn SaleReturn[]
+  saleItem   SaleItem[]
+  saleReturn SaleReturn[]
 
   @@map("sales")
 }
@@ -1025,7 +1083,7 @@ model SaleItem {
 
   item           Item             @relation(fields: [itemId], references: [id])
   sale           Sale             @relation(fields: [saleId], references: [id])
-  SaleReturnItem SaleReturnItem[]
+  saleReturnItem SaleReturnItem[]
 
   @@map("sale_items")
 }
@@ -1037,7 +1095,9 @@ model SalesChannel {
   status     String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  Sale       Sale[]
+
+  business Business @relation(fields: [businessId], references: [id])
+  sale     Sale[]
 
   @@map("sales_channels")
 }
@@ -1054,7 +1114,7 @@ model SaleReturn {
 
   sale Sale @relation(fields: [saleId], references: [id])
 
-  ReturnItem SaleReturnItem[]
+  returnItem SaleReturnItem[]
 
   @@map("sale_returns")
 }
@@ -1069,7 +1129,7 @@ model SaleReturnItem {
 
   saleReturn     SaleReturn    @relation(fields: [returnId], references: [id])
   saleItem       SaleItem      @relation(fields: [saleItemId], references: [id])
-  PurchaseItem   PurchaseItem? @relation(fields: [purchaseItemId], references: [id])
+  purchaseItem   PurchaseItem? @relation(fields: [purchaseItemId], references: [id])
   purchaseItemId String?
 
   @@map("sale_return_items")
@@ -1096,8 +1156,8 @@ model Purchase {
   business Business @relation(fields: [businessId], references: [id])
   supplier Person   @relation(fields: [supplierId], references: [id])
 
-  PurchaseItem    PurchaseItem[]
-  PurchasePayment PurchasePayment[]
+  purchaseItem    PurchaseItem[]
+  purchasePayment PurchasePayment[]
 
   @@map("purchases")
 }
@@ -1116,7 +1176,7 @@ model PurchaseItem {
   item     Item     @relation(fields: [itemId], references: [id])
   purchase Purchase @relation(fields: [purchaseId], references: [id])
 
-  SaleReturnItem SaleReturnItem[]
+  saleReturnItem SaleReturnItem[]
 
   @@map("purchase_items")
 }
@@ -1163,7 +1223,8 @@ model Inventory {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @updatedAt @map("updated_at")
 
-  business Business @relation(fields: [businessId], references: [id])
+  business      Business        @relation(fields: [businessId], references: [id])
+  inventoryItem InventoryItem[]
 
   @@map("inventories")
 }
@@ -1180,6 +1241,8 @@ model InventoryItem {
   difference      Float     @map("difference")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime? @updatedAt @map("updated_at")
+
+  inventory Inventory @relation(fields: [inventoryId], references: [id])
 
   @@map("inventory_items")
 }
@@ -1216,8 +1279,8 @@ model Deal {
   person     Person?     @relation(fields: [customerId], references: [id])
   pipeline   Pipeline    @relation(fields: [pipelineId], references: [id])
 
-  Activity Activity[]
-  DealItem DealItem[]
+  activity Activity[]
+  dealItem DealItem[]
 
   @@map("crm_deals")
 }
@@ -1246,8 +1309,10 @@ model Pipeline {
   businessId String @map("business_id")
   name       String
 
-  Stage Stage[]
-  Deal  Deal[]
+  business Business @relation(fields: [businessId], references: [id])
+
+  stage Stage[]
+  deal  Deal[]
 
   @@map("crm_pipelines")
 }
@@ -1258,8 +1323,9 @@ model Stage {
   pipelineId String
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  pipeline   Pipeline  @relation(fields: [pipelineId], references: [id])
-  Deal       Deal[]
+
+  pipeline Pipeline @relation(fields: [pipelineId], references: [id])
+  deal     Deal[]
 
   @@map("crm_stages")
 }
@@ -1301,28 +1367,28 @@ model ServiceOrder {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
-  business Business @relation(fields: [businessId], references: [id])
-  owner    User     @relation(fields: [ownerId], references: [id])
-
-  customer   Person @relation("Customer", fields: [customerId], references: [id])
-  technician Person @relation("Technician", fields: [technicianId], references: [id])
+  business   Business @relation(fields: [businessId], references: [id])
+  owner      User     @relation(fields: [ownerId], references: [id])
+  customer   Person   @relation("Customer", fields: [customerId], references: [id])
+  technician Person   @relation("Technician", fields: [technicianId], references: [id])
 
   @@map("service_orders")
 }
 
 model Event {
-  id                String              @id @default(uuid())
-  businessId        String              @map("business_id")
-  title             String
-  description       String
-  status            String
-  startAt           DateTime            @map("start_at")
-  endAt             DateTime            @map("end_at")
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime?           @updatedAt @map("updated_at")
-  Business          Business            @relation(fields: [businessId], references: [id])
-  EventTier         EventTier[]
-  EventRegistration EventRegistration[]
+  id          String    @id @default(uuid())
+  businessId  String    @map("business_id")
+  title       String
+  description String
+  status      String
+  startAt     DateTime  @map("start_at")
+  endAt       DateTime  @map("end_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  business          Business            @relation(fields: [businessId], references: [id])
+  eventTier         EventTier[]
+  eventRegistration EventRegistration[]
 
   @@map("events")
 }
@@ -1338,7 +1404,7 @@ model EventTier {
   updatedAt DateTime? @updatedAt @map("updated_at")
 
   event             Event               @relation(fields: [eventId], references: [id])
-  EventRegistration EventRegistration[]
+  eventRegistration EventRegistration[]
 
   @@map("event_tiers")
 }
@@ -1382,7 +1448,7 @@ model Campaign {
   business             Business               @relation(fields: [businessId], references: [id])
   category             CampaignCategory       @relation(fields: [categoryId], references: [id])
   imageFile            File?                  @relation(fields: [imageFileId], references: [id])
-  CampaignContribution CampaignContribution[]
+  campaignContribution CampaignContribution[]
 
   @@map("campaigns")
 }
@@ -1406,9 +1472,8 @@ model CampaignContribution {
   updatedAt  DateTime? @updatedAt @map("updated_at")
 
   campaign Campaign @relation(fields: [campaignId], references: [id])
-
-  owner  User   @relation(fields: [ownerId], references: [id])
-  person Person @relation(fields: [personId], references: [id])
+  owner    User     @relation(fields: [ownerId], references: [id])
+  person   Person   @relation(fields: [personId], references: [id])
 
   @@map("campaign_contributions")
 }
@@ -1429,7 +1494,7 @@ model Reservation {
   business Business @relation(fields: [businessId], references: [id])
   person   Person   @relation(fields: [personId], references: [id])
 
-  ReservationResource ReservationResource[]
+  reservationResource ReservationResource[]
 
   @@map("reservations")
 }
@@ -1442,7 +1507,7 @@ model Resource {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
-  ReservationResource ReservationResource[]
+  reservationResource ReservationResource[]
 
   @@map("resources")
 }

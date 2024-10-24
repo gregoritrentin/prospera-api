@@ -45,7 +45,7 @@ export class SicrediBoletoService implements BoletoProvider, OnModuleInit {
     private readonly i18nService: I18nService
   ) {
     this.api = axios.create({
-      baseURL: this.envService.get('SICREDI_BOLETO_API'),
+      baseURL: `${this.envService.get('SICREDI_BOLETO_API')}/cobranca/boleto/v1`,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -86,7 +86,7 @@ export class SicrediBoletoService implements BoletoProvider, OnModuleInit {
   private async authenticate(): Promise<void> {
     const username = `${this.envService.get('SICREDI_BENEFICIARIO')}${this.envService.get('SICREDI_COOPERATIVA')}`;
     const password = this.envService.get('SICREDI_CODIGO_ACESSO') || '';
-    const authUrl = `${this.envService.get('SICREDI_BOLETO_AUTH')}`;
+    const authUrl = `${this.envService.get('SICREDI_BOLETO_API')}/auth/openapi/token`;
 
     try {
       const response = await axios.post(authUrl,
@@ -113,7 +113,7 @@ export class SicrediBoletoService implements BoletoProvider, OnModuleInit {
   private async refreshAccessToken(): Promise<void> {
     this.logger.log('Refreshing access token');
     try {
-      const response = await axios.post(`${this.envService.get('SICREDI_BOLETO_AUTH')}`,
+      const response = await axios.post(`${this.envService.get('SICREDI_BOLETO_API')}/auth/openapi/token`,
         new URLSearchParams({
           grant_type: 'refresh_token',
           refresh_token: this.refreshToken!,
@@ -236,6 +236,4 @@ export class SicrediBoletoService implements BoletoProvider, OnModuleInit {
 
     throw new Error(fullErrorMessage);
   }
-
-
 }

@@ -33,16 +33,21 @@ import { UserTermRepository } from '@/domain/application/repositories/user-term-
 import { PrismaUserTermRepository } from '@/infra/database/prisma/repositories/prisma-user-term-repository';
 import { BusinessAppRepository } from '@/domain/application/repositories/business-app-repository';
 import { PrismaBusinessAppRepository } from './prisma/repositories/prisma-business-app-repository';
-import { BoletoRepository } from '@/domain/transaction/repositories/boleto-repository';
-import { PrismaBoletoRepository } from './prisma/repositories/prisma-boleto-repository';
-import { PixRepository } from '@/domain/transaction/repositories/pix-repository';
-import { PrismaPixRepository } from './prisma/repositories/prisma-pix-repository';
+import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository';
+import { PaymentRepository } from '@/domain/payment/repositories/payment-repository';
+import { PrismaPaymentRepository } from './prisma/repositories/prisma-payment-pix-repository';
+import { WhatsAppRepository } from '@/domain/whatsapp/repositories/whatsapp-repository';
+import { PrismaWhatsAppRepository } from './prisma/repositories/prisma-whatsapp-repository';
+import { RedisWhatsAppRepository } from './redis/repositories/redis-whatsapp-repository';
+import { PrismaTransactionRepository } from './prisma/repositories/prisma-transaction-repository';
 
 @Module({
     imports: [EnvModule],
     providers: [
         PrismaService,
         RedisService,
+        RedisWhatsAppRepository,
+
 
         {
             provide: BusinessRepository,
@@ -126,12 +131,16 @@ import { PrismaPixRepository } from './prisma/repositories/prisma-pix-repository
 
         },
         {
-            provide: BoletoRepository,
-            useClass: PrismaBoletoRepository,
+            provide: TransactionRepository,
+            useClass: PrismaTransactionRepository,
         },
         {
-            provide: PixRepository,
-            useClass: PrismaPixRepository,
+            provide: PaymentRepository,
+            useClass: PrismaPaymentRepository,
+        },
+        {
+            provide: WhatsAppRepository,
+            useClass: PrismaWhatsAppRepository,
         },
 
     ],
@@ -153,8 +162,11 @@ import { PrismaPixRepository } from './prisma/repositories/prisma-pix-repository
         ItemTaxationRepository,
         FileRepository,
         EmailRepository,
-        BoletoRepository,
-        PixRepository,
+        TransactionRepository,
+        PaymentRepository,
+        WhatsAppRepository,
+
+        RedisWhatsAppRepository,
     ],
 })
 export class DatabaseModule { }

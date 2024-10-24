@@ -67,7 +67,7 @@ const createUserBodySchema = z.object({
 
 type CreateUserBodySchema = z.infer<typeof createUserBodySchema>
 
-@ApiTags('usersssss')
+//@ApiTags('usersssss')
 @Controller('/user')
 @Public()
 export class CreateUserController {
@@ -75,12 +75,12 @@ export class CreateUserController {
 
   @Post()
   @HttpCode(201)
-  @UsePipes(new ZodValidationPipe(createUserBodySchema))
-  @ApiOperation({ summary: 'Create a new user' })
-  @ApiBody({ schema: zodToSwagger(createUserBodySchema) })
-  @ApiResponse({ status: 201, description: 'The user has been successfully created.' })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiResponse({ status: 409, description: 'User already exists.' })
+  //@UsePipes(new ZodValidationPipe(createUserBodySchema))
+  //@ApiOperation({ summary: 'Create a new user' })
+  // @ApiBody({ schema: zodToSwagger(createUserBodySchema) })
+  // @ApiResponse({ status: 201, description: 'The user has been successfully created.' })
+  // @ApiResponse({ status: 400, description: 'Bad Request.' })
+  // @ApiResponse({ status: 409, description: 'User already exists.' })
   async handle(@Body() body: CreateUserBodySchema) {
     const {
       name,

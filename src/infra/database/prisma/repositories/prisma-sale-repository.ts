@@ -18,7 +18,7 @@ export class PrismaSalesRepository implements SalesRepository {
                 businessId,
             },
             include: {
-                SaleItem: true,
+                saleItem: true,
             }
         })
 
@@ -57,7 +57,7 @@ export class PrismaSalesRepository implements SalesRepository {
                 customer: true,
                 owner: true,
                 salesPerson: true,
-                channel: true,
+                salesChannel: true,
 
             },
             skip: (page - 1) * 20,

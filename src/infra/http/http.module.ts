@@ -1,10 +1,11 @@
-import { Module } from "@nestjs/common"
+import { Get, Module } from "@nestjs/common"
 import { DatabaseModule } from "../database/database.module";
 import { EmailModule } from "../email/email.module";
 import { FileModule } from "../file/file.module";
 import { CryptographyModule } from "@/infra/cryptography/cryptografhy.module";
 import { BoletoModule } from "../boleto/boleto.module";
 import { PixModule } from "../pix/pix.module";
+import { WhatsAppModule } from "../whatsapp/whatsapp.module";
 
 //app
 import { CreateAppUseCase } from "@/domain/application/use-cases/create-app";
@@ -177,10 +178,24 @@ import { FetchPixUseCase } from "@/domain/transaction/use-cases/fetch-pixes";
 import { FetchPixController } from "./controllers/transaction/fetch-pix.controller";
 import { GetPixController } from "./controllers/transaction/get-pix.controller";
 import { GetPixUseCase } from "@/domain/transaction/use-cases/get-pix";
+import { PaymentsModule } from "../payments/payments.module";
+import { CreatePaymentPixKeyController } from "./controllers/payment/create-payment-pix-key.controller";
+import { CreatePaymentPixKeyUseCase } from "@/domain/payment/use-cases/create-payment-pix-key";
+import { ConnectWhatsAppUseCase } from "@/domain/whatsapp/use-cases/connect-whatsapp";
+import { WhatsAppController } from "./controllers/whatsapp/whatsapp.controller";
+import { SendWhatsAppUseCase } from "@/domain/whatsapp/use-cases/send-whatsapp";
+import { CreatePaymentPixBankDataController } from "./controllers/payment/create-payment-pix-bank-data.controller";
+import { CreatePaymentPixBankDataUseCase } from "@/domain/payment/use-cases/create-payment-pix-bank-data";
+import { UpdatePaymentPixController } from "./controllers/payment/update-payments-pix.controller";
+import { UpdatePaymentPixUseCase } from "@/domain/payment/use-cases/update-payment-pix";
+import { GetPaymentPixProofUseCase } from "@/domain/payment/use-cases/get-payment-pix-proof";
+import { GetPaymentPixProofController } from "./controllers/payment/get-payment-pix-proof.controller";
+import { CancelScheduledPixPaymentController } from "./controllers/payment/cancel-payment-pix-scheduled.controller";
+import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/cancel-payment-pix-scheduled";
 
 
 @Module({
-  imports: [DatabaseModule, BoletoModule, PixModule, EmailModule, CryptographyModule, FileModule, QueueModule],
+  imports: [DatabaseModule, BoletoModule, PixModule, PaymentsModule, EmailModule, WhatsAppModule, CryptographyModule, FileModule, QueueModule],
   controllers: [
 
     //sign-up
@@ -284,6 +299,17 @@ import { GetPixUseCase } from "@/domain/transaction/use-cases/get-pix";
     GetPixController,
     FetchPixController,
 
+    //payments
+    CreatePaymentPixKeyController,
+    CreatePaymentPixBankDataController,
+    UpdatePaymentPixController,
+    GetPaymentPixProofController,
+    CancelScheduledPixPaymentController,
+
+
+    //whatsapp
+    WhatsAppController
+
   ],
   providers: [
 
@@ -382,6 +408,17 @@ import { GetPixUseCase } from "@/domain/transaction/use-cases/get-pix";
     CreatePixUseCase,
     FetchPixUseCase,
     GetPixUseCase,
+
+    //payments
+    CreatePaymentPixKeyUseCase,
+    CreatePaymentPixBankDataUseCase,
+    UpdatePaymentPixUseCase,
+    GetPaymentPixProofUseCase,
+    CancelPaymentPixScheduledUseCase,
+
+    //whatsapp
+    SendWhatsAppUseCase,
+    ConnectWhatsAppUseCase
   ],
 
 })

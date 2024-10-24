@@ -45,7 +45,7 @@ export class PrismaUserRepository implements UserRepository {
         id,
       },
       include: {
-        File: true,
+        file: true,
       },
 
     })

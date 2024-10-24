@@ -1,31 +1,44 @@
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { Sale as PrismaSale, Business as PrismaBusiness, Person as PrismaPerson, SalesChannel as PrismaChannel, User as PrismaOwner } from '@prisma/client'
 import { SaleDetails } from '@/domain/sale/entities/value-objects/sale-details'
-import { Prisma } from '@prisma/client'
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
-type PrismaSaleDetails = Prisma.SaleGetPayload<{
-    include: {
-        business: true;
-        customer: true;
-        owner: true;
-        salesPerson: true;
-        channel: true;
-    }
-}>
+type PrismaSaleWithRelations = PrismaSale & {
+    business: PrismaBusiness
+    customer?: PrismaPerson | null
+    owner: PrismaOwner
+    salesPerson: PrismaPerson
+    salesChannel?: PrismaChannel | null
+}
+
 export class PrismaSaleDetailsMapper {
-    static toDomain(raw: PrismaSaleDetails): SaleDetails {
+    static toDomain(raw: PrismaSaleWithRelations): SaleDetails {
         return SaleDetails.create({
-            businessId: new UniqueEntityID(raw.businessId),
-            customerId: raw.customerId ? new UniqueEntityID(raw.customerId) : undefined,
+            // Business data
+            businessId: new UniqueEntityID(raw.business.id),
+            businessName: raw.business.name,
+
+            // Customer data
+            customerId: raw.customer ? new UniqueEntityID(raw.customer.id) : undefined,
             customerName: raw.customer?.name,
-            ownerId: new UniqueEntityID(raw.ownerId),
+
+            // Owner data
+            ownerId: new UniqueEntityID(raw.owner.id),
             ownerName: raw.owner.name,
-            salesPersonId: new UniqueEntityID(raw.salesPersonId),
+
+            // Sales Person data
+            salesPersonId: new UniqueEntityID(raw.salesPerson.id),
             salesPersonName: raw.salesPerson.name,
-            channelId: raw.channelId ? new UniqueEntityID(raw.channelId) : undefined,
-            channelName: raw.channel?.name ?? '',
+
+            // Channel data
+            channelId: raw.salesChannel ? new UniqueEntityID(raw.salesChannel.id) : undefined,
+            channelName: raw.salesChannel?.name ?? '',
+
+            // Sale data
             issueDate: raw.issueDate,
             status: raw.status,
             notes: raw.notes,
+
+            // Amounts
             servicesAmount: raw.servicesAmount,
             productAmount: raw.productAmount,
             grossAmount: raw.grossAmount,
@@ -33,34 +46,10 @@ export class PrismaSaleDetailsMapper {
             amount: raw.amount,
             commissionAmount: raw.commissionAmount,
             shippingAmount: raw.shippingAmount,
+
+            // System dates
             createdAt: raw.createdAt,
-            updatedAt: raw.updatedAt
+            updatedAt: raw.updatedAt,
         })
     }
-
-    // static toPrisma(saleDetails: SaleDetails): Prisma.SaleCreateInput {
-    //     return {
-    //         business: { connect: { id: saleDetails.businessId.toString() } },
-    //         customer: saleDetails.customerId
-    //             ? { connect: { id: saleDetails.customerId.toString() } }
-    //             : undefined,
-    //         owner: { connect: { id: saleDetails.ownerId.toString() } },
-    //         salesPerson: { connect: { id: saleDetails.salesPersonId.toString() } },
-    //         channel: saleDetails.channelId
-    //             ? { connect: { id: saleDetails.channelId.toString() } }
-    //             : undefined,
-    //         issueDate: saleDetails.issueDate,
-    //         status: saleDetails.status,
-    //         notes: saleDetails.notes,
-    //         servicesAmount: saleDetails.servicesAmount,
-    //         productAmount: saleDetails.productAmount,
-    //         grossAmount: saleDetails.grossAmount,
-    //         discountAmount: saleDetails.discountAmount,
-    //         amount: saleDetails.amount,
-    //         commissionAmount: saleDetails.commissionAmount,
-    //         shippingAmount: saleDetails.shippingAmount,
-    //         createdAt: saleDetails.createdAt,
-    //         updatedAt: saleDetails.updatedAt
-    //     }
-    // }
 }

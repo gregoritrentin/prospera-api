@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Either, left, right } from '@/core/either';
 import { BoletoProvider } from '@/domain/interfaces/boleto-provider';
-import { BoletoRepository } from '@/domain/transaction/repositories/boleto-repository';
+import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository';
 import { AppError } from '@/core/errors/app-errors';
 import { I18nService, Language } from '@/i18n/i18n.service';
 
@@ -20,7 +20,7 @@ type CancelBoletoUseCaseResponse = Either<
 export class CancelBoletoUseCase {
     constructor(
         private boletoProvider: BoletoProvider,
-        private boletoRepository: BoletoRepository,
+        private boletoRepository: TransactionRepository,
         private i18n: I18nService
     ) { }
 

@@ -7,8 +7,8 @@ import {
 import { CurrentUser } from '@/infra/auth/current-user-decorator';
 import { UserPayload } from '@/infra/auth/jwt.strategy';
 import { GetBoletoUseCase } from '@/domain/transaction/use-cases/get-boleto';
-import { BoletoPresenter } from '@/infra/http/presenters/boleto-presenter';
-import { ApiTags, ApiOperation, ApiParam, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { BoletoDetailsPresenter } from '@/infra/http/presenters/transaction-boleto-details-presenter';
+import { ApiTags, ApiOperation, ApiParam, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe';
@@ -20,21 +20,28 @@ const getBoletoParamSchema = z.object({
 class GetBoletoParam extends createZodDto(getBoletoParamSchema) { }
 
 @ApiTags('Boleto')
-@ApiBearerAuth()
 @Controller('/boleto/:id')
 export class GetBoletoController {
     constructor(private getBoleto: GetBoletoUseCase) { }
 
     @Get()
     @ApiOperation({ summary: 'Get Boleto', description: 'Retrieve a specific Boleto by its ID' })
-    @ApiParam({ name: 'id', type: 'string', description: 'Boleto ID' })
-    @ApiResponse({
-        status: 200,
-        description: 'Boleto retrieved successfully',
-        // You might want to create a specific DTO for the response
-        // type: BoletoResponseDto
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer Token',
+        required: true,
     })
+    @ApiHeader({
+        name: 'Accept-Language',
+        description: 'Preferred language for the response. If not provided, defaults to en-US.',
+        required: false,
+        schema: { type: 'string', default: 'en-US', enum: ['en-US', 'pt-BR'] }, // Ajuste os idiomas conforme necessário
+    })
+    @ApiParam({ name: 'id', type: 'string', description: 'Boleto ID' })
+    @ApiResponse({ status: 200, description: 'Boleto retrieved successfully', })
     @ApiResponse({ status: 400, description: 'Bad request' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+
     async handle(
         @CurrentUser() user: UserPayload,
         @Param(new ZodValidationPipe(getBoletoParamSchema)) params: GetBoletoParam,
@@ -53,6 +60,6 @@ export class GetBoletoController {
 
         const boleto = result.value.boleto;
 
-        return BoletoPresenter.toHttp(boleto);
+        return BoletoDetailsPresenter.toHttp(boleto);
     }
 }

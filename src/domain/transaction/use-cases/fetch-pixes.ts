@@ -1,7 +1,7 @@
-import { PixRepository } from '@/domain/transaction/repositories/pix-repository'
+import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository'
 import { Either, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
-import { PixDetails } from '@/domain/transaction/entities/value-objects/pix-details'
+import { TransactionDetails } from '@/domain/transaction/entities/value-objects/transaction-details'
 
 interface FetchPixsUseCaseRequest {
     page: number,
@@ -11,13 +11,13 @@ interface FetchPixsUseCaseRequest {
 type FetchPixsUseCaseResponse = Either<
     null,
     {
-        pixs: PixDetails[]
+        pixs: TransactionDetails[]
     }
 >
 
 @Injectable()
 export class FetchPixUseCase {
-    constructor(private pixRepository: PixRepository) { }
+    constructor(private pixRepository: TransactionRepository) { }
 
     async execute({ page, businessId }: FetchPixsUseCaseRequest): Promise<FetchPixsUseCaseResponse> {
         const pixs = await this.pixRepository.findManyDetails({ page }, businessId)

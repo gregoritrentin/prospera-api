@@ -1,7 +1,7 @@
-import { BoletoRepository } from '@/domain/transaction/repositories/boleto-repository'
+import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository'
 import { Either, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
-import { BoletoDetails } from '@/domain/transaction/entities/value-objects/boleto-details'
+import { TransactionDetails } from '@/domain/transaction/entities/value-objects/transaction-details'
 
 interface FetchBoletosUseCaseRequest {
     page: number,
@@ -11,13 +11,13 @@ interface FetchBoletosUseCaseRequest {
 type FetchBoletosUseCaseResponse = Either<
     null,
     {
-        boletos: BoletoDetails[]
+        boletos: TransactionDetails[]
     }
 >
 
 @Injectable()
 export class FetchBoletoUseCase {
-    constructor(private boletoRepository: BoletoRepository) { }
+    constructor(private boletoRepository: TransactionRepository) { }
 
     async execute({ page, businessId }: FetchBoletosUseCaseRequest): Promise<FetchBoletosUseCaseResponse> {
         const boletos = await this.boletoRepository.findManyDetails({ page }, businessId)
