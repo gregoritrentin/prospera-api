@@ -51,6 +51,7 @@ export class CreatePersonUseCase {
     notes
 
   }: CreatePersonUseCaseRequest): Promise<CreatePersonUseCaseResponse> {
+
     const person = Person.create({
       businessId: new UniqueEntityID(businessId),
       name,
@@ -66,8 +67,7 @@ export class CreatePersonUseCase {
       stateCode,
       cityCode,
       status,
-      notes
-      ,
+      notes,
     })
 
     await this.personRepository.create(person)
@@ -75,5 +75,7 @@ export class CreatePersonUseCase {
     return right({
       person,
     })
+
   }
+
 }

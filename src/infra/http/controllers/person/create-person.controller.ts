@@ -9,7 +9,7 @@ const createPersonBodySchema = z.object({
   name: z.string(),
   email: z.string().email(),
   phone: z.string(),
-  document: z.string().toUpperCase(),
+  document: z.string(),
   addressLine1: z.string(),
   addressLine2: z.string(),
   addressLine3: z.string(),
