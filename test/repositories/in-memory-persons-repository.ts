@@ -12,7 +12,7 @@ export class InMemoryPersonsRepository implements PersonsRepository {
 
   constructor() { }
 
-  async findById(id: string) {
+    async findById(id: string, businessId: string) {
 
     const person = this.items.find((item) => item.id.toString() === id)
 

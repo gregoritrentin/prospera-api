@@ -1,4 +1,3 @@
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { CreatePersonUseCase } from '@/domain/person/use-cases/create-person'
 import { InMemoryPersonsRepository } from 'test/repositories/in-memory-persons-repository'
 
