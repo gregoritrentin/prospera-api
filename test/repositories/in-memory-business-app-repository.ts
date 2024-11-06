@@ -1,0 +1,43 @@
+import { BusinessApp } from "@/domain/application/entities/business-app";
+import { BusinessAppRepository } from "@/domain/application/repositories/business-app-repository";
+import { BusinessAppDetails } from "@/domain/application/entities/value-objects/business-app-details";
+
+export class InMemoryBusinessAppRepository implements BusinessAppRepository {
+  public items: BusinessApp[] = [];
+
+  async findById(id: string): Promise<BusinessApp | null> {
+    const businessApp = this.items.find((item) => item.appId.toString() === id);
+    if (!businessApp) {
+      return null;
+    }
+    return businessApp;
+  }
+
+  async findMany(businessId: string): Promise<BusinessAppDetails[]> {
+    return this.items
+      .filter((item) => item.businessId.toString() === businessId)
+      .map((app) => BusinessAppDetails.create(app));
+  }
+
+  async create(business: BusinessApp) {
+    this.items.push(business);
+  }
+
+  async save(business: BusinessApp) {
+    const index = this.items.findIndex(
+      (item) => item.appId.toString() === business.appId.toString()
+    );
+    if (index >= 0) {
+      this.items[index] = business;
+    }
+  }
+
+  async delete(business: BusinessApp): Promise<void> {
+    const index = this.items.findIndex(
+      (item) => item.appId.toString() === business.appId.toString()
+    );
+    if (index !== -1) {
+      this.items.splice(index, 1);
+    }
+  }
+}

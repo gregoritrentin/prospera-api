@@ -1,37 +1,37 @@
-import { Person } from '@/domain/person/entities/person'
-import { PersonsRepository } from '@/domain/person/repositories/persons-repository'
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { Either, right } from '@/core/either'
-import { Injectable } from '@nestjs/common'
+import { Person } from "@/domain/person/entities/person";
+import { PersonsRepository } from "@/domain/person/repositories/persons-repository";
+import { UniqueEntityID } from "@/core/entities/unique-entity-id";
+import { Either, right } from "@/core/either";
+import { Injectable } from "@nestjs/common";
 
 interface CreatePersonUseCaseRequest {
-  businessId: string
-  name: string
-  phone: string
-  email: string
-  document: string
-  addressLine1: string
-  addressLine2: string
-  addressLine3?: string | null
-  neighborhood: string
-  postalCode: string
-  countryCode: string
-  stateCode: string
-  cityCode: string
-  status: string
-  notes?: string | null
+  businessId: string;
+  name: string;
+  phone: string;
+  email: string;
+  document: string;
+  addressLine1: string;
+  addressLine2: string;
+  addressLine3?: string | null;
+  neighborhood: string;
+  postalCode: string;
+  countryCode: string;
+  stateCode: string;
+  cityCode: string;
+  status: string;
+  notes?: string | null;
 }
 
 type CreatePersonUseCaseResponse = Either<
   null,
   {
-    person: Person
+    person: Person;
   }
->
+>;
 
 @Injectable()
 export class CreatePersonUseCase {
-  constructor(private personRepository: PersonsRepository) { }
+  constructor(private personRepository: PersonsRepository) {}
 
   async execute({
     businessId,
@@ -48,10 +48,8 @@ export class CreatePersonUseCase {
     stateCode,
     cityCode,
     status,
-    notes
-
+    notes,
   }: CreatePersonUseCaseRequest): Promise<CreatePersonUseCaseResponse> {
-
     const person = Person.create({
       businessId: new UniqueEntityID(businessId),
       name,
@@ -68,14 +66,12 @@ export class CreatePersonUseCase {
       cityCode,
       status,
       notes,
-    })
+    });
 
-    await this.personRepository.create(person)
+    await this.personRepository.create(person);
 
     return right({
       person,
-    })
-
+    });
   }
-
 }

@@ -1,5 +1,5 @@
 import { CreateTermUseCase } from "@/domain/application/use-cases/create-Term";
-import { InMemorytermRepository } from "test/repositories/in-memory-term";
+import { InMemorytermRepository } from "test/repositories/in-memory-term-repository";
 
 let inMemoryTermRepository: InMemorytermRepository;
 let sut: CreateTermUseCase;
@@ -29,7 +29,6 @@ describe("Create Term", () => {
       content: "Term content",
       language: "PORTUGUESE",
       startAt: new Date(30, 1, 1),
-
     });
 
     expect(result.isRight()).toBe(true);

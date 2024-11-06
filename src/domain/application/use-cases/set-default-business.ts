@@ -1,6 +1,6 @@
 import { Either, left, right } from '@/core/either'
 import { AppError } from '@/core/errors/app-errors'
-import { User } from '@/domain/application/entities/users'
+import { User } from '@/domain/application/entities/user'
 import { UserRepository } from '@/domain/application/repositories/user-repository'
 import { Injectable } from '@nestjs/common'
 

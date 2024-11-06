@@ -1,4 +1,4 @@
-import { User } from '@/domain/application/entities/users'
+import { User } from '@/domain/application/entities/user'
 import { PaginationParams } from '@/core/repositories/pagination-params'
 import { UserDetails } from '@/domain/application/entities/value-objects/user-details'
 

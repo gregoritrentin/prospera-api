@@ -12,11 +12,15 @@ export class InMemoryBusinessOwnerRepository
   constructor() {}
 
   async findById(id: string): Promise<BusinessOwner | null> {
-    {
-      throw new NotImplementedException("Method setLogo not implemented");
+    const businessOwner = this.items.find((item) => item.id.toString() === id);
+
+    if (!businessOwner) {
+      return null;
     }
+
+    return businessOwner;
   }
-  
+
   async findMany(businessId: string): Promise<BusinessOwner[]> {
     {
       throw new NotImplementedException("Method setLogo not implemented");

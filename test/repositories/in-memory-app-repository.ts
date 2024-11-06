@@ -7,7 +7,6 @@ export class InMemoryAppsRepository implements AppRepository {
   public items: App[] = [];
 
   constructor() {}
-
   async findById(id: string) {
     const app = this.items.find((item) => item.id.toString() === id);
 
@@ -42,5 +41,4 @@ export class InMemoryAppsRepository implements AppRepository {
 
     this.items.splice(itemIndex, 1);
   }
-  
 }

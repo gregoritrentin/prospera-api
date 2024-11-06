@@ -1,6 +1,5 @@
-
 import { CreateMarketplaceUseCase } from "@/domain/application/use-cases/create-Marketplace";
-import { InMemorymarketplaceRepository } from "test/repositories/in-memory-marketplace";
+import { InMemorymarketplaceRepository } from "test/repositories/in-memory-marketplace-repository";
 
 let inMemoryMarketplaceRepository: InMemorymarketplaceRepository;
 let sut: CreateMarketplaceUseCase;
@@ -20,25 +19,25 @@ describe("Create Marketplace", () => {
 
     expect(result.isRight()).toBe(true);
 
-
-    expect(inMemoryMarketplaceRepository.items[0]).toEqual(result.value?.marketplace);
+    expect(inMemoryMarketplaceRepository.items[0]).toEqual(
+      result.value?.marketplace
+    );
   });
 
   it("should persist Marketplace data correctly", async () => {
     const result = await sut.execute({
-        name: 'Gregori Trentin',
-        document: '1234.5.67-8901',
-       status: 'PENDING',
+      name: "Gregori Trentin",
+      document: "1234.5.67-8901",
+      status: "PENDING",
     });
 
     expect(result.isRight()).toBe(true);
 
-    const createdMarketplace = result.value?.marketplace    
+    const createdMarketplace = result.value?.marketplace;
 
     expect(createdMarketplace).toBeTruthy();
     expect(createdMarketplace?.name).toBe("Gregori Trentin");
     expect(createdMarketplace?.document).toBe("1234.5.67-8901");
     expect(createdMarketplace?.status).toBe("PENDING");
   });
-
 });

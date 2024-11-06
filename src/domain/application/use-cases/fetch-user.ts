@@ -1,7 +1,7 @@
 import { UserRepository } from '@/domain/application/repositories/user-repository'
 import { Either, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
-import { User } from '@/domain/application/entities/users'
+import { User } from '@/domain/application/entities/user'
 
 interface FetchUserUseCaseRequest {
     page: number,

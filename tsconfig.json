@@ -22,9 +22,12 @@
     "esModuleInterop": true,
     "paths": {
       "@/*": [
+        
         "./src/*"
       ]
     },
+    
+    
     "types": [
       "vitest/globals",
       "multer"

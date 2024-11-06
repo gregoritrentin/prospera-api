@@ -1,21 +1,18 @@
-import { faker } from '@faker-js/faker'
+import { faker } from "@faker-js/faker";
 
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { Answer, AnswerProps } from '@/domain/forum/enterprise/entities/answer'
+import { UniqueEntityID } from "@/core/entities/unique-entity-id";
+import { App, AppProps } from "@/domain/application/entities/app";
 
-export function makeAnswer(
-  override: Partial<AnswerProps> = {},
-  id?: UniqueEntityID,
-) {
-  const answer = Answer.create(
+export function makeApp(override: Partial<AppProps> = {}, id?: UniqueEntityID) {
+  const app = App.create(
     {
       authorId: new UniqueEntityID(),
       questionId: new UniqueEntityID(),
       content: faker.lorem.text(),
       ...override,
     },
-    id,
-  )
+    id
+  );
 
-  return answer
+  return app;
 }
