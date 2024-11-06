@@ -4,6 +4,7 @@ import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { CurrentUser } from '@/infra/auth/current-user-decorator'
 import { CreateItemUseCase } from '@/domain/item/use-cases/create-item'
 import { UserPayload } from '@/infra/auth/jwt.strategy'
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
 const createItemBodySchema = z.object({
     description: z.string(),
@@ -52,9 +53,9 @@ export class CreateItemController {
             price,
             itemType,
             status,
-            groupId,
-            taxationId,
-            ncm,
+            groupId: groupId || null,
+            taxationId: taxationId || null,
+            ncm: ncm || null,
         })
 
         if (result.isLeft()) {

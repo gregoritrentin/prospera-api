@@ -2,6 +2,7 @@ import { InvoiceRepository } from '@/domain/invoice/respositories/invoice-reposi
 import { Either, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
 import { InvoiceDetails } from '@/domain/invoice/entities/value-objects/invoice-details'
+import { Invoice } from '../entities/invoice'
 
 interface FetchSaleUseCaseRequest {
     page: number,
@@ -11,7 +12,7 @@ interface FetchSaleUseCaseRequest {
 type FetchInvoiceUseCaseResponse = Either<
     null,
     {
-        invoices: InvoiceDetails[]
+        invoices: Invoice[]
     }
 >
 
@@ -20,7 +21,8 @@ export class FetchInvoicesUseCase {
     constructor(private invoiceRepository: InvoiceRepository) { }
 
     async execute({ page, businessId }: FetchSaleUseCaseRequest): Promise<FetchInvoiceUseCaseResponse> {
-        const invoices = await this.invoiceRepository.findManyDetails({ page }, businessId)
+
+        const invoices = await this.invoiceRepository.findMany({ page }, businessId)
 
         return right({
             invoices,

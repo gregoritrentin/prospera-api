@@ -6,6 +6,7 @@ import { SalesRepository } from '@/domain/sale/repositories/sales-repository';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
 import { AppError } from '@/core/errors/app-errors';
+import { SaleStatus } from '@/core/types/enums';
 
 interface SaleItemRequest {
     itemId: string;
@@ -23,7 +24,7 @@ interface CreateSaleUseCaseRequest {
     salesPersonId: string;
     channelId?: string;
     issueDate: Date;
-    status: string;
+    status: SaleStatus;
     notes?: string | null;
     items: SaleItemRequest[];
 }
@@ -104,7 +105,7 @@ export class CreateSaleUseCase {
             salesPersonId: new UniqueEntityID(request.salesPersonId),
             channelId: request.channelId ? new UniqueEntityID(request.channelId) : undefined,
             issueDate: request.issueDate,
-            status: request.status,
+            status: request.status as SaleStatus,
             notes: request.notes,
             servicesAmount: 0, // Assumindo que não há serviços neste exemplo
             productAmount: calculatedTotals.productAmount,

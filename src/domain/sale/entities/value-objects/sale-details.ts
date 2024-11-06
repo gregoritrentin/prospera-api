@@ -115,7 +115,6 @@ export class SaleDetails extends AggregateRoot<SaleDetailsProps> {
         return this.props.updatedAt
     }
 
-
     static create(props: SaleDetailsProps) {
         return new SaleDetails(props)
     }

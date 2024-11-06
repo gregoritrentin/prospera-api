@@ -5,9 +5,9 @@ import { InvoiceRepository } from '@/domain/invoice/respositories/invoice-reposi
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { AppError } from '@/core/errors/app-errors';
 
-interface GetSaleUseCaseRequest {
+interface GetInvoiceUseCaseRequest {
     businessId: string;
-    saleId: string;
+    invoiceId: string;
 }
 
 type GetInvoiceUseCaseResponse = Either<
@@ -26,10 +26,10 @@ export class GetInvoiceUseCase {
     ) { }
 
     async execute(
-        request: GetSaleUseCaseRequest,
+        request: GetInvoiceUseCaseRequest,
         language: string | Language = 'en-US'
     ): Promise<GetInvoiceUseCaseResponse> {
-        const invoice = await this.invoiceRepository.findById(request.saleId, request.businessId);
+        const invoice = await this.invoiceRepository.findById(request.invoiceId, request.businessId);
 
         if (!invoice) {
             return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'))

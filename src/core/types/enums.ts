@@ -22,7 +22,6 @@ export enum UserStatus {
     SUSPENDED = 'SUSPENDED',
 }
 
-
 //FINANCE
 export enum CalculationMode {
     NONE = 'NONE',
@@ -30,11 +29,16 @@ export enum CalculationMode {
     VALUE = 'VALUE'
 }
 
+export enum SplitType {
+    FIXED = 'FIXED',
+    PERCENT = 'PERCENT'
+}
+
 export enum InvoiceStatus {
-    CREATED = 'CREATED',
+    DRAFT = 'DRAFT',
     OPEN = 'OPEN',
     PAID = 'PAID',
-    CANCELED = 'CANCELED'
+    CANCELED = 'CANCELED',
 }
 
 export enum PaymentType {
@@ -51,4 +55,33 @@ export enum TransactionType {
 export enum MovementType {
     CREDIT = 'CREDIT',
     DEBIT = 'DEBIT',
+}
+
+export enum PaymentMethod {
+    CREDIT_CARD = 'CREDIT_CARD',
+    DEBIT_CARD = 'DEBIT_CARD',
+    CASH = 'CASH',
+    BOLETO = 'BOLETO',
+    PIX = 'PIX'
+}
+
+export enum SaleStatus {
+    DRAFT = 'DRAFT',
+    CREDIT_ANALYSIS = 'CREDIT_ANALYSIS',
+    APPROVED = 'APPROVED',
+    CREDIT_DENIED = 'CREDIT_DENIED',
+    WAITING_PREPAYMENT = 'WAITING_PREPAYMENT',
+    PAYMENT_EXPIRED = 'PAYMENT_EXPIRED',
+    IN_PROGRESS = 'IN_PROGRESS',
+    APPROVED_TO_INVOICE = 'APPROVED_TO_INVOICE',
+    INVOICED = 'INVOICED',
+    CANCELED = 'CANCELED',
+    RETURNED = 'RETURNED'
+}
+
+export enum SubscriptionStatus {
+    ACTIVE = 'ACTIVE',
+    PASTDUE = 'PASTDUE',
+    SUSPENDED = 'SUSPENDED',
+    CANCELED = 'CANCELED'
 }

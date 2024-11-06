@@ -10,6 +10,7 @@ export enum ErrorCode {
     UNPROCESSABLE_ENTITY = 'UNPROCESSABLE_ENTITY',
     INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
     SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
+    NO_ITEMS = 'NO_ITEMS',
 
     // Códigos de erro específicos da aplicação
     INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
@@ -27,6 +28,7 @@ export enum ErrorCode {
     INVALID_AMOUNT = 'INVALID_AMOUNT',
     INVALID_DUE_DATE = 'INVALID_DUE_DATE',
     INVALID_DATE = 'INVALID_DATE',
+    INVALID_LIMIT_DATE = 'INVALID_LIMIT_DATE',
 
     BOLETO_CREATION_FAILED = 'BOLETO_CREATION_FAILED',
     BOLETO_CANCELATION_FAILED = 'BOLETO_CANCELAION_FAILED',
@@ -43,15 +45,23 @@ export enum ErrorCode {
     //INVOICE
     INVOICE_CANCELATION_FAILED = 'INVOICE_CANCELATION_FAILED',
 
+    //SUBSCRIPTION
+    SUBSCRIPTION_CANCELATION_FAILED = 'INVOICE_CANCELATION_FAILED',
 
     INVALID_PIX_KEY = 'INVALID_PIX_KEY',
 
     //SALE
-    SALE_NO_ITEMS = 'SALE_NO_ITEMS',
     PRODUCT_AMOUNT_MISMATCH = 'PRODUCT_AMOUNT_MISMATCH',
     GROSS_AMOUNT_MISMATCH = 'GROSS_AMOUNT_MISMATCH',
     TOTAL_AMOUNT_MISMATCH = 'TOTAL_AMOUNT_MISMATCH',
     COMMISSION_AMOUNT_MISMATCH = 'COMMISSION_AMOUNT_MISMATCH',
+
+
+
+    INVALID_STATUS_TRANSITION = 'INVALID_STATUS_TRANSITION',
+
+    RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
+
 }
 
 // static productAmountMismatch(expected: number, actual: number): SaleValidationError {
@@ -69,9 +79,6 @@ export enum ErrorCode {
 // static commissionAmountMismatch(expected: number, actual: number): SaleValidationError {
 //     return new SaleValidationError('COMMISSION_AMOUNT_MISMATCH', 'errors.COMMISSION_AMOUNT_MISMATCH', { expected, actual });
 // }
-
-
-
 
 export class AppError extends Error {
     constructor(
@@ -178,6 +185,15 @@ export class AppError extends Error {
         return new AppError(
             ErrorCode.INVALID_DATA,
             'errors.INVALID_DATA',
+            { message },
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static invalidLimitData(message: string): AppError {
+        return new AppError(
+            ErrorCode.INVALID_LIMIT_DATE,
+            'errors.INVALID_LIMIT_DATA',
             { message },
             HttpStatus.BAD_REQUEST
         );
@@ -310,12 +326,40 @@ export class AppError extends Error {
         );
     }
 
-    static saleNoItems(): AppError {
+    static subscriptionCancelationFailed(details?: Record<string, any>): AppError {
         return new AppError(
-            ErrorCode.SALE_NO_ITEMS,
-            'errors.SALE_NO_ITEMS',
+            ErrorCode.SUBSCRIPTION_CANCELATION_FAILED,
+            'errors.SUBSCRIPTION_CANCELATION_FAILED',
+            details,
+            HttpStatus.FORBIDDEN
+        );
+    }
+
+    static noItems(p0: string): AppError {
+        return new AppError(
+            ErrorCode.NO_ITEMS,
+            'errors.NO_ITEMS',
             {},
             HttpStatus.BAD_REQUEST
+        );
+    }
+
+
+    static invalidStatusTransition(message: string): AppError {
+        return new AppError(
+            ErrorCode.INVALID_STATUS_TRANSITION,
+            'errors.INVALID_STATUS_TRANSITION',
+            { message },
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static rateLimitExceeded(translationKey: string, details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.RATE_LIMIT_EXCEEDED,
+            translationKey,
+            details,
+            HttpStatus.TOO_MANY_REQUESTS
         );
     }
 

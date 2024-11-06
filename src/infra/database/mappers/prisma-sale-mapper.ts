@@ -1,4 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { SaleStatus } from '@/core/types/enums'
 import { Sale } from '@/domain/sale/entities/sale'
 import { SaleItem } from '@/domain/sale/entities/sale-item'
 import { Sale as PrismaSale, SaleItem as PrismaSaleItem, Prisma } from '@prisma/client'
@@ -13,7 +14,7 @@ export class PrismaSaleMapper {
                 salesPersonId: new UniqueEntityID(raw.salesPersonId),
                 channelId: raw.channelId ? new UniqueEntityID(raw.channelId) : undefined,
                 issueDate: raw.issueDate,
-                status: raw.status,
+                status: raw.status as SaleStatus,
                 notes: raw.notes,
                 servicesAmount: raw.servicesAmount,
                 productAmount: raw.productAmount,

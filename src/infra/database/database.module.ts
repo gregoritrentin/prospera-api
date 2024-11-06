@@ -40,6 +40,10 @@ import { WhatsAppRepository } from '@/domain/whatsapp/repositories/whatsapp-repo
 import { PrismaWhatsAppRepository } from './prisma/repositories/prisma-whatsapp-repository';
 import { RedisWhatsAppRepository } from './redis/repositories/redis-whatsapp-repository';
 import { PrismaTransactionRepository } from './prisma/repositories/prisma-transaction-repository';
+import { InvoiceRepository } from '@/domain/invoice/respositories/invoice-repository';
+import { PrismaInvoiceRepository } from './prisma/repositories/prisma-invoice-repository';
+import { RedisIdempotencyRepository } from './redis/repositories/redis-idempotency-repository';
+import { RedisRateLimitRepository } from './redis/repositories/redis-rate-limit-repository';
 
 @Module({
     imports: [EnvModule],
@@ -47,6 +51,8 @@ import { PrismaTransactionRepository } from './prisma/repositories/prisma-transa
         PrismaService,
         RedisService,
         RedisWhatsAppRepository,
+        RedisIdempotencyRepository,
+        RedisRateLimitRepository,
 
 
         {
@@ -142,6 +148,10 @@ import { PrismaTransactionRepository } from './prisma/repositories/prisma-transa
             provide: WhatsAppRepository,
             useClass: PrismaWhatsAppRepository,
         },
+        {
+            provide: InvoiceRepository,
+            useClass: PrismaInvoiceRepository,
+        },
 
     ],
     exports: [
@@ -160,6 +170,7 @@ import { PrismaTransactionRepository } from './prisma/repositories/prisma-transa
         ItemRepository,
         ItemGroupRepository,
         ItemTaxationRepository,
+        InvoiceRepository,
         FileRepository,
         EmailRepository,
         TransactionRepository,
@@ -167,6 +178,8 @@ import { PrismaTransactionRepository } from './prisma/repositories/prisma-transa
         WhatsAppRepository,
 
         RedisWhatsAppRepository,
+        RedisIdempotencyRepository,
+        RedisRateLimitRepository,
     ],
 })
 export class DatabaseModule { }

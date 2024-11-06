@@ -8,7 +8,7 @@ export abstract class InvoiceRepository {
     abstract findByIdDetails(id: string, businessId: string): Promise<InvoiceDetails | null>
 
     abstract findMany(params: PaginationParams, businessId: string): Promise<Invoice[]>
-    abstract findManyDetails(params: PaginationParams, businessId: string): Promise<InvoiceDetails[]>
+    //abstract findManyDetails(params: PaginationParams, businessId: string): Promise<InvoiceDetails[]>
 
     abstract create(payment: Invoice): Promise<void>
     abstract save(payment: Invoice): Promise<void>

@@ -6,6 +6,7 @@ import { SalesRepository } from '@/domain/sale/repositories/sales-repository';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
 import { AppError } from '@/core/errors/app-errors';
+import { SaleStatus } from '@/core/types/enums';
 
 interface SaleItemRequest {
     id?: string;
@@ -24,8 +25,8 @@ interface EditSaleUseCaseRequest {
     ownerId: string;
     salesPersonId: string;
     channelId?: string;
-    issueDate: Date;
-    status: string;
+    //issueDate: Date;
+    status: SaleStatus;
     notes?: string | null;
     servicesAmount: number;
     productAmount: number;
@@ -56,6 +57,7 @@ export class EditSaleUseCase {
         request: EditSaleUseCaseRequest,
         language: string | Language = 'en-US'
     ): Promise<EditSaleUseCaseResponse> {
+
         const sale = await this.salesRepository.findById(request.saleId, request.businessId);
 
         if (!sale) {
@@ -115,7 +117,7 @@ export class EditSaleUseCase {
         sale.ownerId = new UniqueEntityID(request.ownerId);
         sale.salesPersonId = new UniqueEntityID(request.salesPersonId);
         sale.channelId = request.channelId ? new UniqueEntityID(request.channelId) : undefined;
-        sale.issueDate = request.issueDate;
+        //sale.issueDate = request.issueDate;
         sale.status = request.status;
         sale.notes = request.notes;
         sale.servicesAmount = request.servicesAmount;

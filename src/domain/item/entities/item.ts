@@ -11,8 +11,8 @@ export interface ItemProps {
     price: number
     unit: string
     status: string
-    groupId?: string | null
-    taxationId?: string | null
+    groupId?: UniqueEntityID | null
+    taxationId?: UniqueEntityID | null
     ncm?: string | null
     createdAt: Date
     updatedAt?: Date | null
@@ -109,7 +109,7 @@ export class Item extends AggregateRoot<ItemProps> {
         this.touch()
     }
 
-    set taxationId(taxationId: string | undefined | null) {
+    set taxationId(taxationId: UniqueEntityID | undefined | null) {
         if (taxationId === undefined && taxationId === null) {
             return
         }
@@ -117,11 +117,11 @@ export class Item extends AggregateRoot<ItemProps> {
         this.touch()
     }
 
-    set groupId(groupId: string | undefined | null) {
+    set groupId(groupId: UniqueEntityID | undefined | null) {
         if (groupId === undefined && groupId === null) {
             return
         }
-        this.props.ncm = groupId
+        this.props.groupId = groupId
         this.touch()
     }
 

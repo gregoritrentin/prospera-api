@@ -13,6 +13,11 @@ enum CalculationMode {
   VALUE
 }
 
+enum SplitType {
+  PERCENT
+  VALUE
+}
+
 enum YesNo {
   YES
   NO
@@ -27,6 +32,14 @@ enum TransactionType {
   BOLETO
   PIX
   CARD
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+  BOLETO
+  PIX
 }
 
 enum MovementType {
@@ -52,9 +65,30 @@ enum UserGender {
 }
 
 enum InvoiceStatus {
-  CREATED
+  DRAFT
   OPEN
   PAID
+  CANCELED
+}
+
+enum SaleStatus {
+  DRAFT
+  CREDIT_ANALYSIS
+  APPROVED
+  CREDIT_DENIED
+  WAITING_PREPAYMENT
+  PAYMENT_EXPIRED
+  IN_PROGRESS
+  APPROVED_TO_INVOICE
+  INVOICED
+  CANCELED
+  RETURNED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PASTDUE
+  SUSPENDED
   CANCELED
 }
 
@@ -661,7 +695,7 @@ model Invoice {
   //datas
   issueDate        DateTime        @map("issue_date") //data de emissão 
   dueDate          DateTime        @map("due_date") //data de vencimento
-  paymendDate      DateTime        @map("paymend_date") //data do pgto
+  paymentDate      DateTime        @map("paymend_date") //data do pgto
   paymentLimitDate DateTime?       @map("payment_limit_date") //data limite de pgto
   //valor
   grossAmount      Float           @map("gross_amount")
@@ -690,10 +724,11 @@ model Invoice {
   person   Person   @relation(fields: [personId], references: [id])
 
   invoiceItem        InvoiceItem[]
-  invoiceEvents      InvoiceEvent[]
+  invoiceEvent       InvoiceEvent[]
   invoiceAttachment  InvoiceAttachment[]
   invoiceSplit       InvoiceSplit[]
   invoiceTransaction InvoiceTransaction[]
+  InvoicePayment     InvoicePayment[]
 
   @@map("invoices")
 }
@@ -718,10 +753,21 @@ model InvoiceTransaction {
   id            String @id @default(uuid())
   invoiceId     String @map("invoice_id")
   transactionId String @map("transaction_id")
-  amount        Float
 
   invoice     Invoice     @relation(fields: [invoiceId], references: [id])
   transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("invoice_transactions")
+}
+
+model InvoicePayment {
+  id            String        @id @default(uuid())
+  invoiceId     String
+  dueDate       DateTime      @map("due_date")
+  ammount       Float
+  paymentMethod PaymentMethod @map("payment_method")
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
 
   @@map("invoice_payments")
 }
@@ -943,15 +989,21 @@ model CashFlow {
 }
 
 model Subscription {
-  id              String   @id @default(uuid())
-  businessId      String   @map("business_id")
-  personId        String   @map("person_id")
-  price           Float
-  notes           String?
-  paymentMethod   String   @map("payment_method")
-  nextBillingDate DateTime @map("next_billing_date")
-  interval        String
-  status          String
+  id            String             @id @default(uuid())
+  businessId    String             @map("business_id")
+  personId      String             @map("person_id")
+  price         Float
+  notes         String?
+  paymentMethod String             @map("payment_method")
+  interval      String
+  status        SubscriptionStatus
+
+  nextBillingDate    DateTime  @map("next_billing_date")
+  nextAdjustmentDate DateTime? @map("next_adjustment_date")
+
+  cancellationReason        String?   @map("cancellation_reason")
+  cancellationDate          DateTime? @map("cancellation_date")
+  cancellationScheduledDate DateTime? @map("cancellation_scheduled_date")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
@@ -985,12 +1037,12 @@ model SubscriptionItem {
 }
 
 model SubscriptionSplit {
-  id             String @id @default(uuid())
-  subscriptionId String @map("subscription_id")
-  recipientId    String @map("recipient_id")
-  splitType      String @map("split_type") //FIXED, PERCENT
+  id             String    @id @default(uuid())
+  subscriptionId String    @map("subscription_id")
+  recipientId    String    @map("recipient_id")
+  splitType      SplitType @map("split_type")
   amount         Float
-  feeAmount      Float  @map("fee_amount")
+  feeAmount      Float     @map("fee_amount")
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id])
   recipient    Business     @relation(fields: [recipientId], references: [id])

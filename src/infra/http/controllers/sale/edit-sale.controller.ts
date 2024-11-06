@@ -13,6 +13,7 @@ import { z } from 'zod'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { EditSaleUseCase } from '@/domain/sale/use-cases/edit-sale'
 import { Language } from '@/i18n';
+import { SaleStatus } from '@/core/types/enums';
 
 const saleItemSchema = z.object({
     itemId: z.string(),
@@ -29,8 +30,7 @@ const editSaleSchema = z.object({
     ownerId: z.string(),
     salesPersonId: z.string(),
     channelId: z.string().optional(),
-    issueDate: z.string().transform((str) => new Date(str)),
-    status: z.string(),
+    status: z.nativeEnum(SaleStatus),
     notes: z.string().optional(),
     servicesAmount: z.number().nonnegative(),
     productAmount: z.number().nonnegative(),

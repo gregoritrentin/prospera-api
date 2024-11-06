@@ -1,5 +1,6 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { SaleStatus } from '@/core/types/enums'
 import { Optional } from '@/core/types/optional'
 import { SaleItem } from '@/domain/sale/entities/sale-item'
 
@@ -10,7 +11,7 @@ export interface SaleProps {
     salesPersonId: UniqueEntityID
     channelId?: UniqueEntityID
     issueDate: Date
-    status: string
+    status: SaleStatus
     notes?: string | null
     servicesAmount: number
     productAmount: number
@@ -21,11 +22,11 @@ export interface SaleProps {
     shippingAmount: number
     createdAt: Date
     updatedAt?: Date | null
-
     items: SaleItem[]
 }
 
 export class Sale extends AggregateRoot<SaleProps> {
+
     get businessId() {
         return this.props.businessId
     }
@@ -94,6 +95,10 @@ export class Sale extends AggregateRoot<SaleProps> {
         return this.props.updatedAt
     }
 
+    get items() {
+        return this.props.items
+    }
+
     private touch() {
         this.props.updatedAt = new Date()
     }
@@ -123,8 +128,8 @@ export class Sale extends AggregateRoot<SaleProps> {
         this.touch()
     }
 
-    set status(status: string) {
-        this.props.status = status
+    set status(newStatus: SaleStatus) {
+        this.props.status = newStatus
         this.touch()
     }
 
@@ -168,10 +173,7 @@ export class Sale extends AggregateRoot<SaleProps> {
         this.touch()
     }
 
-    get items() {
-        return this.props.items
-    }
-
+    // Métodos para gerenciar items
     addItem(item: SaleItem) {
         this.props.items.push(item)
         this.touch()
@@ -182,7 +184,7 @@ export class Sale extends AggregateRoot<SaleProps> {
         this.touch()
     }
 
-    public clearItems() {
+    clearItems() {
         this.props.items = []
         this.touch()
     }
@@ -195,13 +197,26 @@ export class Sale extends AggregateRoot<SaleProps> {
         }
     }
 
+    // Factory method
     static create(
-        props: Optional<SaleProps, 'createdAt' | 'servicesAmount' | 'productAmount' | 'grossAmount' | 'discountAmount' | 'amount' | 'commissionAmount' | 'shippingAmount' | 'items'>,
+        props: Optional<SaleProps,
+            'status' |
+            'createdAt' |
+            'servicesAmount' |
+            'productAmount' |
+            'grossAmount' |
+            'discountAmount' |
+            'amount' |
+            'commissionAmount' |
+            'shippingAmount' |
+            'items'
+        >,
         id?: UniqueEntityID,
     ) {
         const sale = new Sale(
             {
                 ...props,
+                status: SaleStatus.DRAFT,
                 createdAt: props.createdAt ?? new Date(),
                 servicesAmount: props.servicesAmount ?? 0.0,
                 productAmount: props.productAmount ?? 0.0,

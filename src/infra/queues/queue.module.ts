@@ -1,21 +1,37 @@
+// src/infra/queues/queue.module.ts
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+
+// Modules
 import { EmailModule } from '../email/email.module';
 import { EnvModule } from '../env/env.module';
 import { DatabaseModule } from '../database/database.module';
 import { FileModule } from '../file/file.module';
+import { BoletoModule } from '../boleto/boleto.module';
 import { I18nModule } from '@/i18n';
 
-import { EmailQueueConsumer } from '@/infra/queues/consumers/email-queue-consumer';
-import { EmailQueueProducer } from '@/infra/queues/producers/email-queue-producer';
+// Service
+import { BullQueueService } from '@/infra/queues/queue.service';
+
+// Producers
+import { EmailQueueProducer } from './producers/email-queue-producer';
 import { BoletoQueueProducer } from './producers/boleto-queue-producer';
-import { BoletoQueueConsumer } from './consumers/boleto-queue-consumer';
-import { BoletoModule } from '../boleto/boleto.module';
+import { CreateInvoiceQueueProducer } from './producers/create-invoice-queue-producer';
+
+// Consumers
+import { EmailQueueConsumer } from './consumers/email-queue-consumer';
+import { BoletoQueueConsumer } from './consumers/create-boleto-queue-consumer';
+import { CreateInvoiceQueueConsumer } from './consumers/create-invoice-queue-consumer';
+
+// Use Cases
 import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file';
+import { QueueProvider } from '@/domain/interfaces/queue-provider';
+import { CreateBoletoUseCase } from '@/domain/transaction/use-cases/create-boleto';
 
 @Module({
     imports: [
+        // Módulos de dependência
         EmailModule,
         EnvModule,
         DatabaseModule,
@@ -23,36 +39,87 @@ import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-c
         I18nModule,
         BoletoModule,
 
+        // Configuração do Bull
         BullModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
                 redis: configService.get('REDIS_URL'),
                 defaultJobOptions: {
-                    removeOnComplete: true,
-                    removeOnFail: false,
+                    removeOnComplete: true, // Remove jobs completados
+                    removeOnFail: false,    // Mantém jobs que falharam para análise
+                    attempts: 3,            // Número de tentativas em caso de falha
+                    backoff: {
+                        type: 'exponential',
+                        delay: 1000,        // Delay inicial de 1 segundo
+                    },
                 },
+                settings: {
+                    stalledInterval: 30000, // Verifica jobs travados a cada 30 segundos
+                    maxStalledCount: 3,     // Número máximo de vezes que um job pode travar
+                }
             }),
             inject: [ConfigService],
         }),
+
+        // Registro das filas
         BullModule.registerQueue(
-            { name: 'email' },
-            { name: 'whatsapp' },
-            { name: 'boleto' }
+            {
+                name: 'email',
+                defaultJobOptions: {
+                    removeOnComplete: true,
+                    removeOnFail: false,
+                }
+            },
+            {
+                name: 'boleto',
+                defaultJobOptions: {
+                    removeOnComplete: true,
+                    removeOnFail: false,
+                }
+            },
+            {
+                name: 'invoice',
+                defaultJobOptions: {
+                    removeOnComplete: true,
+                    removeOnFail: false,
+                }
+            }
         ),
     ],
     providers: [
+        // Service Implementation
+        {
+            provide: QueueProvider,
+            useClass: BullQueueService
+        },
+
+        // Producers
         EmailQueueProducer,
-        EmailQueueConsumer,
         BoletoQueueProducer,
+        CreateInvoiceQueueProducer,
+
+        // Consumers
+        EmailQueueConsumer,
         BoletoQueueConsumer,
+        CreateInvoiceQueueConsumer,
+
+        // Use Cases
         UploadAndCreateFileUseCase,
+        CreateBoletoUseCase,
     ],
     exports: [
+        // Módulo Bull para acesso em outros módulos
         BullModule,
+
+        // Producers
         EmailQueueProducer,
-        EmailQueueConsumer,
         BoletoQueueProducer,
+        CreateInvoiceQueueProducer,
+
+        // Consumers
+        EmailQueueConsumer,
         BoletoQueueConsumer,
+        CreateInvoiceQueueConsumer,
     ],
 })
 export class QueueModule { }
