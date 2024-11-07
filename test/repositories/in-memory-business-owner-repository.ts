@@ -12,7 +12,9 @@ export class InMemoryBusinessOwnerRepository
   constructor() {}
 
   async findById(id: string): Promise<BusinessOwner | null> {
-    const businessOwner = this.items.find((item) => item.id.toString() === id);
+    const businessOwner = this.items.find(
+      (item) => item.businessId.toString() === id
+    );
 
     if (!businessOwner) {
       return null;

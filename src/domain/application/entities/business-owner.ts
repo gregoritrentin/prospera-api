@@ -24,7 +24,6 @@ export interface BusinessOwnerProps {
 }
 
 export class BusinessOwner extends AggregateRoot<BusinessOwnerProps> {
-  [x: string]: any;
   get businessId() {
     return this.props.businessId;
   }

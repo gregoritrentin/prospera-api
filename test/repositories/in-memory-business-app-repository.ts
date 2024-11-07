@@ -19,22 +19,22 @@ export class InMemoryBusinessAppRepository implements BusinessAppRepository {
       .map((app) => BusinessAppDetails.create(app));
   }
 
-  async create(business: BusinessApp) {
-    this.items.push(business);
+  async create(businessApp: BusinessApp) {
+    this.items.push(businessApp);
   }
 
-  async save(business: BusinessApp) {
+  async save(businessApp: BusinessApp) {
     const index = this.items.findIndex(
-      (item) => item.appId.toString() === business.appId.toString()
+      (item) => item.appId.toString() === businessApp.appId.toString()
     );
     if (index >= 0) {
-      this.items[index] = business;
+      this.items[index] = businessApp;
     }
   }
 
-  async delete(business: BusinessApp): Promise<void> {
+  async delete(businessApp: BusinessApp): Promise<void> {
     const index = this.items.findIndex(
-      (item) => item.appId.toString() === business.appId.toString()
+      (item) => item.appId.toString() === businessApp.appId.toString()
     );
     if (index !== -1) {
       this.items.splice(index, 1);
