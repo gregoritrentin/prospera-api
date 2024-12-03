@@ -9,14 +9,13 @@ import {
     ServiceCode
 } from '@/core/types/enums'
 
-interface NfseEventSummary {
+export interface NfseEventSummary {
     id: string
     type: string
     status: string
     message?: string
     createdAt: Date
 }
-
 interface NfseDetailsProps {
     // Identificação básica
     businessId: UniqueEntityID
