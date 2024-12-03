@@ -8,12 +8,18 @@ export class InMemorytermRepository implements TermRepository {
   public items: Term[] = [];
 
   constructor() {}
-    findLatest(): Promise<Term | null> {
-        throw new Error("Method not implemented.");
-    }
+  findLatest(): Promise<Term | null> {
+    throw new Error("Method not implemented.");
+  }
 
   async findById(id: string): Promise<Term | null> {
-    throw new NotImplementedException("Method setLogo not implemented");
+    const term = this.items.find((item) => item.termId.toString() === id);
+
+    if (!term) {
+      return null;
+    }
+
+    return term;
   }
 
   async findMany(params: PaginationParams): Promise<Term[]> {

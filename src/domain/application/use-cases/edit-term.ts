@@ -36,6 +36,20 @@ export class EditTermUseCase {
       return left(AppError.resourceNotFound("errors.RESOURCE_NOT_FOUND"));
     }
 
+    //  erro de titulo
+    if (!title || title.trim() === "") {
+      return left(AppError.badRequest("O título não pode estar vazio"));
+    }
+
+    // 📝 Validações de conteúdo
+    if (!content || content.trim() === "" || content === "INVALID_STATUS") {
+      return left(AppError.invalidData("Conteúdo inválido ou vazio"));
+    }
+    //  erro de conteudo
+    if (!content || content.trim() === "" || content === "INVALID_STATUS") {
+      return left(AppError.invalidData("Conteúdo inválido ou vazio"));
+    }
+
     term.title = title;
     term.content = content;
     term.language = language;

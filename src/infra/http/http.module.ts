@@ -1,4 +1,4 @@
-import { Get, Module } from "@nestjs/common"
+import { Get, Module } from "@nestjs/common";
 import { DatabaseModule } from "../database/database.module";
 import { EmailModule } from "../email/email.module";
 import { FileModule } from "../file/file.module";
@@ -27,7 +27,7 @@ import { CreateMarketplaceUseCase } from "@/domain/application/use-cases/create-
 import { EditMarketplaceUseCase } from "@/domain/application/use-cases/edit-marketplace";
 import { FetchMarketplaceUseCase } from "@/domain/application/use-cases/fetch-marketplace";
 
-//user 
+//user
 import { AuthenticateUserController } from "./controllers/core/auth/authenticate-user.controller";
 import { AuthenticateBusinessController } from "./controllers/core/auth/authenticate-business.controller";
 import { CreateUserController } from "@/infra/http/controllers/core/user/create-user.controller";
@@ -39,7 +39,7 @@ import { SetUserPhotoController } from "@/infra/http/controllers/core/user/set-u
 
 import { AuthenticateUserUseCase } from "@/domain/application/use-cases/authenticate-user";
 import { AuthenticateBusinessUseCase } from "@/domain/application/use-cases/authenticate-business";
-import { CreateUserUseCase } from '@/domain/application/use-cases/create-user';
+import { CreateUserUseCase } from "@/domain/application/use-cases/create-user";
 import { EditUserUseCase } from "@/domain/application/use-cases/edit-user";
 import { DeleteUserUseCase } from "@/domain/application/use-cases/delete-user";
 import { FetchUserUseCase } from "@/domain/application/use-cases/fetch-user";
@@ -72,13 +72,13 @@ import { CreateBusinessController } from "@/infra/http/controllers/core/business
 import { EditBusinessController } from "@/infra/http/controllers/core/business/edit-business.controller";
 import { DeleteBusinessController } from "@/infra/http/controllers/core/business/delete-business.controller";
 import { FetchBusinessController } from "@/infra/http/controllers/core/business/fetch-business.controller";
-import { GetBusinessController } from "@/infra/http/controllers/core/user/get-business.controller"
+import { GetBusinessController } from "@/infra/http/controllers/core/user/get-business.controller";
 
 import { CreateBusinessUseCase } from "@/domain/application/use-cases/create-business";
 import { EditBusinessUseCase } from "@/domain/application/use-cases/edit-business";
-import { DeleteBusinessUseCase } from '@/domain/application/use-cases/delele-business';
+import { DeleteBusinessUseCase } from "@/domain/application/use-cases/delete-business";
 import { FetchBusinessUseCase } from "@/domain/application/use-cases/fetch-business";
-import { GetBusinessUseCase } from '@/domain/application/use-cases/get-business';
+import { GetBusinessUseCase } from "@/domain/application/use-cases/get-business";
 
 //business-owner
 import { CreateBusinessOwnerController } from "@/infra/http/controllers/core/business/create-business-owner.controller";
@@ -157,8 +157,6 @@ import { CreateBoletoUseCase } from "@/domain/transaction/use-cases/create-bolet
 import { PrintBoletoController } from "@/infra/http/controllers/transaction/print-boleto.controller";
 import { PrintBoletoUseCase } from "@/domain/transaction/use-cases/print-boleto";
 
-
-
 import { UploadAndCreateFileUseCase } from "@/domain/file/use-cases/upload-and-create-file";
 import { SendAndCreateEmailUseCase } from "@/domain/email/use-cases/send-and-create-email";
 import { SetDefaultBusinessUseCase } from "@/domain/application/use-cases/set-default-business";
@@ -193,11 +191,19 @@ import { GetPaymentPixProofController } from "./controllers/payment/get-payment-
 import { CancelScheduledPixPaymentController } from "./controllers/payment/cancel-payment-pix-scheduled.controller";
 import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/cancel-payment-pix-scheduled";
 
-
 @Module({
-  imports: [DatabaseModule, BoletoModule, PixModule, PaymentsModule, EmailModule, WhatsAppModule, CryptographyModule, FileModule, QueueModule],
+  imports: [
+    DatabaseModule,
+    BoletoModule,
+    PixModule,
+    PaymentsModule,
+    EmailModule,
+    WhatsAppModule,
+    CryptographyModule,
+    FileModule,
+    QueueModule,
+  ],
   controllers: [
-
     //sign-up
     SignUpController,
 
@@ -306,13 +312,10 @@ import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/can
     GetPaymentPixProofController,
     CancelScheduledPixPaymentController,
 
-
     //whatsapp
-    WhatsAppController
-
+    WhatsAppController,
   ],
   providers: [
-
     //user
     AuthenticateUserUseCase,
     AuthenticateBusinessUseCase,
@@ -418,8 +421,7 @@ import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/can
 
     //whatsapp
     SendWhatsAppUseCase,
-    ConnectWhatsAppUseCase
+    ConnectWhatsAppUseCase,
   ],
-
 })
-export class HttpModule { }
+export class HttpModule {}

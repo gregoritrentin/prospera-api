@@ -8,15 +8,26 @@ export class InMemoryUserTermRepository implements UserTermRepository {
   public items: UserTerm[] = [];
 
   constructor() {}
-    findByUser(_userId: string): Promise<UserTerm[] | null> {
-        throw new Error("Method not implemented.");
-    }
-    findByTermAndUser(_termId: string, _userId: string): Promise<UserTerm | null> {
-        throw new Error("Method not implemented.");
+  findByUser(_userId: string): Promise<UserTerm[] | null> {
+    throw new Error("Method not implemented.");
+  }
+  findByTermAndUser(
+    _termId: string,
+    _userId: string
+  ): Promise<UserTerm | null> {
+    throw new Error("Method not implemented.");
+  }
+
+  async findById(id: string): Promise<UserTerm | null> {
+    const userTerm = this.items.find(
+      (item) => item.userTermId.toString() === id
+    );
+
+    if (!userTerm) {
+      return null;
     }
 
-  async findById(_id: string): Promise<UserTerm | null> {
-    throw new NotImplementedException("Method setLogo not implemented");
+    return userTerm;
   }
 
   async findMany(_params: PaginationParams): Promise<UserTerm[]> {
@@ -34,5 +45,4 @@ export class InMemoryUserTermRepository implements UserTermRepository {
 
     this.items.splice(itemIndex, 1);
   }
-  
 }

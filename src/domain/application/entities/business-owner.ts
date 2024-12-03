@@ -24,6 +24,9 @@ export interface BusinessOwnerProps {
 }
 
 export class BusinessOwner extends AggregateRoot<BusinessOwnerProps> {
+  deletedAt(deletedAt: any) {
+    throw new Error("Method not implemented.");
+  }
   get businessId() {
     return this.props.businessId;
   }

@@ -10,8 +10,8 @@ export class InMemorySalesRepository implements SalesRepository {
 
   constructor() {}
 
-  async findById(id: string, _businessId: string) {
-    const sale = this.items.find((item) => item.id.toString() === id);
+  async findById(id: string): Promise<Sale | null> {
+    const sale = this.items.find((item) => item.saleId.toString() === id);
 
     if (!sale) {
       return null;

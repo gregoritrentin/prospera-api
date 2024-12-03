@@ -9,15 +9,28 @@ export class InMemoryuserBusinessRepository implements UserBusinessRepository {
   public items: UserBusiness[] = [];
 
   constructor() {}
-    findByUserAndBusiness(_userId: string, _businessId: string): Promise<UserBusiness | null> {
-        throw new Error("Method not implemented.");
-    }
-    findManyDetails(_userId: string, _businessId: string): Promise<UserBusinessDetails[]> {
-        throw new Error("Method not implemented.");
+  findByUserAndBusiness(
+    _userId: string,
+    _businessId: string
+  ): Promise<UserBusiness | null> {
+    throw new Error("Method not implemented.");
+  }
+  findManyDetails(
+    _userId: string,
+    _businessId: string
+  ): Promise<UserBusinessDetails[]> {
+    throw new Error("Method not implemented.");
+  }
+  async findById(id: string): Promise<UserBusiness | null> {
+    const userBusiness = this.items.find(
+      (item) => item.userBusinessId.toString() === id
+    );
+
+    if (!userBusiness) {
+      return null;
     }
 
-  async findById(_id: string): Promise<UserBusiness | null> {
-    throw new NotImplementedException("Method setLogo not implemented");
+    return userBusiness;
   }
 
   async findMany(_params: PaginationParams): Promise<UserBusiness[]> {
@@ -31,7 +44,9 @@ export class InMemoryuserBusinessRepository implements UserBusinessRepository {
   }
 
   async save(userBusiness: UserBusiness) {
-    const itemIndex = this.items.findIndex((item) => item.id === userBusiness.id);
+    const itemIndex = this.items.findIndex(
+      (item) => item.id === userBusiness.id
+    );
 
     this.items[itemIndex] = userBusiness;
 
@@ -39,7 +54,9 @@ export class InMemoryuserBusinessRepository implements UserBusinessRepository {
   }
 
   async delete(userBusiness: UserBusiness) {
-    const itemIndex = this.items.findIndex((item) => item.id === userBusiness.id);
+    const itemIndex = this.items.findIndex(
+      (item) => item.id === userBusiness.id
+    );
 
     this.items.splice(itemIndex, 1);
   }

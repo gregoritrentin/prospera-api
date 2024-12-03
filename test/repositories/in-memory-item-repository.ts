@@ -10,16 +10,14 @@ export class InMemoryItemsRepository implements ItemRepository {
 
   constructor() {}
 
-  async findById(id: string, businessId: string) {
-    const item = this.items.find((item) => item.id.toString() === id);
+  async findById(id: string, businessId: string): Promise<Item | null> {
+    const item = this.items.find(
+      (item) =>
+        item.id.toString() === id && item.businessId.toString() === businessId
+    );
 
-    if (!item) {
-      return null;
-    }
-
-    return item;
+    return item || null;
   }
-
   async findMany({ page }: PaginationParams) {
     const items = this.items.slice((page - 1) * 20, page * 20);
     return items;
@@ -43,10 +41,13 @@ export class InMemoryItemsRepository implements ItemRepository {
 
     DomainEvents.dispatchEventsForAggregate(item.id);
   }
-
   async delete(item: Item) {
-    const itemIndex = this.items.findIndex((item) => item.id === item.id);
+    const itemIndex = this.items.findIndex(
+      (existingItem) => existingItem.id.toString() === item.id.toString()
+    );
 
-    this.items.splice(itemIndex, 1);
+    if (itemIndex !== -1) {
+      this.items.splice(itemIndex, 1);
+    }
   }
 }

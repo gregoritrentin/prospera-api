@@ -6,11 +6,7 @@ export class InMemoryBusinessAppRepository implements BusinessAppRepository {
   public items: BusinessApp[] = [];
 
   async findById(id: string): Promise<BusinessApp | null> {
-    const businessApp = this.items.find((item) => item.appId.toString() === id);
-    if (!businessApp) {
-      return null;
-    }
-    return businessApp;
+    return this.items.find((item) => item?.appId?.toString() === id) ?? null;
   }
 
   async findMany(businessId: string): Promise<BusinessAppDetails[]> {

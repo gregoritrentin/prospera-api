@@ -10,23 +10,29 @@ export class InMemoryBusinessRepository implements BusinessRepository {
   constructor() {}
 
   async findByDocument(document: string): Promise<Business | null> {
-    const business = this.items.find(item => item.document === document);
+    const business = this.items.find((item) => item.document === document);
     return business || null;
   }
 
-  async setLogo(businessId: string, logoFileId: string) {
+  async setLogo(_businessId: string, _logoFileId: string) {
     throw new NotImplementedException("Method setLogo not implemented");
   }
 
-  async findMe(id: string): Promise<Business[]> {
+  async findMe(_id: string): Promise<Business[]> {
     throw new NotImplementedException("Method setLogo not implemented");
   }
 
   async findById(id: string): Promise<Business | null> {
-    throw new NotImplementedException("Method setLogo not implemented");
+    const business = this.items.find((item) => item.businessId === id);
+
+    if (!business) {
+      return null;
+    }
+
+    return business;
   }
 
-  async findMany(params: PaginationParams): Promise<Business[]> {
+  async findMany(_params: PaginationParams): Promise<Business[]> {
     throw new NotImplementedException("Method setLogo not implemented");
   }
 

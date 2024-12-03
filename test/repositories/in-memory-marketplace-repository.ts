@@ -10,7 +10,13 @@ export class InMemorymarketplaceRepository implements MarketplaceRepository {
   constructor() {}
 
   async findById(id: string): Promise<Marketplace | null> {
-    throw new NotImplementedException("Method setLogo not implemented");
+    const marketplace = this.items.find((item) => item.marketplaceId === id);
+
+    if (!marketplace) {
+      return null;
+    }
+
+    return marketplace;
   }
 
   async findMany(params: PaginationParams): Promise<Marketplace[]> {
@@ -20,20 +26,30 @@ export class InMemorymarketplaceRepository implements MarketplaceRepository {
   async create(marketplace: Marketplace) {
     this.items.push(marketplace);
 
-    DomainEvents.dispatchEventsForAggregate(marketplace.id);
+    if (marketplace.marketplaceId) {
+      DomainEvents.dispatchEventsForAggregate(marketplace.marketplaceId);
+    }
   }
 
   async save(marketplace: Marketplace) {
-    const itemIndex = this.items.findIndex((item) => item.id === marketplace.id);
+    const itemIndex = this.items.findIndex(
+      (item) => item.marketplaceId === marketplace.marketplaceId
+    );
 
     this.items[itemIndex] = marketplace;
 
-    DomainEvents.dispatchEventsForAggregate(marketplace.id);
+    if (marketplace.marketplaceId) {
+      DomainEvents.dispatchEventsForAggregate(marketplace.marketplaceId);
+    }
   }
 
-  async delete(marketplace: Marketplace) {
-    const itemIndex = this.items.findIndex((item) => item.id === marketplace.id);
+  async delete(marketplace: Marketplace): Promise<void> {
+    this.items = this.items.filter(
+      (item) => item.marketplaceId !== marketplace.marketplaceId
+    );
 
-    this.items.splice(itemIndex, 1);
+    if (marketplace.marketplaceId) {
+      DomainEvents.dispatchEventsForAggregate(marketplace.marketplaceId);
+    }
   }
 }

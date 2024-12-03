@@ -90,7 +90,15 @@ export class App extends AggregateRoot<AppProps> {
   }
   static create(
     props: Optional<AppProps, "createdAt">,
-    id?: UniqueEntityID
+    id?: UniqueEntityID,
+    p1?: string,
+    p2?: number,
+    quantity?: any,
+    p3?: number,
+    type?: any,
+    p4?: string,
+    status?: string,
+    p5?: string
   ): App {
     const app = new App(
       {
