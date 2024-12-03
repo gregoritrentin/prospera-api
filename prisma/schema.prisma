@@ -92,6 +92,375 @@ enum SubscriptionStatus {
   CANCELED
 }
 
+enum NfseSubstituteReason {
+  REGISTRATION_ERROR // ERRO DE CADASTRO - Informações incorretas sobre o cliente
+  VALUE_ERROR // ERRO DE VALOR - Valores incorretos na nota fiscal
+  SERVICE_ERROR // ERRO DE SERVIÇO - Serviço ou descrição inadequada
+  OTHER // OUTROS - Situações específicas não previstas
+}
+
+enum NfseCancelReason {
+  DUPLICATE_EMISSION // EMISSÃO DUPLICADA - Nota emitida mais de uma vez
+  FILLING_ERROR // ERRO DE PREENCHIMENTO - Campos incorretos
+  SERVICE_NOT_PROVIDED // SERVIÇO NÃO REALIZADO - Serviço não prestado
+  FRAUD // FRAUDE - Identificação de irregularidades
+  OTHER // OUTROS - Situações não previstas
+}
+
+enum RpsType {
+  RPS
+  NFCONJUGADA
+  CUPOM
+}
+
+enum NfseEventType {
+  ISSUANCE
+  CANCELLATION
+  QUERY
+  REPLACEMENT
+  AUTHORIZATION
+  REJECTION
+  PROCESSING
+  BATCH_PROCESSING
+  ERROR_CORRECTION
+  STATUS_UPDATE
+}
+
+enum NfseEventStatus {
+  SUCCESS
+  ERROR
+  WARNING
+  PENDING
+  TIMEOUT
+  PARTIAL
+}
+
+enum AbrasfVersion {
+  v10
+  v204
+}
+
+enum IssRequirement {
+  EXIGIVEL
+  ISENTO
+  IMUNE
+  EXPORTACAO
+  SUSPENSO_DECISAO_JUDICIAL
+  SUSPENSO_PROCESSO_ADMIN
+}
+
+enum OperationType {
+  TAXATION_IN_CITY
+  TAXATION_OUT_CITY
+  EXEMPTION
+  IMMUNE
+  SUSPENDED_JUDICIAL
+  SUSPENDED_ADMINISTRATIVE
+}
+
+enum NfseStatus {
+  AUTHORIZED // 1 - NFSe Autorizada/Emitida com sucesso
+  CANCELED // 2 - NFSe Cancelada
+  DRAFT // 3 - NFSe em elaboração (Não transmitida)
+  PENDING // 4 - NFSe Pendente (Aguardando processamento)
+  ERROR // 5 - NFSe com Erro de processamento
+  REPLACED // 6 - NFSe Substituída
+  PROCESSING // 7 - NFSe em Processamento
+  REJECTED // 8 - NFSe Rejeitada
+}
+
+enum ServiceCode {
+  // 1 – Serviços de informática e congêneres
+  S01_01 // Análise e desenvolvimento de sistemas
+  S01_02 // Programação
+  S01_03 // Processamento, armazenamento ou hospedagem de dados, textos, imagens, vídeos, páginas eletrônicas, aplicativos e sistemas de informação, entre outros
+  S01_04 // Elaboração de programas de computadores, inclusive de jogos eletrônicos
+  S01_05 // Licenciamento ou cessão de direito de uso de programas de computação
+  S01_06 // Assessoria e consultoria em informática
+  S01_07 // Suporte técnico em informática, inclusive instalação, configuração e manutenção de programas de computação e bancos de dados
+  S01_08 // Planejamento, confecção, manutenção e atualização de páginas eletrônicas
+  S01_09 // Disponibilização, sem cessão definitiva, de conteúdos de áudio, vídeo, imagem e texto por meio da internet
+
+  // 2 – Serviços de pesquisas e desenvolvimento de qualquer natureza
+  S02_01 // Serviços de pesquisas e desenvolvimento de qualquer natureza
+
+  // 3 – Serviços prestados mediante locação, cessão de direito de uso e congêneres
+  S03_02 // Cessão de direito de uso de marcas e de sinais de propaganda
+  S03_03 // Exploração de salões de festas, centro de convenções, escritórios virtuais, stands, quadras esportivas, estádios, ginásios, auditórios, casas de espetáculos, parques de diversões, canchas e congêneres
+  S03_04 // Locação, sublocação, arrendamento, direito de passagem ou permissão de uso, compartilhado ou não, de ferrovia, rodovia, postes, cabos, dutos e condutos de qualquer natureza
+  S03_05 // Cessão de andaimes, palcos, coberturas e outras estruturas de uso temporário
+
+  // 4 – Serviços de saúde, assistência médica e congêneres
+  S04_01 // Medicina e biomedicina
+  S04_02 // Análises clínicas, patologia, eletricidade médica, radioterapia, quimioterapia, ultra-sonografia, ressonância magnética, radiologia, tomografia e congêneres
+  S04_03 // Hospitais, clínicas, laboratórios, sanatórios, manicômios, casas de saúde, prontos-socorros, ambulatórios e congêneres
+  S04_04 // Instrumentação cirúrgica
+  S04_05 // Acupuntura
+  S04_06 // Enfermagem, inclusive serviços auxiliares
+  S04_07 // Serviços farmacêuticos
+  S04_08 // Terapia ocupacional, fisioterapia e fonoaudiologia
+  S04_09 // Terapias de qualquer espécie destinadas ao tratamento físico, orgânico e mental
+  S04_10 // Nutrição
+  S04_11 // Obstetrícia
+  S04_12 // Odontologia
+  S04_13 // Ortóptica
+  S04_14 // Próteses sob encomenda
+  S04_15 // Psicanálise
+  S04_16 // Psicologia
+  S04_17 // Casas de repouso e de recuperação, creches, asilos e congêneres
+  S04_18 // Inseminação artificial, fertilização in vitro e congêneres
+  S04_19 // Bancos de sangue, leite, pele, olhos, óvulos, sêmen e congêneres
+  S04_20 // Coleta de sangue, leite, tecidos, sêmen, órgãos e materiais biológicos de qualquer espécie
+  S04_21 // Unidade de atendimento, assistência ou tratamento móvel e congêneres
+  S04_22 // Planos de medicina de grupo ou individual e convênios para prestação de assistência médica, hospitalar, odontológica e congêneres
+  S04_23 // Outros planos de saúde que se cumpram através de serviços de terceiros contratados, credenciados, cooperados ou apenas pagos pelo operador do plano mediante indicação do beneficiário
+
+  // 5 – Serviços de medicina e assistência veterinária e congêneres
+  S05_01 // Medicina veterinária e zootecnia
+  S05_02 // Hospitais, clínicas, ambulatórios, prontos-socorros e congêneres, na área veterinária
+  S05_03 // Laboratórios de análise na área veterinária
+  S05_04 // Inseminação artificial, fertilização in vitro e congêneres
+  S05_05 // Bancos de sangue e de órgãos e congêneres
+  S05_06 // Coleta de sangue, leite, tecidos, sêmen, órgãos e materiais biológicos de qualquer espécie
+  S05_07 // Unidade de atendimento, assistência ou tratamento móvel e congêneres
+  S05_08 // Guarda, tratamento, amestramento, embelezamento, alojamento e congêneres
+  S05_09 // Planos de atendimento e assistência médico-veterinária
+
+  // 6 – Serviços de cuidados pessoais, estética, atividades físicas e congêneres
+  S06_01 // Barbearia, cabeleireiros, manicuros, pedicuros e congêneres
+  S06_02 // Esteticistas, tratamento de pele, depilação e congêneres
+  S06_03 // Banhos, duchas, sauna, massagens e congêneres
+  S06_04 // Ginástica, dança, esportes, natação, artes marciais e demais atividades físicas
+  S06_05 // Centros de emagrecimento, spa e congêneres
+  S06_06 // Aplicação de tatuagens, piercings e congêneres
+
+  // 7 – Serviços relativos a engenharia, arquitetura, geologia, urbanismo, construção civil, manutenção, limpeza, meio ambiente, saneamento e congêneres
+  S07_01 // Engenharia, agronomia, agrimensura, arquitetura, geologia, urbanismo, paisagismo e congêneres
+  S07_02 // Execução de obras de construção civil, hidráulica ou elétrica e de outras obras semelhantes
+  S07_03 // Elaboração de planos diretores, estudos de viabilidade, estudos organizacionais e outros
+  S07_04 // Demolição
+  S07_05 // Reparação, conservação e reforma de edifícios, estradas, pontes, portos e congêneres
+  S07_06 // Colocação e instalação de tapetes, carpetes, assoalhos, cortinas, revestimentos de parede, vidros, divisórias, placas de gesso e congêneres
+  S07_07 // Recuperação, raspagem, polimento e lustração de pisos e congêneres
+  S07_08 // Calafetação
+  S07_09 // Varrição, coleta, remoção, incineração, tratamento, reciclagem, separação e destinação final de lixo, rejeitos e outros resíduos quaisquer
+  S07_10 // Limpeza, manutenção e conservação de vias e logradouros públicos, imóveis, chaminés, piscinas, parques, jardins e congêneres
+  S07_11 // Decoração e jardinagem, inclusive corte e poda de árvores
+  S07_12 // Controle e tratamento de efluentes de qualquer natureza e de agentes físicos, químicos e biológicos
+  S07_13 // Dedetização, desinfecção, desinsetização, imunização, higienização, desratização, pulverização e congêneres
+  S07_14 // Florestamento, reflorestamento, semeadura, adubação, reparação de solo, plantio, silagem, colheita, corte e descascamento de árvores
+  S07_15 // Escoramento, contenção de encostas e serviços congêneres
+  S07_16 // Limpeza e dragagem de rios, portos, canais, baías, lagos, lagoas, represas, açudes e congêneres
+  S07_17 // Acompanhamento e fiscalização da execução de obras de engenharia, arquitetura e urbanismo
+  S07_18 // Aerofotogrametria (inclusive interpretação), cartografia, mapeamento, levantamentos topográficos, batimétricos, geográficos, geodésicos, geológicos, geofísicos e congêneres
+  S07_19 // Pesquisa, perfuração, cimentação, mergulho, perfilagem, concretação, testemunhagem, pescaria, estimulação e outros serviços relacionados com a exploração e explotação de petróleo, gás natural e de outros recursos minerais
+  S07_20 // Nucleação e bombardeamento de nuvens e congêneres
+
+  // 8 – Serviços de educação, ensino, orientação pedagógica e educacional, instrução, treinamento e avaliação pessoal de qualquer grau ou natureza
+  S08_01 // Ensino regular pré-escolar, fundamental, médio e superior
+  S08_02 // Instrução, treinamento, orientação pedagógica e educacional, avaliação de conhecimentos de qualquer natureza
+
+  // 9 – Serviços relativos a hospedagem, turismo, viagens e congêneres
+  S09_01 // Hospedagem de qualquer natureza em hotéis, apart-service condominiais, flat, apart-hotéis, hotéis residência, residence-service, suite service, hotelaria marítima, motéis, pensões e congêneres
+  S09_02 // Agenciamento, organização, promoção, intermediação e execução de programas de turismo, passeios, viagens, excursões, hospedagens e congêneres
+  S09_03 // Guias de turismo
+
+  // 10 – Serviços de intermediação e congêneres
+  S10_01 // Agenciamento, corretagem ou intermediação de câmbio, de seguros, de cartões de crédito, de planos de saúde e de planos de previdência privada
+  S10_02 // Agenciamento, corretagem ou intermediação de títulos em geral, valores mobiliários e contratos quaisquer
+  S10_03 // Agenciamento, corretagem ou intermediação de direitos de propriedade industrial, artística ou literária
+  S10_04 // Agenciamento, corretagem ou intermediação de contratos de arrendamento mercantil (leasing), de franquia (franchising) e de faturização (factoring)
+  S10_05 // Agenciamento, corretagem ou intermediação de bens móveis ou imóveis, não abrangidos em outros itens ou subitens
+  S10_06 // Agenciamento marítimo
+  S10_07 // Agenciamento de notícias
+  S10_08 // Agenciamento de publicidade e propaganda, inclusive o agenciamento de veiculação por quaisquer meios
+  S10_09 // Representação de qualquer natureza, inclusive comercial
+  S10_10 // Distribuição de bens de terceiros
+
+  // 11 – Serviços de guarda, estacionamento, armazenamento, vigilância e congêneres
+  S11_01 // Guarda e estacionamento de veículos terrestres automotores, de aeronaves e de embarcações
+  S11_02 // Vigilância, segurança ou monitoramento de bens, pessoas e semoventes
+  S11_03 // Escolta, inclusive de veículos e cargas
+  S11_04 // Armazenamento, depósito, carga, descarga, arrumação e guarda de bens de qualquer espécie
+
+  // 12 – Serviços de diversões, lazer, entretenimento e congêneres
+  S12_01 // Espetáculos teatrais
+  S12_02 // Exibições cinematográficas
+  S12_03 // Espetáculos circenses
+  S12_04 // Programas de auditório
+  S12_05 // Parques de diversões, centros de lazer e congêneres
+  S12_06 // Boates, taxi-dancing e congêneres
+  S12_07 // Shows, ballet, danças, desfiles, bailes, óperas, concertos, recitais, festivais e congêneres
+  S12_08 // Feiras, exposições, congressos e congêneres
+  S12_09 // Bilhares, boliches e diversões eletrônicas ou não
+  S12_10 // Corridas e competições de animais
+  S12_11 // Competições esportivas ou de destreza física ou intelectual, com ou sem a participação do espectador
+  S12_12 // Execução de música
+  S12_13 // Produção, mediante ou sem encomenda prévia, de eventos, espetáculos, entrevistas, shows, ballet, danças, desfiles, bailes, teatros, óperas, concertos, recitais, festivais e congêneres
+  S12_14 // Fornecimento de música para ambientes fechados ou não, mediante transmissão por qualquer processo
+  S12_15 // Desfiles de blocos carnavalescos ou folclóricos, trios elétricos e congêneres
+  S12_16 // Exibição de filmes, entrevistas, musicais, espetáculos, shows, concertos, desfiles, óperas, competições esportivas, de destreza intelectual ou congêneres
+  S12_17 // Recreação e animação, inclusive em festas e eventos de qualquer natureza
+
+  // 13 – Serviços relativos a fonografia, fotografia, cinematografia e reprografia
+  S13_01 // Fonografia ou gravação de sons, inclusive trucagem, dublagem, mixagem e congêneres
+  S13_02 // Fotografia e cinematografia, inclusive revelação, ampliação, cópia, reprodução, trucagem e congêneres
+  S13_03 // Reprografia, microfilmagem e digitalização
+  S13_04 // Composição gráfica, inclusive confecção de impressos gráficos, fotocomposição, clicheria, zincografia, litografia e fotolitografia
+
+  // 14 – Serviços relativos a bens de terceiros
+  S14_01 // Lubrificação, limpeza, lustração, revisão, carga e recarga, conserto, restauração, blindagem, manutenção e conservação de máquinas, veículos, aparelhos, equipamentos, motores, elevadores ou de qualquer objeto
+  S14_02 // Assistência técnica
+  S14_03 // Recondicionamento de motores
+  S14_04 // Recauchutagem ou regeneração de pneus
+  S14_05 // Restauração, recondicionamento, acondicionamento, pintura, beneficiamento, lavagem, secagem, tingimento, galvanoplastia, anodização, corte, recorte, plastificação, costura, acabamento, polimento e congêneres
+  S14_06 // Instalação e montagem de aparelhos, máquinas e equipamentos, inclusive montagem industrial
+  S14_07 // Colocação de molduras e congêneres
+  S14_08 // Encadernação, gravação e douração de livros, revistas e congêneres
+  S14_09 // Alfaiataria e costura
+  S14_10 // Tinturaria e lavanderia
+  S14_11 // Tapeçaria e reforma de estofamentos em geral
+  S14_12 // Funilaria e lanternagem
+  S14_13 // Carpintaria e serralheria
+
+  // 15 – Serviços relacionados ao setor bancário ou financeiro
+  S15_01 // Administração de fundos, de consórcio, de cartão de crédito ou débito e congêneres
+  S15_02 // Abertura de contas, inclusive conta-corrente, conta de investimentos e aplicação e caderneta de poupança
+  S15_03 // Locação e manutenção de cofres particulares, de terminais eletrônicos, de terminais de atendimento
+  S15_04 // Fornecimento ou emissão de atestados em geral
+  S15_05 // Cadastro, elaboração de ficha cadastral, renovação cadastral e congêneres
+  S15_06 // Emissão, reemissão e fornecimento de avisos, comprovantes e documentos em geral
+  S15_07 // Acesso, movimentação, atendimento e consulta a contas, por qualquer meio ou processo
+  S15_08 // Emissão, reemissão, alteração, cessão, substituição, cancelamento e registro de contrato de crédito
+  S15_09 // Arrendamento mercantil (leasing) de quaisquer bens
+  S15_10 // Serviços relacionados a cobranças, recebimentos ou pagamentos em geral
+  S15_11 // Devolução de títulos, protesto de títulos, sustação de protesto, manutenção de títulos
+  S15_12 // Custódia em geral, inclusive de títulos e valores mobiliários
+  S15_13 // Serviços relacionados a operações de câmbio
+  S15_14 // Fornecimento, emissão, reemissão, renovação e manutenção de cartão magnético
+  S15_15 // Compensação de cheques e títulos quaisquer
+  S15_16 // Serviços relacionados a crédito imobiliário, avaliação e vistoria de imóvel
+  S15_17 // Emissão, reemissão, alteração, transferência e renegociação de contrato
+  S15_18 // Análise e avaliação de operações de crédito
+
+  // 16 – Serviços de transporte de natureza municipal
+  S16_01 // Serviços de transporte coletivo municipal rodoviário, metroviário, ferroviário e aquaviário de passageiros
+  S16_02 // Outros serviços de transporte de natureza municipal
+
+  // 17 – Serviços de apoio técnico, administrativo, jurídico, contábil, comercial e congêneres
+  S17_01 // Assessoria ou consultoria de qualquer natureza
+  S17_02 // Datilografia, digitação, estenografia, expediente, secretaria em geral
+  S17_03 // Elaboração de programas de computadores
+  S17_04 // Planejamento, coordenação, programação ou organização técnica
+  S17_05 // Recrutamento, agenciamento, seleção e colocação de mão-de-obra
+  S17_06 // Propaganda e publicidade, inclusive promoção de vendas
+  S17_07 // Franquia (franchising)
+  S17_08 // Perícias, laudos, exames técnicos e análises técnicas
+  S17_09 // Planejamento, organização e administração de feiras, exposições, congressos e congêneres
+  S17_10 // Organização de festas e recepções
+  S17_11 // Administração em geral, inclusive de bens e negócios de terceiros
+  S17_12 // Leilão e congêneres
+  S17_13 // Advocacia
+  S17_14 // Arbitragem de qualquer espécie
+  S17_15 // Auditoria
+  S17_16 // Análise de Organização e Métodos
+  S17_17 // Atuária e cálculos técnicos de qualquer natureza
+  S17_18 // Contabilidade, inclusive serviços técnicos e auxiliares
+  S17_19 // Consultoria e assessoria econômica ou financeira
+  S17_20 // Estatística
+  S17_21 // Cobrança em geral
+  S17_22 // Assessoria, análise, avaliação, atendimento, consulta, cadastro, seleção
+  S17_23 // Apresentação de palestras, conferências, seminários e congêneres
+  S17_24 // Inserção de textos, desenhos e outros materiais de propaganda e publicidade
+
+  // 18 – Serviços de regulação de sinistros vinculados a contratos de seguros
+  S18_01 // Serviços de regulação de sinistros vinculados a contratos de seguros
+
+  // 19 – Serviços de distribuição e venda de bilhetes e demais produtos de loteria
+  S19_01 // Serviços de distribuição e venda de bilhetes e demais produtos de loteria
+
+  // 20 – Serviços portuários, aeroportuários, ferroportuários
+  S20_01 // Serviços portuários, ferroportuários, utilização de porto, movimentação de passageiros
+  S20_02 // Serviços aeroportuários, utilização de aeroporto, movimentação de passageiros
+  S20_03 // Serviços de terminais rodoviários, ferroviários, metroviários, movimentação de passageiros
+
+  // 21 – Serviços de registros públicos, cartorários e notariais
+  S21_01 // Serviços de registros públicos, cartorários e notariais
+
+  // 22 – Serviços de exploração de rodovia
+  S22_01 // Serviços de exploração de rodovia
+
+  // 23 – Serviços de programação e comunicação visual, desenho industrial e congêneres
+  S23_01 // Serviços de programação e comunicação visual, desenho industrial e congêneres
+
+  // 24 – Serviços de chaveiros, confecção de carimbos, placas, sinalização visual
+  S24_01 // Serviços de chaveiros, confecção de carimbos, placas, sinalização visual
+
+  // 25 – Serviços funerários
+  S25_01 // Funerais, inclusive fornecimento de caixão, urna ou esquifes
+  S25_02 // Cremação de corpos e partes de corpos cadavéricos
+  S25_03 // Planos ou convênio funerários
+  S25_04 // Manutenção e conservação de jazigos e cemitérios
+
+  // 26 – Serviços de coleta, remessa ou entrega de correspondências
+  S26_01 // Serviços de coleta, remessa ou entrega de correspondências
+
+  // 27 – Serviços de assistência social
+  S27_01 // Serviços de assistência social
+
+  // 28 – Serviços de avaliação de bens e serviços de qualquer natureza
+  S28_01 // Serviços de avaliação de bens e serviços de qualquer natureza
+
+  // 29 – Serviços de biblioteconomia
+  S29_01 // Serviços de biblioteconomia
+
+  // 30 – Serviços de biologia, biotecnologia e química
+  S30_01 // Serviços de biologia, biotecnologia e química
+
+  // 31 – Serviços técnicos em edificações, eletrônica, eletrotécnica, mecânica, telecomunicações
+  S31_01 // Serviços técnicos em edificações, eletrônica, eletrotécnica, mecânica, telecomunicações
+
+  // 32 – Serviços de desenhos técnicos
+  S32_01 // Serviços de desenhos técnicos
+
+  // 33 – Serviços de desembaraço aduaneiro, comissários, despachantes
+  S33_01 // Serviços de desembaraço aduaneiro, comissários, despachantes
+
+  // 34 – Serviços de investigações particulares, detetives
+  S34_01 // Serviços de investigações particulares, detetives
+
+  // 35 – Serviços de reportagem, assessoria de imprensa, jornalismo e relações públicas
+  S35_01 // Serviços de reportagem, assessoria de imprensa, jornalismo e relações públicas
+
+  // 36 – Serviços de meteorologia
+  S36_01 // Serviços de meteorologia
+
+  // 37 – Serviços de artistas, atletas, modelos e manequins
+  S37_01 // Serviços de artistas, atletas, modelos e manequins
+
+  // 38 – Serviços de museologia
+  S38_01 // Serviços de museologia
+
+  // 39 – Serviços de ourivesaria e lapidação
+  S39_01 // Serviços de ourivesaria e lapidação
+
+  // 40 – Serviços relativos a obras de arte sob encomenda
+  S40_01 // Obras de arte sob encomenda
+}
+
+enum CertificateSource {
+  INTERNAL
+  EXTERNAL
+}
+
+enum CertificateStatus {
+  PENDING_VALIDATION
+  ACTIVE
+  EXPIRING
+  EXPIRED
+  INVALID
+}
+
 model User {
   id              String    @id @default(uuid())
   name            String
@@ -178,12 +547,15 @@ model State {
   code      String @unique
   countryId String @map("country_id")
 
-  country        Country          @relation(fields: [countryId], references: [id])
-  city           City[]
-  user           User[]
-  business       Business[]
-  person         Person[]
-  businessOwners BusinessOwners[]
+  country               Country                 @relation(fields: [countryId], references: [id])
+  city                  City[]
+  user                  User[]
+  business              Business[]
+  person                Person[]
+  businessOwners        BusinessOwners[]
+  NfseCityConfiguration NfseCityConfiguration[]
+  nfseIncidence         Nfse[]                  @relation("IncidenceState")
+  nfseService           Nfse[]                  @relation("ServiceState")
 
   @@map("states")
 }
@@ -194,10 +566,13 @@ model City {
   stateId String @map("state_id")
   code    String @unique
 
-  state          State            @relation(fields: [stateId], references: [id])
-  business       Business[]
-  person         Person[]
-  businessOwners BusinessOwners[]
+  state                 State                   @relation(fields: [stateId], references: [id])
+  business              Business[]
+  person                Person[]
+  businessOwners        BusinessOwners[]
+  NfseCityConfiguration NfseCityConfiguration[]
+  nfseIncidence         Nfse[]                  @relation("IncidenceCity")
+  nfseService           Nfse[]                  @relation("ServiceCity")
 
   @@map("cities")
 }
@@ -380,6 +755,8 @@ model Business {
   transaction          Transaction[]
   salesChannel         SalesChannel[]
   pipeline             Pipeline[]
+  Nfse                 Nfse[]
+  DigitalCertificate   DigitalCertificate[]
 
   @@map("business")
 }
@@ -396,11 +773,14 @@ model File {
 
   user                       User[]
   invoiceAttachment          InvoiceAttachment[]
-  logoBusiness               Business?           @relation("LogoFile")
-  digitalCertificateBusiness Business?           @relation("DigitalCertificateFile")
+  logoBusiness               Business?            @relation("LogoFile")
+  digitalCertificateBusiness Business?            @relation("DigitalCertificateFile")
   eventRegistration          EventRegistration[]
   campaign                   Campaign[]
   transaction                Transaction[]
+  nfsePdf                    Nfse[]               @relation("NfsePdfFile")
+  nfseXml                    Nfse[]               @relation("NfseXmlFile")
+  DigitalCertificate         DigitalCertificate[]
 
   @@map("files")
 }
@@ -575,6 +955,7 @@ model Person {
   payment              Payment[]
   transaction          Transaction[]
   subscription         Subscription[]
+  Nfse                 Nfse[]
 
   @@unique([businessId, document], name: "documentIdentifier")
   @@map("persons")
@@ -695,7 +1076,7 @@ model Invoice {
   //datas
   issueDate        DateTime        @map("issue_date") //data de emissão 
   dueDate          DateTime        @map("due_date") //data de vencimento
-  paymentDate      DateTime        @map("paymend_date") //data do pgto
+  paymentDate      DateTime?       @map("payment_date") //data do pgto
   paymentLimitDate DateTime?       @map("payment_limit_date") //data limite de pgto
   //valor
   grossAmount      Float           @map("gross_amount")
@@ -728,8 +1109,9 @@ model Invoice {
   invoiceAttachment  InvoiceAttachment[]
   invoiceSplit       InvoiceSplit[]
   invoiceTransaction InvoiceTransaction[]
-  InvoicePayment     InvoicePayment[]
+  invoicePayment     InvoicePayment[]
 
+  @@unique([id, businessId])
   @@map("invoices")
 }
 
@@ -1576,4 +1958,190 @@ model ReservationResource {
   resource    Resource    @relation(fields: [resourceId], references: [id])
 
   @@map("reservation_resources")
+}
+
+model Nfse {
+  id                    String   @id @default(uuid())
+  businessId            String   @map("business_id")
+  personId              String   @map("person_id")
+  rpsNumber             String   @map("rps_number")
+  rpsSeries             String   @map("rps_series")
+  rpsType               RpsType  @map("rps_type")
+  issueDate             DateTime @map("issue_date")
+  competenceDate        DateTime @map("competence_date")
+  description           String   @map("description")
+  additionalInformation String   @map("additional_information")
+
+  operationType  OperationType  @map("operation_type") //natureza da operacao
+  serviceCode    ServiceCode    @map("service_code") // codigo do servico
+  issRequirement IssRequirement @map("iss_requirement") // exigibilidade do iss
+  cnaeCode       String         @map("cnae_code") //cnae code //mudar para enum
+  cityTaxCode    String?        @map("city_tax_code") //codigo de tributacao do municipio
+  issRetention   Boolean        @map("retention_iss")
+
+  // Values
+  serviceAmount         Decimal @map("service_amount") @db.Decimal(10, 2)
+  unconditionalDiscount Decimal @default(0) @map("unconditional_discount") @db.Decimal(10, 2)
+  conditionalDiscount   Decimal @default(0) @map("conditional_discount") @db.Decimal(10, 2)
+  calculationBase       Decimal @map("calculation_base") @db.Decimal(10, 2)
+  netAmount             Decimal @map("net_amount") @db.Decimal(10, 2) // Valor líquido
+
+  // explicação dos valores
+  // Valor do Serviço: R$ 1000,00
+  // Desconto Incondicional: R$ 100,00
+  // Base de Cálculo: R$ 900,00 (usado para calcular impostos)
+  // ISS (5%): R$ 45,00
+  // PIS (0,65%): R$ 5,85
+  // COFINS (3%): R$ 27,00
+  // Valor Líquido: R$ 822,15 (valor final após todas as retenções)
+
+  // aliquotas
+  issRate    Decimal @default(0) @map("iss_rate") @db.Decimal(5, 2)
+  pisRate    Decimal @default(0) @map("pis_rate") @db.Decimal(5, 2)
+  cofinsRate Decimal @default(0) @map("cofins_rate") @db.Decimal(5, 2)
+  irRate     Decimal @default(0) @map("ir_rate") @db.Decimal(5, 2)
+  inssRate   Decimal @default(0) @map("inss_rate") @db.Decimal(5, 2)
+  csllRate   Decimal @default(0) @map("csll_rate") @db.Decimal(5, 2)
+
+  // valores
+  issAmount       Decimal @default(0) @map("iss_amount") @db.Decimal(10, 2)
+  pisAmount       Decimal @default(0) @map("pis_amount") @db.Decimal(10, 2)
+  cofinsAmount    Decimal @default(0) @map("cofins_amount") @db.Decimal(10, 2)
+  inssAmount      Decimal @default(0) @map("inss_amount") @db.Decimal(10, 2)
+  irAmount        Decimal @default(0) @map("ir_amount") @db.Decimal(10, 2)
+  csllAmount      Decimal @default(0) @map("csll_amount") @db.Decimal(10, 2)
+  otherRetentions Decimal @default(0) @map("other_retentions") @db.Decimal(10, 2)
+
+  // Location (from existing model)
+  incidenceState String @map("incidende_state")
+  incidenceCity  String @map("incidende_city")
+
+  serviceState String @map("service_state")
+  serviceCity  String @map("service_city")
+
+  // Control
+  status      NfseStatus
+  batchNumber String?    @map("batch_number")
+  protocol    String?
+  nfseNumber  String?    @map("nfse_number")
+
+  substituteNfseNumber String?               @map("substitute_nfse_number")
+  substituteReason     NfseSubstituteReason? @map("substitute_reason")
+  cancelReason         NfseCancelReason?     @map("cancel_reason")
+
+  pdfFileId String? @map("pdf_file_id")
+  xmlFileId String? @map("xml_file_id")
+
+  // Timestamps
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+  canceledAt DateTime? @map("canceled_at")
+
+  business Business @relation(fields: [businessId], references: [id])
+  person   Person   @relation(fields: [personId], references: [id])
+
+  incidenceCityCode  City  @relation("IncidenceCity", fields: [incidenceCity], references: [code])
+  incidenceStateCode State @relation("IncidenceState", fields: [incidenceState], references: [code])
+
+  serviceCityCode  City  @relation("ServiceCity", fields: [serviceCity], references: [code])
+  serviceStateCode State @relation("ServiceState", fields: [serviceState], references: [code])
+
+  pdfFile   File?       @relation("NfsePdfFile", fields: [pdfFileId], references: [id])
+  xmlFile   File?       @relation("NfseXmlFile", fields: [xmlFileId], references: [id])
+  NfseEvent NfseEvent[]
+
+  // Índices
+  @@index([businessId])
+  @@index([personId])
+  @@index([rpsNumber])
+  @@index([nfseNumber])
+  @@index([status])
+  @@index([issueDate])
+  @@map("nfses")
+}
+
+model NfseEvent {
+  id      String          @id @default(uuid())
+  nfseId  String          @map("nfse_id")
+  type    NfseEventType   @map("type")
+  status  NfseEventStatus @map("status")
+  message String?         @map("message")
+
+  // XML tracking
+  requestXml    String? @map("request_xml") @db.Text
+  responseXml   String? @map("response_xml") @db.Text
+  returnMessage String? @map("return_message")
+
+  // Additional data
+  payload Json? @map("payload")
+
+  // Timestamps
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  // Relation
+  nfse Nfse @relation(fields: [nfseId], references: [id])
+
+  // Indices
+  @@index([nfseId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("nfse_events")
+}
+
+model NfseCityConfiguration {
+  id   String @id @default(uuid())
+  name String
+
+  cityCode  String @unique @map("city_code")
+  stateCode String @map("state_code")
+
+  abrasfVersion  AbrasfVersion @map("abrasf_version")
+  sandboxUrl     String        @map("sandbox_url")
+  productionUrl  String        @map("production_url")
+  queryUrl       String?       @map("query_url")
+  timeout        Int           @map("timeout")
+  specificFields Json?         @map("specific_fields")
+  createdAt      DateTime      @map("created_at")
+  updatedAt      DateTime?     @map("updated_at")
+
+  city  City  @relation(fields: [cityCode], references: [code])
+  state State @relation(fields: [stateCode], references: [code])
+
+  @@map("nfse_city_configurations")
+}
+
+model DigitalCertificate {
+  id                String            @id @default(uuid())
+  businessId        String            @map("business_id")
+  certificateFileId String            @map("certificate_file_id")
+  source            CertificateSource
+
+  // Certificate Info
+  serialNumber String @map("serial_number")
+  thumbprint   String
+  password     String // será armazenado encriptado
+
+  // Dates
+  issueDate        DateTime  @map("issue_date")
+  expirationDate   DateTime  @map("expiration_date")
+  installationDate DateTime? @map("installation_date")
+
+  // Status
+  status CertificateStatus
+
+  // Audit
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  // Relations
+  business        Business @relation(fields: [businessId], references: [id])
+  certificateFile File     @relation(fields: [certificateFileId], references: [id])
+
+  // Indices
+  @@index([businessId])
+  @@index([serialNumber])
+  @@index([status])
+  @@index([expirationDate])
+  @@map("digital_certificates")
 }

@@ -18,7 +18,7 @@ export interface InvoiceProps {
     status: InvoiceStatus
     issueDate: Date
     dueDate: Date
-    paymentDate: Date
+    paymentDate?: Date | null
     paymentLimitDate?: Date | null
     grossAmount: number
     discountAmount: number
@@ -207,7 +207,7 @@ export class Invoice extends AggregateRoot<InvoiceProps> {
         this.touch()
     }
 
-    set paymentDate(paymentDate: Date) {
+    set paymentDate(paymentDate: Date | null | undefined) {
         this.props.paymentDate = paymentDate
         this.touch()
     }

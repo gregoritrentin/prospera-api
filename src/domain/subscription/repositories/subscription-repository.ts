@@ -8,6 +8,7 @@ export abstract class SubscriptionRepository {
     abstract findByIdDetails(id: string, businessId: string): Promise<SubscriptionDetails | null>
     abstract findMany(params: PaginationParams, businessId: string): Promise<Subscription[]>
     abstract findManyToInvoiceByDate(date: Date, businessId: string): Promise<Subscription[]>
+    abstract findManyByNextBillingDateRange(startDate: Date, endDate: Date): Promise<Subscription[]>
 
     abstract create(payment: Subscription): Promise<void>
     abstract save(payment: Subscription): Promise<void>

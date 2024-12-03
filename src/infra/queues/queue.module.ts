@@ -28,6 +28,8 @@ import { CreateInvoiceQueueConsumer } from './consumers/create-invoice-queue-con
 import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file';
 import { QueueProvider } from '@/domain/interfaces/queue-provider';
 import { CreateBoletoUseCase } from '@/domain/transaction/use-cases/create-boleto';
+import { ProcessSubscriptionInvoiceQueueConsumer } from './consumers/process-subscription-invoice-queue-consumer';
+import { CreateInvoiceUseCase } from '@/domain/invoice/use-cases/create-invoice';
 
 @Module({
     imports: [
@@ -83,6 +85,13 @@ import { CreateBoletoUseCase } from '@/domain/transaction/use-cases/create-bolet
                     removeOnComplete: true,
                     removeOnFail: false,
                 }
+            },
+            {
+                name: 'subscription-invoice',
+                defaultJobOptions: {
+                    removeOnComplete: true,
+                    removeOnFail: false,
+                }
             }
         ),
     ],
@@ -102,14 +111,17 @@ import { CreateBoletoUseCase } from '@/domain/transaction/use-cases/create-bolet
         EmailQueueConsumer,
         BoletoQueueConsumer,
         CreateInvoiceQueueConsumer,
+        ProcessSubscriptionInvoiceQueueConsumer,
+        CreateInvoiceUseCase,
 
         // Use Cases
         UploadAndCreateFileUseCase,
+        CreateInvoiceUseCase,
         CreateBoletoUseCase,
     ],
     exports: [
-        // Módulo Bull para acesso em outros módulos
         BullModule,
+        QueueProvider,
 
         // Producers
         EmailQueueProducer,
@@ -120,6 +132,7 @@ import { CreateBoletoUseCase } from '@/domain/transaction/use-cases/create-bolet
         EmailQueueConsumer,
         BoletoQueueConsumer,
         CreateInvoiceQueueConsumer,
+        ProcessSubscriptionInvoiceQueueConsumer,
     ],
 })
 export class QueueModule { }

@@ -38,7 +38,7 @@ interface InvoiceDetailsProps {
     status: InvoiceStatus
     issueDate: Date
     dueDate: Date
-    paymentDate: Date
+    paymentDate?: Date | null
     paymentLimitDate?: Date | null
     grossAmount: number
     discountAmount: number

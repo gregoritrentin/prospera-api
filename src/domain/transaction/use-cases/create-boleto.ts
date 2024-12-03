@@ -1,7 +1,7 @@
 import { right, left, Either } from '@/core/either';
 import { TransactionType } from '@/domain/transaction/entities/transaction';
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Transaction } from '@/domain/transaction/entities/transaction';
 import { Person } from '@/domain/person/entities/person';
 import { Business } from '@/domain/application/entities/business';
@@ -34,6 +34,8 @@ type CreateBoletoResult = Either<AppError, CreateBoletoUseCaseResponse>;
 
 @Injectable()
 export class CreateBoletoUseCase {
+    private readonly logger = new Logger(CreateBoletoUseCase.name);
+
     constructor(
         private boletoProvider: BoletoProvider,
         private boletoRepository: TransactionRepository,
@@ -47,42 +49,73 @@ export class CreateBoletoUseCase {
         input: CreateBoletoUseCaseRequest,
         language: Language = 'pt-BR'
     ): Promise<CreateBoletoResult> {
-        try {
+        this.logger.debug('=== Starting CreateBoletoUseCase ===');
+        this.logger.debug('Input:', {
+            businessId: input.businessId,
+            personId: input.personId,
+            amount: input.amount,
+            dueDate: input.dueDate,
+            yourNumber: input.yourNumber
+        });
 
+        try {
             if (input.amount <= 0) {
+                this.logger.debug(`Invalid amount: ${input.amount}`);
                 return left(AppError.invalidAmount(input.amount));
             }
 
             if (input.dueDate <= new Date()) {
+                this.logger.debug(`Invalid due date: ${input.dueDate}`);
                 return left(AppError.invalidDueDate());
             }
 
+            this.logger.debug('Fetching pagador and beneficiario');
             const [pagador, beneficiario] = await Promise.all([
                 this.personsRepository.findById(input.personId, input.businessId),
                 this.businessRepository.findById(input.businessId)
             ]);
 
             if (!pagador || !beneficiario) {
+                this.logger.debug('Pagador or beneficiario not found');
                 return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'));
             }
 
+            this.logger.debug('Preparing boleto request');
             const boletoRequest = this.prepareBoletoRequest(input, pagador, beneficiario);
+            this.logger.debug('Boleto request:', boletoRequest);
+
+            this.logger.debug('Calling boleto provider');
             const boletoResponse = await this.boletoProvider.createBoleto(boletoRequest);
+            this.logger.debug('Boleto provider response:', boletoResponse);
 
             const boleto = this.createBoletoFromSicrediResponse(input, boletoResponse);
+            this.logger.debug('Created boleto entity:', {
+                id: boleto.id.toString(),
+                status: boleto.status
+            });
+
             await this.boletoRepository.create(boleto);
+            this.logger.debug('Boleto saved to repository');
 
             await this.boletoQueueProducer.addPrintBoletoJob({
                 businessId: input.businessId,
                 boletoId: boleto.id.toString(),
                 language,
             });
+            this.logger.debug('Print job added to queue');
 
             const successMessage = this.i18nService.translate('messages.RECORD_CREATED', language);
+            this.logger.debug('=== CreateBoletoUseCase completed successfully ===');
 
             return right({ boleto, message: successMessage });
 
         } catch (error) {
+            this.logger.error('=== Error in CreateBoletoUseCase ===');
+            this.logger.error('Error details:', error instanceof Error ? {
+                message: error.message,
+                stack: error.stack
+            } : String(error));
+
             const errorMessage = this.i18nService.translate('errors.SICREDI_ERROR_CREATE_BOLETO', language, {
                 error: error instanceof Error ? error.message : 'Unknown error'
             });

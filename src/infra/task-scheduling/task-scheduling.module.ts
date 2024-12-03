@@ -7,6 +7,9 @@ import { EmailModule } from '../email/email.module';
 import { DatabaseModule } from '../database/database.module';
 import { EnvModule } from '../env/env.module';
 import { TaskSchedulerConfig } from './task-scheduling-config';
+//cimport { Process } from '@nestjs/bull';
+import { ProcessSubscriptionInvoiceUseCase } from '@/domain/subscription/use-cases/process-subscription-invoice';
+import { I18nModule } from '@/i18n';
 
 @Module({
     imports: [
@@ -15,12 +18,15 @@ import { TaskSchedulerConfig } from './task-scheduling-config';
         EmailModule,
         DatabaseModule,
         EnvModule,
+        I18nModule,
     ],
     providers: [
         TaskSchedulerService,
-        SendAndCreateEmailUseCase,
         TaskSchedulerConfig,
+        SendAndCreateEmailUseCase,
+        ProcessSubscriptionInvoiceUseCase
+        ,
     ],
-    exports: [TaskSchedulerService, TaskSchedulerConfig],
+    exports: [TaskSchedulerService, TaskSchedulerConfig, ProcessSubscriptionInvoiceUseCase], //
 })
 export class TaskSchedulingModule { }

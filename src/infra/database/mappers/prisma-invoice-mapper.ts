@@ -5,6 +5,7 @@ import { InvoiceSplit } from '@/domain/invoice/entities/invoice-split'
 import { InvoiceTransaction } from '@/domain/invoice/entities/invoice-transaction'
 import { InvoiceAttachment } from '@/domain/invoice/entities/invoice-attachment'
 import { InvoiceEvent } from '@/domain/invoice/entities/invoice-event'
+import { InvoicePayment } from '@/domain/invoice/entities/invoice-payment'
 import {
     Invoice as PrismaInvoice,
     InvoiceItem as PrismaInvoiceItem,
@@ -12,9 +13,10 @@ import {
     InvoiceTransaction as PrismaInvoiceTransaction,
     InvoiceAttachment as PrismaInvoiceAttachment,
     InvoiceEvent as PrismaInvoiceEvent,
+    InvoicePayment as PrismaInvoicePayment,
     Prisma
 } from '@prisma/client'
-import { CalculationMode, InvoiceStatus, YesNo } from '@/core/types/enums'
+import { CalculationMode, InvoiceStatus, YesNo, PaymentMethod } from '@/core/types/enums'
 
 export class PrismaInvoiceMapper {
     static toDomain(raw: PrismaInvoice & {
@@ -23,6 +25,7 @@ export class PrismaInvoiceMapper {
         invoiceTransaction?: PrismaInvoiceTransaction[]
         invoiceAttachment?: PrismaInvoiceAttachment[]
         invoiceEvent?: PrismaInvoiceEvent[]
+        invoicePayment?: PrismaInvoicePayment[]
     }): Invoice {
         return Invoice.create(
             {
@@ -94,6 +97,15 @@ export class PrismaInvoiceMapper {
                     },
                     new UniqueEntityID(event.id)
                 )) || [],
+                payments: raw.invoicePayment?.map(payment => InvoicePayment.create(
+                    {
+                        invoiceId: new UniqueEntityID(raw.id),
+                        dueDate: payment.dueDate,
+                        amount: payment.ammount,
+                        paymentMethod: payment.paymentMethod as PaymentMethod
+                    },
+                    new UniqueEntityID(payment.id)
+                )) || [],
                 createdAt: raw.createdAt,
                 updatedAt: raw.updatedAt
             },
@@ -101,13 +113,7 @@ export class PrismaInvoiceMapper {
         )
     }
 
-    static toPrisma(invoice: Invoice): Prisma.InvoiceUncheckedCreateInput & {
-        invoiceItem: Prisma.InvoiceItemCreateManyInput[]
-        invoiceSplit: Prisma.InvoiceSplitCreateManyInput[]
-        invoiceTransaction: Prisma.InvoiceTransactionCreateManyInput[]
-        invoiceAttachment: Prisma.InvoiceAttachmentCreateManyInput[]
-        invoiceEvent: Prisma.InvoiceEventCreateManyInput[]
-    } {
+    static toPrisma(invoice: Invoice) {
         return {
             id: invoice.id.toString(),
             businessId: invoice.businessId.toString(),
@@ -137,44 +143,46 @@ export class PrismaInvoiceMapper {
             createdAt: invoice.createdAt,
             updatedAt: invoice.updatedAt,
 
-            invoiceItem: invoice.items.map(item => ({
+            invoiceItems: invoice.items.map(item => ({
                 id: item.id.toString(),
-                invoiceId: invoice.id.toString(),
                 itemId: item.itemId.toString(),
                 itemDescription: item.itemDescription,
                 quantity: item.quantity,
                 unitPrice: item.unitPrice,
                 discount: item.discount,
-                totalPrice: item.totalPrice,
+                totalPrice: item.totalPrice
             })),
 
-            invoiceSplit: invoice.splits.map(split => ({
+            invoiceSplits: invoice.splits.map(split => ({
                 id: split.id.toString(),
-                invoiceId: invoice.id.toString(),
                 recipientId: split.recipientId.toString(),
                 splitType: split.splitType,
                 amount: split.amount,
-                feeAmount: split.feeAmount,
+                feeAmount: split.feeAmount
             })),
 
-            invoiceTransaction: invoice.transactions.map(transaction => ({
+            invoiceTransactions: invoice.transactions.map(transaction => ({
                 id: transaction.id.toString(),
-                invoiceId: invoice.id.toString(),
-                transactionId: transaction.transactionId.toString(),
+                transactionId: transaction.transactionId.toString()
             })),
 
-            invoiceAttachment: invoice.attachments.map(attachment => ({
+            invoiceAttachments: invoice.attachments.map(attachment => ({
                 id: attachment.id.toString(),
-                invoiceId: invoice.id.toString(),
-                fileId: attachment.fileId.toString(),
+                fileId: attachment.fileId.toString()
             })),
 
-            invoiceEvent: invoice.events.map(event => ({
+            invoiceEvents: invoice.events.map(event => ({
                 id: event.id.toString(),
-                invoiceId: invoice.id.toString(),
                 event: event.event,
-                createdAt: event.createdAt,
+                createdAt: event.createdAt
             })),
+
+            invoicePayments: invoice.payments.map(payment => ({
+                id: payment.id.toString(),
+                dueDate: payment.dueDate,
+                amount: payment.amount,
+                paymentMethod: payment.paymentMethod
+            }))
         }
     }
 }

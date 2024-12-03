@@ -1,4 +1,3 @@
-// src/infra/database/redis/repositories/redis-rate-limit.repository.ts
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '../redis.service';
 import { BaseRedisRepository } from '../interfaces/redis-repository-interface';
@@ -28,7 +27,8 @@ export class RedisRateLimitRepository extends BaseRedisRepository {
         'boleto': { points: 100, duration: 60 },      // 100 req/min
         'nfse': { points: 20, duration: 60 },         // 20 req/min
         'whatsapp': { points: 30, duration: 60 },     // 30 req/min
-        'email': { points: 50, duration: 60 }         // 50 req/min
+        'email': { points: 50, duration: 60 },        // 50 req/min
+        'subscription-invoice': { points: 60, duration: 60 } // 60 req/min (1 por segundo)
     };
 
     constructor(redisService: RedisService) {
@@ -274,5 +274,43 @@ export class RedisRateLimitRepository extends BaseRedisRepository {
                 this.logger.error('Error during rate limit cleanup:', error);
             }
         }, interval);
+    }
+
+    /**
+     * Obtém o status do rate limit para diagnóstico
+     */
+    async getDiagnostics(service: string, identifier: string): Promise<{
+        config: RateLimitConfig | null;
+        currentUsage: number;
+        isBlocked: boolean;
+        ttl: number;
+        tokens: Array<{ timestamp: number; id: string }>;
+    }> {
+        const config = await this.getServiceConfig(service);
+        const key = this.getKey(`${service}:${identifier}`);
+        const blockKey = this.getKey(`block:${service}:${identifier}`);
+
+        const [currentUsage, isBlocked, ttl, tokens] = await Promise.all([
+            this.zcard(key),
+            this.exists(blockKey),
+            this.redisService.ttl(key),
+            this.zrange(key, 0, -1, 'WITHSCORES')
+        ]);
+
+        const tokenList = tokens.map((token, index) => ({
+            timestamp: parseInt(tokens[index + 1]),
+            id: token
+        })).filter((_, index) => index % 2 === 0);
+
+        return {
+            config,
+            currentUsage,
+            isBlocked,
+            ttl,
+            tokens: tokenList
+        };
+    }
+    zrange(key: string, arg1: number, arg2: number, arg3: string): any {
+        throw new Error('Method not implemented.');
     }
 }

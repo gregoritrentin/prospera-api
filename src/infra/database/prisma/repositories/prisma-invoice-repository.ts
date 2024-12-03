@@ -5,28 +5,33 @@ import { InvoiceRepository } from "@/domain/invoice/respositories/invoice-reposi
 import { Invoice } from "@/domain/invoice/entities/invoice"
 import { InvoiceDetails } from "@/domain/invoice/entities/value-objects/invoice-details"
 import { PrismaInvoiceMapper } from "@/infra/database/mappers/prisma-invoice-mapper"
-//import { PrismaInvoiceDetailsMapper } from "@/infra/database/mappers/prisma-invoice-details-mapper"
+import { Logger } from "@nestjs/common"
 
 @Injectable()
 export class PrismaInvoiceRepository implements InvoiceRepository {
+    private readonly logger = new Logger(PrismaInvoiceRepository.name);
+
     constructor(private prisma: PrismaService) { }
 
-    findByIdDetails(id: string, businessId: string): Promise<InvoiceDetails | null> {
+    async findByIdDetails(id: string, businessId: string): Promise<InvoiceDetails | null> {
         throw new Error("Method not implemented.")
     }
 
     async findById(id: string, businessId: string): Promise<Invoice | null> {
         const invoice = await this.prisma.invoice.findUnique({
             where: {
-                id,
-                businessId,
+                id_businessId: {
+                    id,
+                    businessId,
+                }
             },
             include: {
                 invoiceItem: true,
                 invoiceSplit: true,
                 invoiceTransaction: true,
                 invoiceAttachment: true,
-                invoiceEvent: true
+                invoiceEvent: true,
+                invoicePayment: true
             }
         })
 
@@ -51,7 +56,8 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
                 invoiceSplit: true,
                 invoiceTransaction: true,
                 invoiceAttachment: true,
-                invoiceEvent: true
+                invoiceEvent: true,
+                invoicePayment: true
             },
             skip: (page - 1) * 20,
         })
@@ -62,27 +68,41 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
     async save(invoice: Invoice): Promise<void> {
         const data = PrismaInvoiceMapper.toPrisma(invoice)
 
-        // Buscar estado atual da invoice no banco
+        this.logger.debug(`[Save] Buscando fatura ${data.id} do business ${data.businessId}`)
+
         const currentInvoice = await this.prisma.invoice.findUnique({
-            where: { id: data.id },
+            where: {
+                id_businessId: {
+                    id: data.id,
+                    businessId: data.businessId
+                }
+            },
             include: {
                 invoiceItem: true,
                 invoiceSplit: true,
                 invoiceTransaction: true,
                 invoiceAttachment: true,
-                invoiceEvent: true
+                invoiceEvent: true,
+                invoicePayment: true
             }
         })
 
         if (!currentInvoice) {
-            throw new Error('Invoice not found')
+            throw new Error(`Invoice ${data.id} not found for business ${data.businessId}`)
         }
 
         await this.prisma.$transaction(async (tx) => {
-            // Atualizar invoice
+            // Atualiza a fatura principal
             await tx.invoice.update({
-                where: { id: data.id },
+                where: {
+                    id_businessId: {
+                        id: data.id,
+                        businessId: data.businessId
+                    }
+                },
                 data: {
+                    businessId: data.businessId,
+                    personId: data.personId,
                     description: data.description,
                     notes: data.notes,
                     paymentLink: data.paymentLink,
@@ -110,169 +130,270 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
             })
 
             // Gerenciar Items
-            if (data.invoiceItem) {
-                const itemsToCreate = data.invoiceItem.filter(
-                    item => !currentInvoice.invoiceItem.some(current => current.id === item.id)
+            const itemsToCreate = data.invoiceItems.filter(
+                item => !currentInvoice.invoiceItem.some(
+                    current => current.id === item.id
                 )
-                const itemsToUpdate = data.invoiceItem.filter(
-                    item => currentInvoice.invoiceItem.some(current => current.id === item.id)
+            )
+
+            const itemsToUpdate = data.invoiceItems.filter(
+                item => currentInvoice.invoiceItem.some(
+                    current => current.id === item.id
                 )
-                const itemsToDelete = currentInvoice.invoiceItem
-                    .filter(current => !data.invoiceItem.some(item => item.id === current.id))
-                    .map(item => item.id)
+            )
 
-                // Criar novos items
-                if (itemsToCreate.length) {
-                    await tx.invoiceItem.createMany({ data: itemsToCreate })
-                }
+            const itemsToDelete = currentInvoice.invoiceItem
+                .filter(current => !data.invoiceItems.some(
+                    item => item.id === current.id
+                ))
+                .map(item => item.id)
 
-                // Atualizar items existentes
-                for (const item of itemsToUpdate) {
-                    await tx.invoiceItem.update({
-                        where: { id: item.id },
-                        data: item
-                    })
-                }
+            if (itemsToCreate.length) {
+                await tx.invoiceItem.createMany({
+                    data: itemsToCreate.map(item => ({
+                        ...item,
+                        invoiceId: data.id
+                    }))
+                })
+            }
 
-                // Deletar items removidos
-                if (itemsToDelete.length) {
-                    await tx.invoiceItem.deleteMany({
-                        where: { id: { in: itemsToDelete } }
-                    })
-                }
+            for (const item of itemsToUpdate) {
+                await tx.invoiceItem.update({
+                    where: { id: item.id },
+                    data: {
+                        itemId: item.itemId,
+                        itemDescription: item.itemDescription,
+                        quantity: item.quantity,
+                        unitPrice: item.unitPrice,
+                        discount: item.discount,
+                        totalPrice: item.totalPrice
+                    }
+                })
+            }
+
+            if (itemsToDelete.length) {
+                await tx.invoiceItem.deleteMany({
+                    where: { id: { in: itemsToDelete } }
+                })
             }
 
             // Gerenciar Splits
-            if (data.invoiceSplit) {
-                const splitsToCreate = data.invoiceSplit.filter(
-                    split => !currentInvoice.invoiceSplit.some(current => current.id === split.id)
+            const splitsToCreate = data.invoiceSplits.filter(
+                split => !currentInvoice.invoiceSplit.some(
+                    current => current.id === split.id
                 )
-                const splitsToUpdate = data.invoiceSplit.filter(
-                    split => currentInvoice.invoiceSplit.some(current => current.id === split.id)
+            )
+
+            const splitsToUpdate = data.invoiceSplits.filter(
+                split => currentInvoice.invoiceSplit.some(
+                    current => current.id === split.id
                 )
-                const splitsToDelete = currentInvoice.invoiceSplit
-                    .filter(current => !data.invoiceSplit.some(split => split.id === current.id))
-                    .map(split => split.id)
+            )
 
-                if (splitsToCreate.length) {
-                    await tx.invoiceSplit.createMany({ data: splitsToCreate })
-                }
+            const splitsToDelete = currentInvoice.invoiceSplit
+                .filter(current => !data.invoiceSplits.some(
+                    split => split.id === current.id
+                ))
+                .map(split => split.id)
 
-                for (const split of splitsToUpdate) {
-                    await tx.invoiceSplit.update({
-                        where: { id: split.id },
-                        data: split
-                    })
-                }
+            if (splitsToCreate.length) {
+                await tx.invoiceSplit.createMany({
+                    data: splitsToCreate.map(split => ({
+                        ...split,
+                        invoiceId: data.id
+                    }))
+                })
+            }
 
-                if (splitsToDelete.length) {
-                    await tx.invoiceSplit.deleteMany({
-                        where: { id: { in: splitsToDelete } }
-                    })
-                }
+            for (const split of splitsToUpdate) {
+                await tx.invoiceSplit.update({
+                    where: { id: split.id },
+                    data: {
+                        recipientId: split.recipientId,
+                        splitType: split.splitType,
+                        amount: split.amount,
+                        feeAmount: split.feeAmount
+                    }
+                })
+            }
+
+            if (splitsToDelete.length) {
+                await tx.invoiceSplit.deleteMany({
+                    where: { id: { in: splitsToDelete } }
+                })
             }
 
             // Gerenciar Transactions
-            if (data.invoiceTransaction) {
-                const transactionsToCreate = data.invoiceTransaction.filter(
-                    trans => !currentInvoice.invoiceTransaction.some(current => current.id === trans.id)
+            const transactionsToCreate = data.invoiceTransactions.filter(
+                transaction => !currentInvoice.invoiceTransaction.some(
+                    current => current.id === transaction.id
                 )
-                const transactionsToDelete = currentInvoice.invoiceTransaction
-                    .filter(current => !data.invoiceTransaction.some(trans => trans.id === current.id))
-                    .map(trans => trans.id)
+            )
 
-                if (transactionsToCreate.length) {
-                    await tx.invoiceTransaction.createMany({ data: transactionsToCreate })
-                }
-
-                if (transactionsToDelete.length) {
-                    await tx.invoiceTransaction.deleteMany({
-                        where: { id: { in: transactionsToDelete } }
-                    })
-                }
+            if (transactionsToCreate.length) {
+                await tx.invoiceTransaction.createMany({
+                    data: transactionsToCreate.map(transaction => ({
+                        ...transaction,
+                        invoiceId: data.id
+                    }))
+                })
             }
 
-            // Gerenciar Attachments
-            if (data.invoiceAttachment) {
-                const attachmentsToCreate = data.invoiceAttachment.filter(
-                    attach => !currentInvoice.invoiceAttachment.some(current => current.id === attach.id)
+            // Gerenciar Payments
+            const paymentsToCreate = data.invoicePayments.filter(
+                payment => !currentInvoice.invoicePayment.some(
+                    current => current.id === payment.id
                 )
-                const attachmentsToDelete = currentInvoice.invoiceAttachment
-                    .filter(current => !data.invoiceAttachment.some(attach => attach.id === current.id))
-                    .map(attach => attach.id)
+            )
 
-                if (attachmentsToCreate.length) {
-                    await tx.invoiceAttachment.createMany({ data: attachmentsToCreate })
-                }
+            const paymentsToUpdate = data.invoicePayments.filter(
+                payment => currentInvoice.invoicePayment.some(
+                    current => current.id === payment.id
+                )
+            )
 
-                if (attachmentsToDelete.length) {
-                    await tx.invoiceAttachment.deleteMany({
-                        where: { id: { in: attachmentsToDelete } }
-                    })
-                }
+            if (paymentsToCreate.length) {
+                await tx.invoicePayment.createMany({
+                    data: paymentsToCreate.map(payment => ({
+                        id: payment.id,
+                        invoiceId: data.id,
+                        dueDate: payment.dueDate,
+                        ammount: payment.amount,
+                        paymentMethod: payment.paymentMethod
+                    }))
+                })
             }
 
-            // Sempre adicionar novos eventos
-            if (data.invoiceEvent?.length) {
+            for (const payment of paymentsToUpdate) {
+                await tx.invoicePayment.update({
+                    where: { id: payment.id },
+                    data: {
+                        dueDate: payment.dueDate,
+                        ammount: payment.amount,
+                        paymentMethod: payment.paymentMethod
+                    }
+                })
+            }
+
+            // Gerenciar Events (append only)
+            const eventsToCreate = data.invoiceEvents.filter(
+                event => !currentInvoice.invoiceEvent.some(
+                    current => current.id === event.id
+                )
+            )
+
+            if (eventsToCreate.length) {
                 await tx.invoiceEvent.createMany({
-                    data: data.invoiceEvent
+                    data: eventsToCreate.map(event => ({
+                        ...event,
+                        invoiceId: data.id
+                    }))
                 })
             }
         })
+
+        this.logger.debug(`[Save] Fatura ${data.id} atualizada com sucesso`)
     }
 
     async create(invoice: Invoice): Promise<void> {
         const data = PrismaInvoiceMapper.toPrisma(invoice)
 
-        await this.prisma.invoice.create({
-            data: {
-                ...data,
-                invoiceItem: {
-                    create: data.invoiceItem
-                },
-                invoiceSplit: {
-                    create: data.invoiceSplit
-                },
-                invoiceTransaction: {
-                    create: data.invoiceTransaction
-                },
-                invoiceAttachment: {
-                    create: data.invoiceAttachment
-                },
-                invoiceEvent: {
-                    create: data.invoiceEvent
+        this.logger.debug(`[Create] Criando nova fatura ${data.id}`)
+
+        try {
+            await this.prisma.invoice.create({
+                data: {
+                    id: data.id,
+                    businessId: data.businessId,
+                    personId: data.personId,
+                    description: data.description,
+                    notes: data.notes,
+                    paymentLink: data.paymentLink,
+                    status: data.status,
+                    issueDate: data.issueDate,
+                    dueDate: data.dueDate,
+                    paymentDate: data.paymentDate || null,
+                    paymentLimitDate: data.paymentLimitDate,
+                    grossAmount: data.grossAmount,
+                    discountAmount: data.discountAmount,
+                    amount: data.amount,
+                    paymentAmount: data.paymentAmount,
+                    protestMode: data.protestMode,
+                    protestDays: data.protestDays,
+                    lateMode: data.lateMode,
+                    lateValue: data.lateValue,
+                    interestMode: data.interestMode,
+                    interestDays: data.interestDays,
+                    interestValue: data.interestValue,
+                    discountMode: data.discountMode,
+                    discountDays: data.discountDays,
+                    discountValue: data.discountValue,
+                    createdAt: data.createdAt,
+                    updatedAt: data.updatedAt,
+
+                    invoiceItem: {
+                        createMany: {
+                            data: data.invoiceItems.map(item => ({
+                                id: item.id,
+                                itemId: item.itemId,
+                                itemDescription: item.itemDescription,
+                                quantity: item.quantity,
+                                unitPrice: item.unitPrice,
+                                discount: item.discount,
+                                totalPrice: item.totalPrice
+                            }))
+                        }
+                    },
+
+                    invoiceSplit: {
+                        createMany: {
+                            data: data.invoiceSplits.map(split => ({
+                                id: split.id,
+                                recipientId: split.recipientId,
+                                splitType: split.splitType,
+                                amount: split.amount,
+                                feeAmount: split.feeAmount
+                            }))
+                        }
+                    },
+
+                    invoiceTransaction: {
+                        createMany: {
+                            data: data.invoiceTransactions.map(transaction => ({
+                                id: transaction.id,
+                                transactionId: transaction.transactionId
+                            }))
+                        }
+                    },
+
+                    invoiceEvent: {
+                        createMany: {
+                            data: data.invoiceEvents.map(event => ({
+                                id: event.id,
+                                event: event.event,
+                                createdAt: event.createdAt
+                            }))
+                        }
+                    },
+
+                    invoicePayment: {
+                        createMany: {
+                            data: data.invoicePayments.map(payment => ({
+                                id: payment.id,
+                                dueDate: payment.dueDate,
+                                ammount: payment.amount,
+                                paymentMethod: payment.paymentMethod
+                            }))
+                        }
+                    }
                 }
-            },
-        })
+            })
+
+            this.logger.debug(`[Create] Fatura ${data.id} criada com sucesso`)
+
+        } catch (error) {
+            this.logger.error(`[Create] Erro ao criar fatura ${data.id}:`, error)
+            throw error
+        }
     }
-
-    // async delete(invoice: Invoice): Promise<void> {
-    //     const data = PrismaInvoiceMapper.toPrisma(invoice)
-
-    //     await this.prisma.$transaction([
-    //         // Deletar registros relacionados
-    //         this.prisma.invoiceItem.deleteMany({
-    //             where: { invoiceId: data.id }
-    //         }),
-    //         this.prisma.invoiceSplit.deleteMany({
-    //             where: { invoiceId: data.id }
-    //         }),
-    //         this.prisma.invoiceTransaction.deleteMany({
-    //             where: { invoiceId: data.id }
-    //         }),
-    //         this.prisma.invoiceAttachment.deleteMany({
-    //             where: { invoiceId: data.id }
-    //         }),
-    //         this.prisma.invoiceEvent.deleteMany({
-    //             where: { invoiceId: data.id }
-    //         }),
-
-    //         // Deletar a invoice
-    //         this.prisma.invoice.delete({
-    //             where: {
-    //                 id: data.id,
-    //             }
-    //         })
-    //     ])
-    // }
 }

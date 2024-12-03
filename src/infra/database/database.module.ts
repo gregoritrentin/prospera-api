@@ -44,12 +44,15 @@ import { InvoiceRepository } from '@/domain/invoice/respositories/invoice-reposi
 import { PrismaInvoiceRepository } from './prisma/repositories/prisma-invoice-repository';
 import { RedisIdempotencyRepository } from './redis/repositories/redis-idempotency-repository';
 import { RedisRateLimitRepository } from './redis/repositories/redis-rate-limit-repository';
+import { SubscriptionRepository } from '@/domain/subscription/repositories/subscription-repository';
+import { PrismaSubscriptionRepository } from './prisma/repositories/prisma-subscription-repository';
 
 @Module({
     imports: [EnvModule],
     providers: [
         PrismaService,
         RedisService,
+
         RedisWhatsAppRepository,
         RedisIdempotencyRepository,
         RedisRateLimitRepository,
@@ -152,7 +155,10 @@ import { RedisRateLimitRepository } from './redis/repositories/redis-rate-limit-
             provide: InvoiceRepository,
             useClass: PrismaInvoiceRepository,
         },
-
+        {
+            provide: SubscriptionRepository,
+            useClass: PrismaSubscriptionRepository,
+        }
     ],
     exports: [
         PrismaService,
@@ -171,6 +177,7 @@ import { RedisRateLimitRepository } from './redis/repositories/redis-rate-limit-
         ItemGroupRepository,
         ItemTaxationRepository,
         InvoiceRepository,
+        SubscriptionRepository,
         FileRepository,
         EmailRepository,
         TransactionRepository,

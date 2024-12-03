@@ -54,6 +54,36 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
         return subscriptions.map(PrismaSubscriptionMapper.toDomain)
     }
 
+    async findManyByNextBillingDateRange(startDate: Date, endDate: Date): Promise<Subscription[]> {
+        const subscriptions = await this.prisma.subscription.findMany({
+            where: {
+                nextBillingDate: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+                status: 'ACTIVE',
+                OR: [
+                    { cancellationDate: null },
+                    {
+                        cancellationScheduledDate: {
+                            gt: endDate,
+                        },
+                    },
+                ],
+            },
+            include: {
+                subscriptionItem: true,
+                subscriptionSplit: true,
+                subscriptionNFSe: true
+            },
+            orderBy: {
+                nextBillingDate: 'asc',
+            },
+        })
+
+        return subscriptions.map(PrismaSubscriptionMapper.toDomain)
+    }
+
     async findManyToInvoiceByDate(date: Date, businessId: string): Promise<Subscription[]> {
         const subscriptions = await this.prisma.subscription.findMany({
             where: {
@@ -66,7 +96,7 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
                     { cancellationDate: null },
                     {
                         cancellationScheduledDate: {
-                            gt: date, // Data de cancelamento programada maior que a data de faturamento
+                            gt: date,
                         },
                     },
                 ],
@@ -87,7 +117,6 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     async save(subscription: Subscription): Promise<void> {
         const data = PrismaSubscriptionMapper.toPrisma(subscription)
 
-        // Buscar estado atual da subscription no banco
         const currentSubscription = await this.prisma.subscription.findUnique({
             where: { id: data.id },
             include: {
@@ -102,7 +131,7 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
         }
 
         await this.prisma.$transaction(async (tx) => {
-            // Atualizar subscription
+            // Atualizar subscription principal
             await tx.subscription.update({
                 where: { id: data.id },
                 data: {
@@ -122,97 +151,187 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
                 }
             })
 
+            // Log dos itens atuais
+            console.log('Current subscription items:', currentSubscription.subscriptionItem)
+            console.log('New subscription items:', data.subscriptionItems)
+
             // Gerenciar Items
-            if (data.subscriptionItem) {
-                const itemsToCreate = data.subscriptionItem.filter(
-                    item => !currentSubscription.subscriptionItem.some(current => current.id === item.id)
+            const itemsToCreate = data.subscriptionItems.filter(
+                item => !currentSubscription.subscriptionItem.some(
+                    current => current.id === item.id
                 )
-                const itemsToUpdate = data.subscriptionItem.filter(
-                    item => currentSubscription.subscriptionItem.some(current => current.id === item.id)
+            )
+
+            const itemsToUpdate = data.subscriptionItems.filter(
+                item => currentSubscription.subscriptionItem.some(
+                    current => current.id === item.id
                 )
-                const itemsToDelete = currentSubscription.subscriptionItem
-                    .filter(current => !data.subscriptionItem.some(item => item.id === current.id))
-                    .map(item => item.id)
+            )
 
-                if (itemsToCreate.length) {
-                    await tx.subscriptionItem.createMany({ data: itemsToCreate })
-                }
+            console.log('Items to create:', itemsToCreate)
+            console.log('Items to update:', itemsToUpdate)
 
-                for (const item of itemsToUpdate) {
+            // Verificar se os itemIds existem antes de criar/atualizar
+            const allItemIds = [...new Set([
+                ...itemsToCreate.map(item => item.itemId),
+                ...itemsToUpdate.map(item => item.itemId)
+            ])]
+
+            const existingItems = await tx.item.findMany({
+                where: {
+                    id: {
+                        in: allItemIds.map(id => id.toString())
+                    }
+                },
+                select: { id: true }
+            })
+
+            console.log('Existing items in database:', existingItems)
+
+            const validItemIds = new Set(existingItems.map(item => item.id))
+
+            // Filtrar apenas itens válidos
+            const validItemsToCreate = itemsToCreate.filter(item =>
+                validItemIds.has(item.itemId.toString())
+            )
+
+            const validItemsToUpdate = itemsToUpdate.filter(item =>
+                validItemIds.has(item.itemId.toString())
+            )
+
+            if (validItemsToCreate.length) {
+                await tx.subscriptionItem.createMany({
+                    data: validItemsToCreate.map(item => ({
+                        ...item,
+                        subscriptionId: data.id,
+                        itemId: item.itemId.toString()
+                    }))
+                })
+            }
+
+            for (const item of validItemsToUpdate) {
+                console.log('Updating item:', item)
+                try {
                     await tx.subscriptionItem.update({
                         where: { id: item.id },
-                        data: item
+                        data: {
+                            itemId: item.itemId.toString(),
+                            itemDescription: item.itemDescription,
+                            quantity: item.quantity,
+                            unitPrice: item.unitPrice,
+                            totalPrice: item.totalPrice,
+                            status: item.status,
+                            updatedAt: item.updatedAt
+                        }
                     })
+                } catch (error) {
+                    console.error('Error updating item:', item)
+                    console.error('Error details:', error)
+                    throw error
                 }
+            }
 
-                if (itemsToDelete.length) {
-                    await tx.subscriptionItem.deleteMany({
-                        where: { id: { in: itemsToDelete } }
-                    })
-                }
+            const itemsToDelete = currentSubscription.subscriptionItem
+                .filter(current => !data.subscriptionItems.some(
+                    item => item.id === current.id
+                ))
+                .map(item => item.id)
+
+            if (itemsToDelete.length) {
+                await tx.subscriptionItem.deleteMany({
+                    where: { id: { in: itemsToDelete } }
+                })
             }
 
             // Gerenciar Splits
-            if (data.subscriptionSplit) {
-                const splitsToCreate = data.subscriptionSplit.filter(
-                    split => !currentSubscription.subscriptionSplit.some(current => current.id === split.id)
+            const splitsToCreate = data.subscriptionSplits.filter(
+                split => !currentSubscription.subscriptionSplit.some(
+                    current => current.id === split.id
                 )
-                const splitsToUpdate = data.subscriptionSplit.filter(
-                    split => currentSubscription.subscriptionSplit.some(current => current.id === split.id)
+            )
+
+            const splitsToUpdate = data.subscriptionSplits.filter(
+                split => currentSubscription.subscriptionSplit.some(
+                    current => current.id === split.id
                 )
-                const splitsToDelete = currentSubscription.subscriptionSplit
-                    .filter(current => !data.subscriptionSplit.some(split => split.id === current.id))
-                    .map(split => split.id)
+            )
 
-                if (splitsToCreate.length) {
-                    await tx.subscriptionSplit.createMany({ data: splitsToCreate })
-                }
+            const splitsToDelete = currentSubscription.subscriptionSplit
+                .filter(current => !data.subscriptionSplits.some(
+                    split => split.id === current.id
+                ))
+                .map(split => split.id)
 
-                for (const split of splitsToUpdate) {
-                    await tx.subscriptionSplit.update({
-                        where: { id: split.id },
-                        data: split
-                    })
-                }
+            if (splitsToCreate.length) {
+                await tx.subscriptionSplit.createMany({
+                    data: splitsToCreate.map(split => ({
+                        ...split,
+                        subscriptionId: data.id
+                    }))
+                })
+            }
 
-                if (splitsToDelete.length) {
-                    await tx.subscriptionSplit.deleteMany({
-                        where: { id: { in: splitsToDelete } }
-                    })
-                }
+            for (const split of splitsToUpdate) {
+                await tx.subscriptionSplit.update({
+                    where: { id: split.id },
+                    data: {
+                        recipientId: split.recipientId,
+                        splitType: split.splitType,
+                        amount: split.amount,
+                        feeAmount: split.feeAmount
+                    }
+                })
+            }
+
+            if (splitsToDelete.length) {
+                await tx.subscriptionSplit.deleteMany({
+                    where: { id: { in: splitsToDelete } }
+                })
             }
 
             // Gerenciar NFSe
-            if (data.subscriptionNFSe.length > 0) {
-                const nfse = data.subscriptionNFSe[0]
-                const currentNFSe = currentSubscription.subscriptionNFSe[0]
+            const currentNFSe = currentSubscription.subscriptionNFSe[0]
 
+            if (data.subscriptionNFSe) {
                 if (currentNFSe) {
-                    // Atualizar NFSe existente
-                    if (currentNFSe.id === nfse.id) {
+                    if (currentNFSe.id === data.subscriptionNFSe.id) {
                         await tx.subscriptionNFSe.update({
-                            where: { id: nfse.id },
-                            data: nfse
+                            where: { id: data.subscriptionNFSe.id },
+                            data: {
+                                serviceCode: data.subscriptionNFSe.serviceCode,
+                                issRetention: data.subscriptionNFSe.issRetention,
+                                inssRetention: data.subscriptionNFSe.inssRetention,
+                                inssRate: data.subscriptionNFSe.inssRate,
+                                incidendeState: data.subscriptionNFSe.incidendeState,
+                                indicendeCity: data.subscriptionNFSe.indicendeCity,
+                                retentionState: data.subscriptionNFSe.retentionState,
+                                retentionCity: data.subscriptionNFSe.retentionCity,
+                                status: data.subscriptionNFSe.status,
+                                updatedAt: data.subscriptionNFSe.updatedAt
+                            }
                         })
                     } else {
-                        // Deletar antigo e criar novo
                         await tx.subscriptionNFSe.delete({
                             where: { id: currentNFSe.id }
                         })
                         await tx.subscriptionNFSe.create({
-                            data: nfse
+                            data: {
+                                ...data.subscriptionNFSe,
+                                subscriptionId: data.id
+                            }
                         })
                     }
                 } else {
-                    // Criar novo NFSe
                     await tx.subscriptionNFSe.create({
-                        data: nfse
+                        data: {
+                            ...data.subscriptionNFSe,
+                            subscriptionId: data.id
+                        }
                     })
                 }
-            } else if (currentSubscription.subscriptionNFSe.length > 0) {
-                // Deletar NFSe se foi removido
+            } else if (currentNFSe) {
                 await tx.subscriptionNFSe.delete({
-                    where: { id: currentSubscription.subscriptionNFSe[0].id }
+                    where: { id: currentNFSe.id }
                 })
             }
         })
@@ -223,19 +342,46 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
 
         await this.prisma.subscription.create({
             data: {
-                ...data,
+                //id: data.id,
+                businessId: data.businessId,
+                personId: data.personId,
+                price: data.price,
+                notes: data.notes,
+                paymentMethod: data.paymentMethod,
+                interval: data.interval,
+                status: data.status,
+                nextBillingDate: data.nextBillingDate,
+                nextAdjustmentDate: data.nextAdjustmentDate,
+                cancellationReason: data.cancellationReason,
+                cancellationDate: data.cancellationDate,
+                cancellationScheduledDate: data.cancellationScheduledDate,
+                createdAt: data.createdAt,
+                updatedAt: data.updatedAt,
                 subscriptionItem: {
                     createMany: {
-                        data: data.subscriptionItem
+                        data: data.subscriptionItems
                     }
                 },
                 subscriptionSplit: {
                     createMany: {
-                        data: data.subscriptionSplit
+                        data: data.subscriptionSplits
                     }
                 },
-                subscriptionNFSe: data.subscriptionNFSe.length > 0 ? {
-                    create: data.subscriptionNFSe[0]
+                subscriptionNFSe: data.subscriptionNFSe ? {
+                    create: {
+                        //id: data.subscriptionNFSe.id,
+                        serviceCode: data.subscriptionNFSe.serviceCode,
+                        issRetention: data.subscriptionNFSe.issRetention,
+                        inssRetention: data.subscriptionNFSe.inssRetention,
+                        inssRate: data.subscriptionNFSe.inssRate,
+                        incidendeState: data.subscriptionNFSe.incidendeState,
+                        indicendeCity: data.subscriptionNFSe.indicendeCity,
+                        retentionState: data.subscriptionNFSe.retentionState,
+                        retentionCity: data.subscriptionNFSe.retentionCity,
+                        status: data.subscriptionNFSe.status,
+                        createdAt: data.subscriptionNFSe.createdAt,
+                        updatedAt: data.subscriptionNFSe.updatedAt
+                    }
                 } : undefined
             }
         })

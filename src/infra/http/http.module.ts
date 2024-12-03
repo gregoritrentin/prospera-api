@@ -192,6 +192,8 @@ import { GetPaymentPixProofUseCase } from "@/domain/payment/use-cases/get-paymen
 import { GetPaymentPixProofController } from "./controllers/payment/get-payment-pix-proof.controller";
 import { CancelScheduledPixPaymentController } from "./controllers/payment/cancel-payment-pix-scheduled.controller";
 import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/cancel-payment-pix-scheduled";
+import { CreateSubscriptionController } from "./controllers/subscription/create-subscription.controller";
+import { CreateSubscriptionUseCase } from "@/domain/subscription/use-cases/create-subscription";
 
 
 @Module({
@@ -306,6 +308,9 @@ import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/can
     GetPaymentPixProofController,
     CancelScheduledPixPaymentController,
 
+    //subscription
+    CreateSubscriptionController,
+
 
     //whatsapp
     WhatsAppController
@@ -415,6 +420,9 @@ import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/can
     UpdatePaymentPixUseCase,
     GetPaymentPixProofUseCase,
     CancelPaymentPixScheduledUseCase,
+
+    //subscription
+    CreateSubscriptionUseCase,
 
     //whatsapp
     SendWhatsAppUseCase,

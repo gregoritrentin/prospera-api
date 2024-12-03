@@ -1,5 +1,4 @@
-// src/infra/queues/consumers/create-invoice-queue-consumer.ts
-import { Process, Processor } from '@nestjs/bull';
+import { Process, Processor, OnQueueActive, OnQueueCompleted, OnQueueFailed } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { InvoiceRepository } from '@/domain/invoice/respositories/invoice-repository';
@@ -20,6 +19,7 @@ import { UniqueEntityID } from '@/core/entities/unique-entity-id';
 import { RedisIdempotencyRepository } from '@/infra/database/redis/repositories/redis-idempotency-repository';
 import { RedisRateLimitRepository } from '@/infra/database/redis/repositories/redis-rate-limit-repository';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { InvoiceStatus } from '@/core/types/enums';
 
 interface CreateInvoiceJobData {
     request: CreateInvoiceUseCaseRequest;
@@ -27,10 +27,17 @@ interface CreateInvoiceJobData {
     businessId: string;
 }
 
+interface JobResult {
+    invoice: Invoice;
+    message: string;
+}
+
 @Injectable()
 @Processor('invoice')
 export class CreateInvoiceQueueConsumer {
     private readonly logger = new Logger(CreateInvoiceQueueConsumer.name);
+    private readonly IDEMPOTENCY_TTL = 24 * 60 * 60; // 24 horas
+    private readonly MAX_BATCH_SIZE = 10;
 
     constructor(
         private readonly invoiceRepository: InvoiceRepository,
@@ -41,186 +48,239 @@ export class CreateInvoiceQueueConsumer {
         private readonly eventEmitter: EventEmitter2,
     ) { }
 
+    @OnQueueActive()
+    onActive(job: Job): void {
+        this.logger.log(`[Queue] Iniciando processamento do job ${job.id}`);
+    }
+
+    @OnQueueCompleted()
+    onCompleted(job: Job): void {
+        this.logger.log(`[Queue] Job ${job.id} completado com sucesso`);
+    }
+
+    @OnQueueFailed()
+    onFailed(job: Job, error: Error): void {
+        this.logger.error(`[Queue] Job ${job.id} falhou: ${error.message}`, error.stack);
+    }
+
     @Process('create-invoice')
     async handleCreateInvoice(
         job: Job<CreateInvoiceJobData>
-    ): Promise<Either<AppError, { invoice: Invoice; message: string }>> {
-        const startTime = Date.now();
-        this.logger.log(`Processing create invoice job ${job.id}`);
+    ): Promise<Either<AppError, JobResult>> {
+        const startTime = process.hrtime();
+        const jobId = job.id.toString();
 
         try {
-            // 1. Verificar idempotência
-            const result = await this.idempotencyRepository.processIdempotently<Either<AppError, { invoice: Invoice; message: string }>>(
-                `invoice:${job.id}`,
-                async () => {
-                    // 2. Verificar rate limit
-                    const rateLimit = await this.rateLimitRepository.checkAndIncrement(
-                        'invoice',
-                        job.data.businessId
-                    );
+            // Verificação de idempotência
+            const idempotencyKey = `invoice:${jobId}`;
+            const cachedResult = await this.idempotencyRepository.get<Either<AppError, JobResult>>(idempotencyKey);
 
-                    if (!rateLimit.allowed) {
-                        const delay = (rateLimit.resetTime - Date.now() / 1000) * 1000;
-                        await job.retry();
+            if (cachedResult) {
+                this.logger.debug(`[Idempotency] Resultado encontrado em cache para job ${jobId}`);
+                return cachedResult;
+            }
 
-                        return left(AppError.rateLimitExceeded(
-                            this.i18nService.translate('errors.RATE_LIMIT_EXCEEDED', job.data.language, {
-                                retryAfter: Math.ceil(delay / 1000)
-                            })
-                        ));
-                    }
-
-                    // 3. Processar invoice
-                    const result = await this.processInvoice(job);
-
-                    // 4. Registrar métricas e eventos
-                    const duration = Date.now() - startTime;
-                    this.eventEmitter.emit('invoice.created', {
-                        businessId: job.data.businessId,
-                        invoiceId: result.isRight() ? result.value.invoice.id.toString() : undefined,
-                        duration,
-                        success: result.isRight()
-                    });
-
-                    return result;
-                },
-                {
-                    ttl: 24 * 60 * 60,
-                    metadata: {
-                        businessId: job.data.businessId,
-                        jobId: job.id
-                    }
-                }
+            // Verificação de rate limit
+            const rateLimit = await this.rateLimitRepository.checkAndIncrement(
+                'invoice',
+                job.data.businessId,
+                this.MAX_BATCH_SIZE
             );
 
-            return result; // Agora garantimos que sempre retorna um Either
+            if (!rateLimit.allowed) {
+                const error = AppError.rateLimitExceeded(
+                    this.i18nService.translate('errors.RATE_LIMIT_EXCEEDED', job.data.language as Language, {
+                        retryAfter: Math.ceil(rateLimit.resetTime)
+                    })
+                );
+
+                await this.idempotencyRepository.set(
+                    idempotencyKey,
+                    left(error),
+                    this.IDEMPOTENCY_TTL
+                );
+
+                return left(error);
+            }
+
+            // Processamento principal
+            const result = await this.processInvoice(job.data);
+
+            // Armazena resultado para idempotência
+            await this.idempotencyRepository.set(
+                idempotencyKey,
+                result,
+                this.IDEMPOTENCY_TTL
+            );
+
+            // Métricas e eventos
+            const [seconds, nanoseconds] = process.hrtime(startTime);
+            const duration = seconds * 1000 + nanoseconds / 1e6;
+
+            this.emitMetrics(jobId, job.data.businessId, result, duration);
+
+            return result;
 
         } catch (error) {
-            const duration = Date.now() - startTime;
+            const [seconds] = process.hrtime(startTime);
+            const duration = seconds * 1000;
+
+            this.logger.error(
+                `[Error] Job ${jobId} falhou após ${duration}ms:`,
+                error instanceof Error ? error.stack : error
+            );
 
             this.eventEmitter.emit('invoice.failed', {
+                jobId,
                 businessId: job.data.businessId,
-                jobId: job.id,
                 error: error instanceof Error ? error.message : String(error),
                 duration
             });
 
-            this.logger.error(
-                `Error processing invoice job ${job.id}:`,
-                error instanceof Error ? error.message : String(error)
-            );
-
             return left(AppError.internalServerError(
-                this.i18nService.translate('errors.INVOICE_CREATION_FAILED', job.data.language, {
-                    errorDetail: error instanceof Error ? error.message : 'Unknown error'
+                this.i18nService.translate('errors.INVOICE_CREATION_FAILED', job.data.language as Language, {
+                    errorDetail: error instanceof Error ? error.message : 'Erro desconhecido'
                 })
             ));
         }
     }
 
     private async processInvoice(
-        job: Job<CreateInvoiceJobData>
-    ): Promise<Either<AppError, { invoice: Invoice; message: string }>> {
+        data: CreateInvoiceJobData
+    ): Promise<Either<AppError, JobResult>> {
+        const invoice = await this.createAndSaveInvoice(data.request);
+        const invoiceId = invoice.id.toString();
+
         try {
-            // 1. Criar a invoice
-            const invoice = this.createInvoiceEntity(job.data.request);
+            if (this.hasBoletoPayments(invoice)) {
+                await this.processBoletoPayments(invoice, data.language);
+            }
 
-            // 2. Registrar evento de criação
-            const event = InvoiceEvent.create({
-                invoiceId: invoice.id,
-                event: 'INVOICE_CREATED'
-            });
-
-            invoice.addEvent(event);
-
-            // 3. Salvar a invoice
-            await this.invoiceRepository.create(invoice);
-
-            // 4. Processar boletos, se houverem
-            await this.processBoletoPayments(invoice, job.data.language);
-
-            // 5. Agendar notificações
             await this.scheduleNotifications(invoice);
 
             return right({
                 invoice,
-                message: this.i18nService.translate('messages.INVOICE_CREATED', job.data.language)
+                message: this.i18nService.translate('messages.INVOICE_CREATED', data.language as Language)
             });
 
         } catch (error) {
-            this.logger.error(`Error processing invoice:`,
-                error instanceof Error ? error.message : String(error)
+            this.logger.error(
+                `[Error] Falha ao processar fatura ${invoiceId}:`,
+                error instanceof Error ? error.stack : error
             );
+
+            try {
+                invoice.status = InvoiceStatus.CANCELED;
+                await this.invoiceRepository.save(invoice);
+                this.logger.debug(`[Rollback] Fatura ${invoiceId} marcada como cancelada após falha`);
+            } catch (rollbackError) {
+                this.logger.error(
+                    `[Error] Falha ao cancelar fatura ${invoiceId} durante rollback:`,
+                    rollbackError
+                );
+            }
+
             throw error;
         }
+    }
+
+    private async createAndSaveInvoice(
+        request: CreateInvoiceUseCaseRequest
+    ): Promise<Invoice> {
+        const invoice = this.createInvoiceEntity(request);
+        const invoiceId = invoice.id.toString();
+
+        this.logger.debug(`[Create] Nova fatura criada: ${invoiceId}`, {
+            businessId: invoice.businessId.toString(),
+            status: invoice.status,
+            amount: invoice.amount
+        });
+
+        invoice.addEvent(InvoiceEvent.create({
+            invoiceId: invoice.id,
+            event: 'INVOICE_CREATED',
+            createdAt: new Date()
+        }));
+
+        await this.invoiceRepository.create(invoice);
+        this.logger.debug(`[Save] Fatura ${invoiceId} salva com sucesso`);
+
+        return invoice;
+    }
+
+    private hasBoletoPayments(invoice: Invoice): boolean {
+        return invoice.payments.some(p => p.paymentMethod === PaymentMethod.BOLETO);
     }
 
     private async processBoletoPayments(
         invoice: Invoice,
         language: Language | string
     ): Promise<void> {
-        const boletoPayments = invoice.payments.filter(payment =>
-            payment.paymentMethod === PaymentMethod.BOLETO
+        const invoiceId = invoice.id.toString();
+        const boletoPayments = invoice.payments.filter(p =>
+            p.paymentMethod === PaymentMethod.BOLETO
+        );
+
+        this.logger.debug(
+            `[Boleto] Processando ${boletoPayments.length} boletos para fatura ${invoiceId}`
         );
 
         for (const payment of boletoPayments) {
             try {
-                // Verificar rate limit específico para boletos
-                const rateLimit = await this.rateLimitRepository.checkAndIncrement(
-                    'boleto',
-                    invoice.businessId.toString()
-                );
-
-                if (!rateLimit.allowed) {
-                    this.logger.warn('Boleto rate limit exceeded, will retry later');
-                    continue;
-                }
-
-                const boletoResult = await this.createBoletoUseCase.execute({
-                    businessId: invoice.businessId.toString(),
-                    personId: invoice.personId.toString(),
-                    amount: payment.amount,
-                    dueDate: payment.dueDate,
-                    yourNumber: invoice.id.toString(),
-                    description: invoice.description || 'Invoice payment',
-                    paymentLimitDate: payment.dueDate,
-                }, language as Language);
+                const boletoResult = await this.createBoleto(invoice, payment, language);
 
                 if (boletoResult.isRight()) {
-                    const { boleto } = boletoResult.value;
-
-                    const invoiceTransaction = InvoiceTransaction.create({
+                    const transaction = InvoiceTransaction.create({
                         invoiceId: invoice.id,
-                        transactionId: new UniqueEntityID(boleto.id.toString())
+                        transactionId: boletoResult.value.boleto.id
                     });
 
-                    invoice.addTransaction(invoiceTransaction);
+                    invoice.addTransaction(transaction);
                     await this.invoiceRepository.save(invoice);
-
-                    this.logger.log(`Boleto created for invoice ${invoice.id}`);
 
                     this.eventEmitter.emit('boleto.created', {
                         invoiceId: invoice.id.toString(),
-                        boletoId: boleto.id.toString()
+                        boletoId: boletoResult.value.boleto.id,
+                        paymentId: payment.id.toString()
                     });
+
+                    this.logger.debug(
+                        `[Boleto] Boleto criado com sucesso para payment ${payment.id}`
+                    );
                 }
+
             } catch (error) {
                 this.logger.error(
-                    `Error creating boleto for invoice ${invoice.id}:`,
-                    error instanceof Error ? error.message : String(error)
+                    `[Error] Falha ao processar boleto para payment ${payment.id}:`,
+                    error instanceof Error ? error.stack : error
                 );
-
-                this.eventEmitter.emit('boleto.failed', {
-                    invoiceId: invoice.id.toString(),
-                    error: error instanceof Error ? error.message : String(error)
-                });
+                throw error;
             }
         }
     }
 
+    private async createBoleto(
+        invoice: Invoice,
+        payment: InvoicePayment,
+        language: Language | string
+    ) {
+        const dueDate = new Date(payment.dueDate);
+        dueDate.setUTCHours(0, 0, 0, 0);
+
+        return await this.createBoletoUseCase.execute({
+            businessId: invoice.businessId.toString(),
+            personId: invoice.personId.toString(),
+            amount: payment.amount,
+            dueDate,
+            yourNumber: invoice.id.toString().replace(/-/g, '').substring(0, 10),
+            description: invoice.description || 'Pagamento de fatura',
+            paymentLimitDate: dueDate
+        }, language as Language);
+    }
+
     private async scheduleNotifications(invoice: Invoice): Promise<void> {
         if (invoice.personId) {
-            this.eventEmitter.emit('invoice.send-notifications', {
+            this.eventEmitter.emit('invoice.notification-scheduled', {
                 invoiceId: invoice.id.toString(),
                 businessId: invoice.businessId.toString(),
                 personId: invoice.personId.toString()
@@ -228,7 +288,45 @@ export class CreateInvoiceQueueConsumer {
         }
     }
 
+    private emitMetrics(
+        jobId: string,
+        businessId: string,
+        result: Either<AppError, JobResult>,
+        duration: number
+    ): void {
+        this.eventEmitter.emit(
+            result.isRight() ? 'invoice.created' : 'invoice.failed',
+            {
+                jobId,
+                businessId,
+                invoiceId: result.isRight() ? result.value.invoice.id.toString() : undefined,
+                success: result.isRight(),
+                error: result.isLeft() ? result.value.message : undefined,
+                duration
+            }
+        );
+    }
+
     private createInvoiceEntity(request: CreateInvoiceUseCaseRequest): Invoice {
+        const adjustDate = (date: Date | string | null | undefined): Date | null => {
+            if (!date) return null;
+            const adjusted = new Date(date);
+            if (isNaN(adjusted.getTime())) {
+                throw new Error(`Data inválida: ${date}`);
+            }
+            adjusted.setUTCHours(0, 0, 0, 0);
+            return adjusted;
+        };
+
+        const issueDate = adjustDate(request.issueDate);
+        const dueDate = adjustDate(request.dueDate);
+        const paymentDate = adjustDate(request.paymentDate);
+        const paymentLimitDate = adjustDate(request.paymentLimitDate);
+
+        if (!issueDate || !dueDate) {
+            throw new Error('Data de emissão e vencimento são obrigatórias');
+        }
+
         const invoice = Invoice.create({
             businessId: new UniqueEntityID(request.businessId),
             personId: new UniqueEntityID(request.personId),
@@ -236,10 +334,10 @@ export class CreateInvoiceQueueConsumer {
             notes: request.notes,
             paymentLink: request.paymentLink,
             status: request.status,
-            issueDate: request.issueDate,
-            dueDate: request.dueDate,
-            paymentDate: request.paymentDate,
-            paymentLimitDate: request.paymentLimitDate,
+            issueDate,
+            dueDate,
+            paymentDate,
+            paymentLimitDate,
             grossAmount: request.grossAmount,
             discountAmount: request.discountAmount,
             amount: request.amount,
@@ -256,9 +354,8 @@ export class CreateInvoiceQueueConsumer {
             discountValue: request.discountValue,
         });
 
-        // Adicionar itens
-        request.items?.forEach((item) => {
-            const invoiceItem = InvoiceItem.create({
+        request.items?.forEach(item => {
+            invoice.addItem(InvoiceItem.create({
                 invoiceId: invoice.id,
                 itemId: new UniqueEntityID(item.itemId),
                 itemDescription: item.itemDescription,
@@ -266,44 +363,51 @@ export class CreateInvoiceQueueConsumer {
                 unitPrice: item.unitPrice,
                 discount: item.discount,
                 totalPrice: item.totalPrice
-            });
-
-            invoice.addItem(invoiceItem);
+            }));
         });
 
-        // Adicionar pagamentos
-        request.payments?.forEach((payment) => {
-            const invoicePayment = InvoicePayment.create({
+        request.payments?.forEach(payment => {
+            const paymentDueDate = adjustDate(payment.dueDate);
+            if (!paymentDueDate) {
+                throw new Error(`Data de vencimento inválida no pagamento: ${payment.dueDate}`);
+            }
+
+            invoice.addPayment(InvoicePayment.create({
                 invoiceId: invoice.id,
-                dueDate: payment.dueDate,
+                dueDate: paymentDueDate,
                 amount: payment.amount,
                 paymentMethod: payment.paymentMethod
-            });
-
-            invoice.addPayment(invoicePayment);
+            }));
         });
 
-        // Adicionar splits
-        request.splits?.forEach((split) => {
-            const invoiceSplit = InvoiceSplit.create({
+        request.splits?.forEach(split => {
+            invoice.addSplit(InvoiceSplit.create({
                 invoiceId: invoice.id,
                 recipientId: new UniqueEntityID(split.recipientId),
                 splitType: split.splitType,
                 amount: split.amount,
                 feeAmount: split.feeAmount
-            });
-
-            invoice.addSplit(invoiceSplit);
+            }));
         });
 
-        // Adicionar anexos
-        request.attachments?.forEach((attachment) => {
-            const invoiceAttachment = InvoiceAttachment.create({
+        request.attachments?.forEach(attachment => {
+            invoice.addAttachment(InvoiceAttachment.create({
                 invoiceId: invoice.id,
                 fileId: new UniqueEntityID(attachment.fileId)
-            });
+            }));
+        });
 
-            invoice.addAttachment(invoiceAttachment);
+        this.logger.debug('Entidade de fatura criada:', {
+            id: invoice.id.toString(),
+            businessId: invoice.businessId.toString(),
+            personId: invoice.personId.toString(),
+            status: invoice.status,
+            itemsCount: invoice.items.length,
+            paymentsCount: invoice.payments.length,
+            splitsCount: invoice.splits.length,
+            attachmentsCount: invoice.attachments.length,
+            issueDate: issueDate.toISOString(),
+            dueDate: dueDate.toISOString()
         });
 
         return invoice;

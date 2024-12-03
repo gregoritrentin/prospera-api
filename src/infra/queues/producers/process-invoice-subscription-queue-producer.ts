@@ -19,7 +19,16 @@ export class ProcessInvoiceSubscriptionQueueProducer {
 
     async addProcessInvoiceSubscriptionJob(data: ProcessInvoiceSubscriptionJobData) {
         try {
-            const job = await this.invoiceSubscriptionQueue.add('process-invoice-subscription', data, {
+            // Preservando as datas UTC
+            const jobData = {
+                request: {
+                    startDate: data.startDate.toISOString(),
+                    endDate: data.endDate.toISOString()
+                },
+                language: data.language
+            };
+
+            const job = await this.invoiceSubscriptionQueue.add('process-invoice-subscription', jobData, {
                 attempts: 3,
                 backoff: {
                     type: 'exponential',
@@ -29,6 +38,7 @@ export class ProcessInvoiceSubscriptionQueueProducer {
                 removeOnFail: false,
             });
 
+            this.logger.debug('Adding job to queue with data:', jobData);
             this.logger.log(`Process Invoice Subscription job added to queue: ${job.id}`);
 
             return {

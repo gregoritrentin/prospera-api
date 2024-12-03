@@ -13,11 +13,13 @@ export class BullQueueService implements QueueProvider {
         @InjectQueue('email') private emailQueue: Queue,
         @InjectQueue('boleto') private boletoQueue: Queue,
         @InjectQueue('invoice') private invoiceQueue: Queue,
+        @InjectQueue('subscription-invoice') private subscriptionInvoiceQueue: Queue,
     ) {
         this.queues = new Map([
             ['email', emailQueue],
             ['boleto', boletoQueue],
             ['invoice', invoiceQueue],
+            ['subscription-invoice', subscriptionInvoiceQueue],
         ]);
         this.setupEventListeners();
     }
@@ -27,18 +29,33 @@ export class BullQueueService implements QueueProvider {
         jobName: string,
         data: any
     ): Promise<QueueJobResult<T>> {
-        const queue = this.queues.get(queueName);
+        try {
+            const queue = this.queues.get(queueName);
 
-        if (!queue) {
-            throw new Error(`Queue ${queueName} not found`);
+            if (!queue) {
+                this.logger.error(`Queue ${queueName} not found. Available queues: ${Array.from(this.queues.keys()).join(', ')}`);
+                throw new Error(`Queue ${queueName} not found`);
+            }
+
+            this.logger.debug(`Adding job to queue ${queueName}:`, { jobName, data });
+
+            const job = await queue.add(jobName, data, {
+                attempts: 3,
+                backoff: {
+                    type: 'exponential',
+                    delay: 1000,
+                },
+            });
+
+            this.logger.log(`Job successfully added to queue ${queueName}: ${job.id}`);
+
+            return {
+                jobId: job.id.toString()
+            };
+        } catch (error) {
+            this.logger.error(`Failed to add job to queue ${queueName}:`, error);
+            throw error;
         }
-
-        const job = await queue.add(jobName, data);
-        this.logger.log(`Job added to queue ${queueName}: ${job.id}`);
-
-        return {
-            jobId: job.id.toString()
-        };
     }
 
     private setupEventListeners() {

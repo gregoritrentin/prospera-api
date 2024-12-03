@@ -80,7 +80,7 @@ type CreateInvoiceUseCaseResponse = Either<
 export class CreateInvoiceUseCase {
     constructor(
         private i18nService: I18nService,
-        @Inject('QueueService')
+        @Inject(QueueProvider)
         private queueService: QueueProvider
     ) { }
 
@@ -126,12 +126,23 @@ export class CreateInvoiceUseCase {
 
     private validateInvoice(request: CreateInvoiceUseCaseRequest): true | AppError {
         // Validação das datas
-        if (request.dueDate < request.issueDate) {
+        const issueDate = new Date(request.issueDate);
+        issueDate.setHours(0, 0, 0, 0);
+
+        const dueDate = new Date(request.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+
+        if (dueDate.getTime() < issueDate.getTime()) {
             return AppError.invalidDueDate();
         }
 
-        if (request.paymentLimitDate && request.paymentLimitDate < request.dueDate) {
-            return AppError.invalidLimitData('errors.INVALID_LIMIT_DATE');
+        if (request.paymentLimitDate) {
+            const limitDate = new Date(request.paymentLimitDate);
+            limitDate.setHours(0, 0, 0, 0);
+
+            if (limitDate.getTime() < dueDate.getTime()) {
+                return AppError.invalidLimitData('errors.INVALID_LIMIT_DATE');
+            }
         }
 
         // Validação dos itens

@@ -1,21 +1,24 @@
-import { Process, Processor } from '@nestjs/bull';
+import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
+import { PrismaService } from '@/infra/database/prisma/prisma.service';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { AppError } from '@/core/errors/app-errors';
 import { Either, left, right } from '@/core/either';
-import { SubscriptionRepository } from '@/domain//subscription/repositories/subscription-repository';
-import { CreateInvoiceQueueProducer } from '@/infra/queues/producers/create-invoice-queue-producer';
-import { Subscription } from '@/domain/subscription/entities/subscription';
+import { SubscriptionRepository } from '@/domain/subscription/repositories/subscription-repository';
 import { RedisIdempotencyRepository } from '@/infra/database/redis/repositories/redis-idempotency-repository';
 import { RedisRateLimitRepository } from '@/infra/database/redis/repositories/redis-rate-limit-repository';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { addMonths } from 'date-fns';
 import { InvoiceStatus, PaymentMethod, CalculationMode, YesNo } from '@/core/types/enums';
+import { CreateInvoiceUseCase } from '@/domain/invoice/use-cases/create-invoice';
+import { Subscription } from '@/domain/subscription/entities/subscription';
 
-interface ProcessInvoiceSubscriptionJobData {
-    startDate: Date;
-    endDate: Date;
+interface ProcessSubscriptionInvoiceJobData {
+    request: {
+        startDate: string;
+        endDate: string;
+    };
     language: Language | string;
 }
 
@@ -26,41 +29,60 @@ interface ProcessedSubscription {
 }
 
 @Injectable()
-@Processor('invoice-subscription')
-export class ProcessInvoiceSubscriptionQueueConsumer {
-    private readonly logger = new Logger(ProcessInvoiceSubscriptionQueueConsumer.name);
+@Processor('subscription-invoice')
+export class ProcessSubscriptionInvoiceQueueConsumer {
+    private readonly logger = new Logger(ProcessSubscriptionInvoiceQueueConsumer.name);
 
     constructor(
+        private readonly prisma: PrismaService,
         private readonly subscriptionRepository: SubscriptionRepository,
+        private readonly createInvoiceUseCase: CreateInvoiceUseCase,
         private readonly i18nService: I18nService,
-        private readonly createInvoiceProducer: CreateInvoiceQueueProducer,
         private readonly idempotencyRepository: RedisIdempotencyRepository,
         private readonly rateLimitRepository: RedisRateLimitRepository,
         private readonly eventEmitter: EventEmitter2,
-    ) { }
+    ) {
+        this.logger.log('🚀 ProcessSubscriptionInvoiceQueueConsumer inicializado');
+    }
 
-    @Process('process-invoice-subscription')
-    async handleProcessInvoiceSubscription(
-        job: Job<ProcessInvoiceSubscriptionJobData>
+    @OnQueueActive()
+    onActive(job: Job<ProcessSubscriptionInvoiceJobData>) {
+        this.logger.log(`🏃 Iniciando processamento do job ${job.id} do tipo ${job.name}`);
+        this.logger.debug('Dados do job:', JSON.stringify(job.data, null, 2));
+    }
+
+    @OnQueueCompleted()
+    onComplete(job: Job) {
+        this.logger.log(`✅ Job ${job.id} do tipo ${job.name} completado`);
+    }
+
+    @OnQueueFailed()
+    onError(job: Job, error: Error) {
+        this.logger.error(
+            `❌ Falha no job ${job.id} do tipo ${job.name}: ${error.message}`,
+            error.stack,
+        );
+    }
+
+    @Process('process-subscription-invoice')
+    async handleProcessSubscriptionInvoice(
+        job: Job<ProcessSubscriptionInvoiceJobData>
     ): Promise<Either<AppError, { processedSubscriptions: ProcessedSubscription[]; message: string }>> {
         const startTime = Date.now();
-        this.logger.log(`Processing invoice subscription job ${job.id}`);
+        this.logger.log(`[Início] 🎯 Processando job de fatura de assinatura ${job.id}`);
 
         try {
-            // 1. Verificar idempotência
             const result = await this.idempotencyRepository.processIdempotently<Either<AppError, { processedSubscriptions: ProcessedSubscription[]; message: string }>>(
-                `invoice-subscription:${job.id}`,
+                `subscription-invoice:${job.id}`,
                 async () => {
-                    // 2. Verificar rate limit global
+                    // Verifica rate limit global
                     const rateLimit = await this.rateLimitRepository.checkAndIncrement(
-                        'invoice-subscription',
+                        'subscription-invoice',
                         'global'
                     );
 
                     if (!rateLimit.allowed) {
-                        const delay = (rateLimit.resetTime - Date.now() / 1000) * 1000;
-                        await job.retry();
-
+                        const delay = rateLimit.retryAfter ? rateLimit.retryAfter * 1000 : 60000;
                         return left(AppError.rateLimitExceeded(
                             this.i18nService.translate('errors.RATE_LIMIT_EXCEEDED', job.data.language, {
                                 retryAfter: Math.ceil(delay / 1000)
@@ -68,100 +90,70 @@ export class ProcessInvoiceSubscriptionQueueConsumer {
                         ));
                     }
 
-                    // 3. Processar assinaturas
-                    const result = await this.processSubscriptions(job);
-
-                    // 4. Registrar métricas e eventos
-                    const duration = Date.now() - startTime;
-                    this.eventEmitter.emit('invoice-subscription.processed', {
-                        processedCount: result.isRight() ? result.value.processedSubscriptions.length : 0,
-                        duration,
-                        success: result.isRight()
-                    });
-
-                    return result;
+                    return await this.processSubscriptions(job);
                 },
                 {
                     ttl: 24 * 60 * 60,
                     metadata: {
                         jobId: job.id,
-                        dateRange: `${job.data.startDate}-${job.data.endDate}`
+                        dateRange: `${job.data.request.startDate}-${job.data.request.endDate}`
                     }
                 }
             );
 
+            const duration = Date.now() - startTime;
+            this.logger.log(`[Fim] ✨ Job ${job.id} processado em ${duration}ms`);
             return result;
 
         } catch (error) {
             const duration = Date.now() - startTime;
-
-            this.eventEmitter.emit('invoice-subscription.failed', {
+            this.eventEmitter.emit('subscription-invoice.failed', {
                 jobId: job.id,
                 error: error instanceof Error ? error.message : String(error),
                 duration
             });
 
             this.logger.error(
-                `Error processing invoice subscription job ${job.id}:`,
-                error instanceof Error ? error.message : String(error)
+                `[Erro] 💥 Falha ao processar job de fatura de assinatura ${job.id}:`,
+                error instanceof Error ? error.stack : String(error)
             );
 
             return left(AppError.internalServerError(
-                this.i18nService.translate('errors.SUBSCRIPTION_PROCESSING_FAILED', job.data.language, {
-                    errorDetail: error instanceof Error ? error.message : 'Unknown error'
-                })
+                this.i18nService.translate('errors.SUBSCRIPTION_INVOICE_PROCESSING_FAILED', job.data.language)
             ));
         }
     }
 
     private async processSubscriptions(
-        job: Job<ProcessInvoiceSubscriptionJobData>
+        job: Job<ProcessSubscriptionInvoiceJobData>
     ): Promise<Either<AppError, { processedSubscriptions: ProcessedSubscription[]; message: string }>> {
         try {
-            // 1. Buscar assinaturas ativas com nextBillingDate no intervalo
-            const subscriptions = await this.subscriptionRepository.findManyByNextBillingDateRange(
-                job.data.startDate,
-                job.data.endDate
+            const startDate = new Date(job.data.request.startDate);
+            const endDate = new Date(job.data.request.endDate);
+
+            this.logger.debug(
+                `[Processo] Processando período: ${startDate.toISOString()} até ${endDate.toISOString()}`
             );
 
+            const subscriptions = await this.subscriptionRepository.findManyByNextBillingDateRange(
+                startDate,
+                endDate
+            );
+
+            this.logger.log(`[Encontrado] 📊 Encontradas ${subscriptions.length} assinaturas para processar`);
             const processedSubscriptions: ProcessedSubscription[] = [];
 
-            // 2. Processar cada assinatura
             for (const subscription of subscriptions) {
                 try {
-                    // Criar invoice para a assinatura
-                    const invoiceJobResult = await this.createInvoiceFromSubscription(
-                        subscription,
-                        job.data.language
-                    );
-
-                    if (invoiceJobResult.isRight()) {
-                        // Atualizar nextBillingDate da assinatura
-                        const nextBillingDate = this.calculateNextBillingDate(subscription);
-                        subscription.nextBillingDate = nextBillingDate;
-
-                        await this.subscriptionRepository.save(subscription);
-
-                        processedSubscriptions.push({
-                            subscriptionId: subscription.id.toString(),
-                            invoiceJobId: invoiceJobResult.value.jobId,
-                            nextBillingDate
-                        });
-
-                        // Emitir evento de sucesso
-                        this.eventEmitter.emit('subscription.invoice-created', {
-                            subscriptionId: subscription.id.toString(),
-                            invoiceJobId: invoiceJobResult.value.jobId,
-                            nextBillingDate
-                        });
-                    }
+                    this.logger.debug(`[Processando] 🔄 Iniciando processamento da assinatura ${subscription.id}`);
+                    const result = await this.processSubscriptionWithTransaction(subscription, job.data.language);
+                    processedSubscriptions.push(result);
                 } catch (error) {
                     this.logger.error(
-                        `Error processing subscription ${subscription.id.toString()}:`,
-                        error instanceof Error ? error.message : String(error)
+                        `[Erro] ❌ Falha ao processar assinatura ${subscription.id}:`,
+                        error instanceof Error ? error.stack : String(error)
                     );
 
-                    // Emitir evento de falha
                     this.eventEmitter.emit('subscription.invoice-failed', {
                         subscriptionId: subscription.id.toString(),
                         error: error instanceof Error ? error.message : String(error)
@@ -177,83 +169,161 @@ export class ProcessInvoiceSubscriptionQueueConsumer {
             });
 
         } catch (error) {
-            this.logger.error(`Error processing subscriptions:`,
-                error instanceof Error ? error.message : String(error)
-            );
+            this.logger.error('[Erro] Falha ao processar assinaturas:', error);
             throw error;
         }
+    }
+
+    private async processSubscriptionWithTransaction(
+        subscription: Subscription,
+        language: Language | string
+    ): Promise<ProcessedSubscription> {
+        return await this.prisma.$transaction(async (tx) => {
+            // 1. Criar a fatura
+            const invoiceResult = await this.createInvoiceFromSubscription(subscription, language);
+
+            if (invoiceResult.isLeft()) {
+                throw invoiceResult.value;
+            }
+
+            const { jobId: invoiceJobId } = invoiceResult.value;
+
+            // 2. Calcular próxima data de cobrança
+            const nextBillingDate = this.calculateNextBillingDate(subscription);
+
+            // 3. Atualizar a assinatura
+            await tx.subscription.update({
+                where: { id: subscription.id.toString() },
+                data: { nextBillingDate }
+            });
+
+            // 4. Emitir evento de sucesso
+            this.eventEmitter.emit('subscription.invoice-created', {
+                subscriptionId: subscription.id.toString(),
+                invoiceJobId,
+                nextBillingDate
+            });
+
+            this.logger.log(`[Sucesso] ✅ Assinatura ${subscription.id} processada com sucesso`);
+
+            return {
+                subscriptionId: subscription.id.toString(),
+                invoiceJobId,
+                nextBillingDate
+            };
+        });
     }
 
     private async createInvoiceFromSubscription(
         subscription: Subscription,
         language: Language | string
     ) {
-        return await this.createInvoiceProducer.addCreateInvoiceJob({
-            request: {
-                businessId: subscription.businessId.toString(),
-                personId: subscription.personId.toString(),
-                description: subscription.notes || undefined,
-                notes: `Fatura referente à assinatura ${subscription.id.toString()}`,
-                paymentLink: '', // Será gerado pelo create-invoice
-                status: InvoiceStatus.PENDING,
-                issueDate: new Date(),
-                dueDate: subscription.nextBillingDate,
-                paymentDate: new Date(),
-                grossAmount: subscription.price,
-                discountAmount: 0,
+        this.logger.debug(
+            `[Fatura] 📝 Criando fatura para assinatura ${subscription.id}, ` +
+            `próxima data de cobrança: ${subscription.nextBillingDate}`
+        );
+
+        // Ajusta o fuso horário para meia-noite UTC
+        const issueDate = new Date();
+        issueDate.setUTCHours(0, 0, 0, 0);
+
+        // Ajusta a data de vencimento para meia-noite UTC
+        const dueDate = new Date(subscription.nextBillingDate);
+        dueDate.setUTCHours(0, 0, 0, 0);
+
+        // Se a data de vencimento é menor que a data atual, ajusta para o próximo dia útil
+        if (dueDate <= issueDate) {
+            dueDate.setUTCDate(dueDate.getUTCDate() + 1);
+            this.logger.warn(
+                `[Fatura] ⚠️ Data de vencimento ajustada para ${dueDate.toISOString()} ` +
+                `pois estava no passado ou igual à data de emissão para assinatura ${subscription.id}`
+            );
+        }
+
+        this.logger.debug(
+            `[Fatura] 📅 Datas ajustadas - Emissão: ${issueDate.toISOString()}, ` +
+            `Vencimento: ${dueDate.toISOString()}`
+        );
+
+        return await this.createInvoiceUseCase.execute({
+            businessId: subscription.businessId.toString(),
+            personId: subscription.personId.toString(),
+            description: subscription.notes || undefined,
+            notes: `Fatura referente à assinatura ${subscription.id.toString()}`,
+            paymentLink: '',
+            status: InvoiceStatus.DRAFT,
+            issueDate: issueDate,
+            dueDate: dueDate,
+            paymentDate: issueDate,
+            grossAmount: subscription.price,
+            discountAmount: 0,
+            amount: subscription.price,
+            paymentAmount: subscription.price,
+            protestMode: YesNo.NO,
+            protestDays: 0,
+            lateMode: CalculationMode.NONE,
+            lateValue: 0,
+            interestMode: CalculationMode.NONE,
+            interestDays: 0,
+            interestValue: 0,
+            discountMode: CalculationMode.NONE,
+            discountDays: 0,
+            discountValue: 0,
+
+            items: subscription.items.map(item => ({
+                itemId: item.itemId.toString(),
+                itemDescription: item.itemDescription,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                discount: 0,
+                totalPrice: item.quantity * item.unitPrice
+            })),
+
+            splits: subscription.splits.map(split => ({
+                recipientId: split.recipientId.toString(),
+                splitType: split.splitType as unknown as CalculationMode,
+                amount: split.amount,
+                feeAmount: split.feeAmount
+            })),
+
+            payments: [{
+                dueDate: dueDate,
                 amount: subscription.price,
-                paymentAmount: subscription.price,
-                protestMode: YesNo.NO,
-                protestDays: 0,
-                lateMode: CalculationMode.NONE,
-                lateValue: 0,
-                interestMode: CalculationMode.NONE,
-                interestDays: 0,
-                interestValue: 0,
-                discountMode: CalculationMode.NONE,
-                discountDays: 0,
-                discountValue: 0,
-
-                items: subscription.items.map(item => ({
-                    itemId: item.id.toString(),
-                    itemDescription: item.description,
-                    quantity: item.quantity,
-                    unitPrice: item.unitPrice,
-                    discount: item.discount,
-                    totalPrice: item.quantity * item.unitPrice //- item.discount
-                })),
-
-                splits: subscription.splits.map(split => ({
-                    recipientId: split.recipientId.toString(),
-                    splitType: split.splitType as unknown as CalculationMode,
-                    amount: split.amount,
-                    feeAmount: split.feeAmount
-                })),
-
-                payments: [{
-                    dueDate: subscription.nextBillingDate,
-                    amount: subscription.price,
-                    paymentMethod: subscription.paymentMethod as PaymentMethod
-                }]
-            },
-            language
-        });
+                paymentMethod: subscription.paymentMethod as PaymentMethod
+            }]
+        }, language);
     }
 
     private calculateNextBillingDate(subscription: Subscription): Date {
         const currentBillingDate = subscription.nextBillingDate;
+        this.logger.debug(
+            `[Cobrança] 📅 Calculando próxima data de cobrança para assinatura ${subscription.id}. ` +
+            `Atual: ${currentBillingDate}, Intervalo: ${subscription.interval}`
+        );
 
+        let nextDate: Date;
         switch (subscription.interval) {
             case 'MONTHLY':
-                return addMonths(currentBillingDate, 1);
+                nextDate = addMonths(currentBillingDate, 1);
+                break;
             case 'QUARTERLY':
-                return addMonths(currentBillingDate, 3);
+                nextDate = addMonths(currentBillingDate, 3);
+                break;
             case 'SEMIANNUAL':
-                return addMonths(currentBillingDate, 6);
+                nextDate = addMonths(currentBillingDate, 6);
+                break;
             case 'ANNUAL':
-                return addMonths(currentBillingDate, 12);
+                nextDate = addMonths(currentBillingDate, 12);
+                break;
             default:
-                return addMonths(currentBillingDate, 1);
+                nextDate = addMonths(currentBillingDate, 1);
+                this.logger.warn(
+                    `[Cobrança] ⚠️ Intervalo desconhecido ${subscription.interval} ` +
+                    `para assinatura ${subscription.id}, usando padrão MONTHLY`
+                );
         }
+
+        this.logger.debug(`[Cobrança] ✅ Próxima data de cobrança calculada: ${nextDate}`);
+        return nextDate;
     }
 }

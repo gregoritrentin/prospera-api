@@ -14,11 +14,14 @@ import {
 } from '@prisma/client'
 
 export class PrismaSubscriptionMapper {
+
     static toDomain(raw: PrismaSubscription & {
         subscriptionItem?: PrismaSubscriptionItem[]
         subscriptionSplit?: PrismaSubscriptionSplit[]
         subscriptionNFSe?: PrismaSubscriptionNFSe[]
     }): Subscription {
+        const subscriptionId = new UniqueEntityID(raw.id);
+
         return Subscription.create(
             {
                 businessId: new UniqueEntityID(raw.businessId),
@@ -35,7 +38,7 @@ export class PrismaSubscriptionMapper {
                 cancellationScheduledDate: raw.cancellationScheduledDate,
                 items: raw.subscriptionItem?.map(item => SubscriptionItem.create(
                     {
-                        subscriptionId: new UniqueEntityID(raw.id),
+                        subscriptionId: subscriptionId, // Adicionado
                         itemId: new UniqueEntityID(item.itemId),
                         itemDescription: item.itemDescription,
                         quantity: item.quantity,
@@ -49,7 +52,7 @@ export class PrismaSubscriptionMapper {
                 )) || [],
                 splits: raw.subscriptionSplit?.map(split => SubscriptionSplit.create(
                     {
-                        subscriptionId: new UniqueEntityID(raw.id),
+                        subscriptionId: subscriptionId, // Adicionado
                         recipientId: new UniqueEntityID(split.recipientId),
                         splitType: split.splitType as unknown as SplitType,
                         amount: split.amount,
@@ -59,7 +62,7 @@ export class PrismaSubscriptionMapper {
                 )) || [],
                 nfse: raw.subscriptionNFSe?.[0] ? SubscriptionNFSe.create(
                     {
-                        subscriptionId: new UniqueEntityID(raw.id),
+                        subscriptionId: subscriptionId, // Adicionado
                         serviceCode: raw.subscriptionNFSe[0].serviceCode,
                         issRetention: raw.subscriptionNFSe[0].issRetention,
                         inssRetention: raw.subscriptionNFSe[0].inssRetention,
@@ -81,11 +84,7 @@ export class PrismaSubscriptionMapper {
         )
     }
 
-    static toPrisma(subscription: Subscription): Prisma.SubscriptionUncheckedCreateInput & {
-        subscriptionItem: Prisma.SubscriptionItemCreateManyInput[]
-        subscriptionSplit: Prisma.SubscriptionSplitCreateManyInput[]
-        subscriptionNFSe: Prisma.SubscriptionNFSeCreateManyInput[]
-    } {
+    static toPrisma(subscription: Subscription) {
         return {
             id: subscription.id.toString(),
             businessId: subscription.businessId.toString(),
@@ -102,11 +101,10 @@ export class PrismaSubscriptionMapper {
             cancellationScheduledDate: subscription.cancellationScheduledDate,
             createdAt: subscription.createdAt,
             updatedAt: subscription.updatedAt,
-
-            subscriptionItem: subscription.items.map(item => ({
+            // Mudamos para retornar os arrays diretamente
+            subscriptionItems: subscription.items.map(item => ({
                 id: item.id.toString(),
-                subscriptionId: subscription.id.toString(),
-                itemId: item.itemId.toString(),
+                itemId: item.id.toString(),
                 itemDescription: item.itemDescription,
                 quantity: item.quantity,
                 unitPrice: item.unitPrice,
@@ -115,19 +113,15 @@ export class PrismaSubscriptionMapper {
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt,
             })),
-
-            subscriptionSplit: subscription.splits.map(split => ({
+            subscriptionSplits: subscription.splits.map(split => ({
                 id: split.id.toString(),
-                subscriptionId: subscription.id.toString(),
                 recipientId: split.recipientId.toString(),
-                splitType: PrismaSplitType[split.splitType],
+                splitType: split.splitType as unknown as PrismaSplitType,
                 amount: split.amount,
                 feeAmount: split.feeAmount,
             })),
-
-            subscriptionNFSe: subscription.nfse ? [{
+            subscriptionNFSe: subscription.nfse ? {
                 id: subscription.nfse.id.toString(),
-                subscriptionId: subscription.id.toString(),
                 serviceCode: subscription.nfse.serviceCode,
                 issRetention: subscription.nfse.issRetention,
                 inssRetention: subscription.nfse.inssRetention,
@@ -139,7 +133,7 @@ export class PrismaSubscriptionMapper {
                 status: subscription.nfse.status,
                 createdAt: subscription.nfse.createdAt,
                 updatedAt: subscription.nfse.updatedAt,
-            }] : [],
+            } : null
         }
     }
 }
