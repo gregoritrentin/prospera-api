@@ -136,7 +136,11 @@ enum NfseEventStatus {
 }
 
 enum AbrasfVersion {
-  v10
+  v100
+  v200
+  v201
+  v202
+  v203
   v204
 }
 
@@ -2093,18 +2097,23 @@ model NfseCityConfiguration {
   id   String @id @default(uuid())
   name String
 
+  // Identificação da cidade
   cityCode  String @unique @map("city_code")
   stateCode String @map("state_code")
 
-  abrasfVersion  AbrasfVersion @map("abrasf_version")
-  sandboxUrl     String        @map("sandbox_url")
-  productionUrl  String        @map("production_url")
-  queryUrl       String?       @map("query_url")
-  timeout        Int           @map("timeout")
-  specificFields Json?         @map("specific_fields")
-  createdAt      DateTime      @map("created_at")
-  updatedAt      DateTime?     @map("updated_at")
+  // Configurações do provedor
+  provider      String        @map("provider")
+  abrasfVersion AbrasfVersion @map("abrasf_version")
 
+  // URLs dos ambientes
+  productionUrl String  @map("production_url")
+  sandboxUrl    String? @map("sandbox_url")
+
+  // Controle
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  // Relacionamentos
   city  City  @relation(fields: [cityCode], references: [code])
   state State @relation(fields: [stateCode], references: [code])
 

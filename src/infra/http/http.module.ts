@@ -194,6 +194,8 @@ import { CancelScheduledPixPaymentController } from "./controllers/payment/cance
 import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/cancel-payment-pix-scheduled";
 import { CreateSubscriptionController } from "./controllers/subscription/create-subscription.controller";
 import { CreateSubscriptionUseCase } from "@/domain/subscription/use-cases/create-subscription";
+import { CreateNfseUseCase } from "@/domain/dfe/nfse/use-cases/create-nfse";
+import { GetNfseUseCase } from "@/domain/dfe/nfse/use-cases/get-nfse";
 
 
 @Module({
@@ -312,6 +314,11 @@ import { CreateSubscriptionUseCase } from "@/domain/subscription/use-cases/creat
     CreateSubscriptionController,
 
 
+    //nfse
+    CreateUserController,
+    FetchUserController,
+    GetUserController,
+
     //whatsapp
     WhatsAppController
 
@@ -423,6 +430,11 @@ import { CreateSubscriptionUseCase } from "@/domain/subscription/use-cases/creat
 
     //subscription
     CreateSubscriptionUseCase,
+
+    //nfse
+    CreateNfseUseCase,
+    FetchUserUseCase,
+    GetNfseUseCase,
 
     //whatsapp
     SendWhatsAppUseCase,

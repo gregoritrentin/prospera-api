@@ -131,8 +131,8 @@ export enum NfseEventStatus {
 
 // ABRASF Versions
 export enum AbrasfVersion {
-    V1_0 = 'v10',          // Versão 1.0
-    V2_04 = 'v204',       // Versão 2.04
+    V1_0 = "v10",
+    V2_04 = "v204"
 }
 
 // ISS Requirement

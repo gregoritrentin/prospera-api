@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>NFS-e</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="{{logoUrl}}" alt="Logo da Empresa" />
+            </div>
+            <div class="header-center">
+                <div class="title">Nota Fiscal de Serviço Eletrônica - NFS-e</div>
+                <div>Número da Nota: {{Numero}}</div>
+                <div>Data e Hora de Emissão: {{DataEmissao}}</div>
+                <div>Competência: {{Competencia}}</div>
+            </div>
+            <div class="qr-code">
+                <!-- QR Code será inserido aqui -->
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div>Num. RPS/Ser.: {{NumRPS}}</div>
+            <div>Município de Prestação do Serviço: {{MunicipioPrestacao}}</div>
+            <div>Código de Verificação: {{CodigoVerificacao}}</div>
+        </div>
+
+        <div class="info-block">
+            <div class="block-title">PRESTADOR DE SERVIÇOS</div>
+            <div class="flex-container">
+                <div class="flex-grow-2">
+                    <div class="field">
+                        <span class="field-label">Nome/Razão Social:</span>
+                        <span class="field-value">{{PrestadorServico.RazaoSocial}}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Endereço:</span>
+                        <span class="field-value">{{PrestadorServico.Endereco.Endereco}}, {{PrestadorServico.Endereco.Numero}} - {{PrestadorServico.Endereco.Bairro}} - {{PrestadorServico.Endereco.Municipio}}/{{PrestadorServico.Endereco.Uf}} CEP: {{PrestadorServico.Endereco.Cep}}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Telefone/E-mail:</span>
+                        <span class="field-value">{{PrestadorServico.Contato.Telefone}} {{PrestadorServico.Contato.Email}}</span>
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="field">
+                        <span class="field-label">CPF/CNPJ:</span>
+                        <span class="field-value">{{PrestadorServico.IdentificacaoPrestador.CpfCnpj.Cnpj}}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">IM:</span>
+                        <span class="field-value">{{PrestadorServico.IdentificacaoPrestador.InscricaoMunicipal}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-block">
+            <div class="block-title">TOMADOR DE SERVIÇOS</div>
+            <div class="flex-container">
+                <div class="flex-grow-2">
+                    <div class="field">
+                        <span class="field-label">Nome/Razão Social:</span>
+                        <span class="field-value">{{Tomador.RazaoSocial}}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Endereço:</span>
+                        <span class="field-value">{{Tomador.Endereco.Endereco}}, {{Tomador.Endereco.Numero}} - {{Tomador.Endereco.Bairro}} - {{Tomador.Endereco.Municipio}}/{{Tomador.Endereco.Uf}} CEP: {{Tomador.Endereco.Cep}}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Telefone/E-mail:</span>
+                        <span class="field-value">{{Tomador.Contato.Telefone}} {{Tomador.Contato.Email}}</span>
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="field">
+                        <span class="field-label">CPF/CNPJ:</span>
+                        <span class="field-value">{{Tomador.IdentificacaoTomador.CpfCnpj.Cnpj}}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">IE:</span>
+                        <span class="field-value">{{Tomador.InscricaoEstadual}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="services">
+            <div class="block-title">DISCRIMINAÇÃO DOS SERVIÇOS</div>
+            <div class="field">
+                <span class="field-label">Código do Serviço:</span>
+                <span class="field-value">{{Servico.ItemListaServico}} - {{Servico.Discriminacao}}</span>
+            </div>
+            <div class="mt-5">{{Servico.Discriminacao}}</div>
+            <div class="mt-10 border-top pt-5">{{OutrasInformacoes}}</div>
+        </div>
+
+        <div class="tributos">
+            <div class="block-title" style="grid-column: 1 / -1;">TRIBUTOS FEDERAIS</div>
+            <div class="field">
+                <span class="field-label">PIS (R$)</span>
+                <span class="field-value">{{Servico.Valores.ValorPis}}</span>
+            </div>
+            <div class="field">
+                <span class="field-label">COFINS (R$)</span>
+                <span class="field-value">{{Servico.Valores.ValorCofins}}</span>
+            </div>
+            <div class="field">
+                <span class="field-label">IR (R$)</span>
+                <span class="field-value">{{Servico.Valores.ValorIr}}</span>
+            </div>
+            <div class="field">
+                <span class="field-label">INSS (R$)</span>
+                <span class="field-value">{{Servico.Valores.ValorInss}}</span>
+            </div>
+            <div class="field">
+                <span class="field-label">CSLL (R$)</span>
+                <span class="field-value">{{Servico.Valores.ValorCsll}}</span>
+            </div>
+        </div>
+
+        <div class="valores">
+            <div class="valores-block">
+                <div class="block-title">Detalhamento de Valores - Prestador dos Serviços</div>
+                <div class="field">
+                    <span class="field-label">Valor dos Serviços:</span>
+                    <span class="field-value">{{ValoresNfse.ValorServicos}}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">(-) Deduções permitidas em Lei:</span>
+                    <span class="field-value">0,00</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">(-) Desconto Incondicionado:</span>
+                    <span class="field-value">0,00</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">(=) Valor Líquido:</span>
+                    <span class="field-value">{{ValoresNfse.ValorLiquidoNfse}}</span>
+                </div>
+            </div>
+
+            <div class="valores-block">
+                <div class="block-title">Outras Informações</div>
+                <div class="field">
+                    <span class="field-label">Natureza da Operação:</span>
+                    <span class="field-value">1 - Tributação no município</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Regime Especial de Tributação:</span>
+                    <span class="field-value">6 - ME EPP</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Opção Simples Nacional:</span>
+                    <span class="field-value">{{DeclaracaoPrestacaoServico.OptanteSimplesNacional}}</span>
+                </div>
+            </div>
+
+            <div class="valores-block">
+                <div class="block-title">Cálculo do ISSQN devido no Município</div>
+                <div class="field">
+                    <span class="field-label">Valor dos Serviços:</span>
+                    <span class="field-value">{{ValoresNfse.ValorServicos}}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">(=) Base de Cálculo:</span>
+                    <span class="field-value">{{ValoresNfse.BaseCalculo}}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">(x) Alíquota (%):</span>
+                    <span class="field-value">{{ValoresNfse.Aliquota}}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">(=) Valor ISS:</span>
+                    <span class="field-value">{{ValoresNfse.ValorIss}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="marketing"><strong>Desbloqueie o potencial do seu negócio com berga.app</strong></div>
+        </div>
+    </div>
+</body>
+</html>

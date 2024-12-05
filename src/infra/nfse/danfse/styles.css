@@ -1,0 +1,166 @@
+@page {
+  size: A4;
+  margin: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 5mm;
+  font-size: 10px;
+  width: 200mm;
+  min-height: 287mm;
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  border: 1px solid #000;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 90px 1fr 90px;
+  gap: 5px;
+  padding: 5px;
+  border-bottom: 1px solid #000;
+  align-items: center;
+}
+
+.logo {
+  border: 1px solid #ddd;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.header-center {
+  text-align: center;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  margin: 5px 0;
+}
+
+.qr-code {
+  border: 1px solid #ddd;
+  height: 90px;
+  width: 90px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  border-bottom: 1px solid #000;
+}
+
+.info-block {
+  border: 1px solid #000;
+  margin: 5px;
+  padding: 5px;
+}
+
+.block-title {
+  font-weight: bold;
+  background-color: #f0f0f0;
+  padding: 2px;
+  margin-bottom: 5px;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px;
+  margin: 2px 0;
+}
+
+.field-label {
+  font-weight: bold;
+  font-size: 9px;
+}
+
+.field-value {
+  font-size: 9px;
+}
+
+.services {
+  margin: 5px;
+  border: 1px solid #000;
+  padding: 5px;
+  min-height: 80px;
+}
+
+.tributos {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  margin: 5px;
+  border: 1px solid #000;
+  padding: 5px;
+}
+
+.valores {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+  margin: 5px;
+}
+
+.valores-block {
+  border: 1px solid #000;
+  padding: 5px;
+}
+
+.footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 10px;
+  border-top: 1px solid #000;
+}
+
+.marketing {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #444;
+  font-weight: 500;
+}
+
+/* Utilidades */
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.flex-grow-2 {
+  flex: 2;
+}
+
+.flex-grow-1 {
+  flex: 1;
+}
+
+.border-top {
+  border-top: 1px solid #ddd;
+}
+
+.mt-5 {
+  margin-top: 5px;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.pt-5 {
+  padding-top: 5px;
+}

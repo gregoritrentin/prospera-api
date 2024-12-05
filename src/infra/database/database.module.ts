@@ -46,6 +46,7 @@ import { RedisIdempotencyRepository } from './redis/repositories/redis-idempoten
 import { RedisRateLimitRepository } from './redis/repositories/redis-rate-limit-repository';
 import { SubscriptionRepository } from '@/domain/subscription/repositories/subscription-repository';
 import { PrismaSubscriptionRepository } from './prisma/repositories/prisma-subscription-repository';
+import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository';
 
 @Module({
     imports: [EnvModule],
@@ -158,6 +159,10 @@ import { PrismaSubscriptionRepository } from './prisma/repositories/prisma-subsc
         {
             provide: SubscriptionRepository,
             useClass: PrismaSubscriptionRepository,
+        },
+        {
+            provide: NfseRepository,
+            useClass: PrismaUserRepository,
         }
     ],
     exports: [
@@ -183,6 +188,7 @@ import { PrismaSubscriptionRepository } from './prisma/repositories/prisma-subsc
         TransactionRepository,
         PaymentRepository,
         WhatsAppRepository,
+        NfseRepository,
 
         RedisWhatsAppRepository,
         RedisIdempotencyRepository,

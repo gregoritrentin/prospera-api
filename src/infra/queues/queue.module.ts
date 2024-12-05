@@ -30,6 +30,8 @@ import { QueueProvider } from '@/domain/interfaces/queue-provider';
 import { CreateBoletoUseCase } from '@/domain/transaction/use-cases/create-boleto';
 import { ProcessSubscriptionInvoiceQueueConsumer } from './consumers/process-subscription-invoice-queue-consumer';
 import { CreateInvoiceUseCase } from '@/domain/invoice/use-cases/create-invoice';
+import { NfseQueueConsumer } from './consumers/nfse-queue-consumer';
+import { NfseQueueProducer } from './producers/nfse-queue-producer';
 
 @Module({
     imports: [
@@ -106,6 +108,7 @@ import { CreateInvoiceUseCase } from '@/domain/invoice/use-cases/create-invoice'
         EmailQueueProducer,
         BoletoQueueProducer,
         CreateInvoiceQueueProducer,
+        NfseQueueProducer,
 
         // Consumers
         EmailQueueConsumer,
@@ -113,6 +116,7 @@ import { CreateInvoiceUseCase } from '@/domain/invoice/use-cases/create-invoice'
         CreateInvoiceQueueConsumer,
         ProcessSubscriptionInvoiceQueueConsumer,
         CreateInvoiceUseCase,
+        NfseQueueConsumer,
 
         // Use Cases
         UploadAndCreateFileUseCase,
@@ -127,12 +131,14 @@ import { CreateInvoiceUseCase } from '@/domain/invoice/use-cases/create-invoice'
         EmailQueueProducer,
         BoletoQueueProducer,
         CreateInvoiceQueueProducer,
+        NfseQueueProducer,
 
         // Consumers
         EmailQueueConsumer,
         BoletoQueueConsumer,
         CreateInvoiceQueueConsumer,
         ProcessSubscriptionInvoiceQueueConsumer,
+        NfseQueueConsumer,
     ],
 })
 export class QueueModule { }

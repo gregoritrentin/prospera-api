@@ -25,9 +25,6 @@ export abstract class DigitalCertificateRepository {
     // Métodos de manipulação
     abstract create(certificate: DigitalCertificate): Promise<void>
 
-    //abstract save(certificate: DigitalCertificate): Promise<void>
-    //abstract delete(id: string, businessId: string): Promise<void>
-
-    // Métodos de gestão de status
+    abstract save(certificate: DigitalCertificate): Promise<void>
     abstract deactivateAllFromBusiness(businessId: string): Promise<void>
 }

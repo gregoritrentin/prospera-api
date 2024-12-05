@@ -58,6 +58,37 @@ export enum ErrorCode {
 
 
 
+    // NFSe specific errors
+    NFSE_CREATION_FAILED = 'NFSE_CREATION_FAILED',
+    NFSE_TRANSMISSION_FAILED = 'NFSE_TRANSMISSION_FAILED',
+    NFSE_CANCELLATION_FAILED = 'NFSE_CANCELLATION_FAILED',
+    NFSE_QUERY_FAILED = 'NFSE_QUERY_FAILED',
+    NFSE_REPLACEMENT_FAILED = 'NFSE_REPLACEMENT_FAILED',
+    NFSE_SIGNATURE_FAILED = 'NFSE_SIGNATURE_FAILED',
+    NFSE_XML_GENERATION_FAILED = 'NFSE_XML_GENERATION_FAILED',
+    NFSE_CERTIFICATE_ERROR = 'NFSE_CERTIFICATE_ERROR',
+    NFSE_PROVIDER_NOT_FOUND = 'NFSE_PROVIDER_NOT_FOUND',
+    NFSE_INVALID_XML = 'NFSE_INVALID_XML',
+    NFSE_INVALID_RESPONSE = 'NFSE_INVALID_RESPONSE',
+
+
+    // Certificate errors
+    CERTIFICATE_NOT_FOUND = 'CERTIFICATE_NOT_FOUND',
+    CERTIFICATE_INACTIVE = 'CERTIFICATE_INACTIVE',
+    CERTIFICATE_EXPIRED = 'CERTIFICATE_EXPIRED',
+    CERTIFICATE_FILE_NOT_FOUND = 'CERTIFICATE_FILE_NOT_FOUND',
+    CERTIFICATE_LOAD_ERROR = 'CERTIFICATE_LOAD_ERROR',
+    CERTIFICATE_VALIDATION_ERROR = 'CERTIFICATE_VALIDATION_ERROR',
+
+    // Signature errors
+    SIGNATURE_ERROR = 'SIGNATURE_ERROR',
+    SIGNATURE_CREATION_ERROR = 'SIGNATURE_CREATION_ERROR',
+    SIGNATURE_VALIDATION_ERROR = 'SIGNATURE_VALIDATION_ERROR',
+    SIGNATURE_INSERTION_ERROR = 'SIGNATURE_INSERTION_ERROR',
+    SIGNATURE_POINT_NOT_FOUND = 'SIGNATURE_POINT_NOT_FOUND',
+
+
+
     INVALID_STATUS_TRANSITION = 'INVALID_STATUS_TRANSITION',
 
     RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
@@ -363,4 +394,182 @@ export class AppError extends Error {
         );
     }
 
+    static nfseCreationFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_CREATION_FAILED,
+            'errors.NFSE_CREATION_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static nfseTransmissionFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_TRANSMISSION_FAILED,
+            'errors.NFSE_TRANSMISSION_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static nfseCancellationFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_CANCELLATION_FAILED,
+            'errors.NFSE_CANCELLATION_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static nfseQueryFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_QUERY_FAILED,
+            'errors.NFSE_QUERY_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static nfseReplacementFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_REPLACEMENT_FAILED,
+            'errors.NFSE_REPLACEMENT_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static nfseSignatureFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_SIGNATURE_FAILED,
+            'errors.NFSE_SIGNATURE_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static nfseXmlGenerationFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_XML_GENERATION_FAILED,
+            'errors.NFSE_XML_GENERATION_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static nfseCertificateError(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_CERTIFICATE_ERROR,
+            'errors.NFSE_CERTIFICATE_ERROR',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static nfseProviderNotFound(cityCode: string): AppError {
+        return new AppError(
+            ErrorCode.NFSE_PROVIDER_NOT_FOUND,
+            'errors.NFSE_PROVIDER_NOT_FOUND',
+            { cityCode },
+            HttpStatus.NOT_FOUND
+        );
+    }
+
+    static nfseInvalidXml(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_INVALID_XML,
+            'errors.NFSE_INVALID_XML',
+            details,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static nfseInvalidResponse(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.NFSE_INVALID_RESPONSE,
+            'errors.NFSE_INVALID_RESPONSE',
+            details,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static validationError(translationKey: string, details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.VALIDATION_ERROR,
+            translationKey,
+            details,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+    static certificateNotFound(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_NOT_FOUND,
+            'errors.CERTIFICATE_NOT_FOUND',
+            details,
+            HttpStatus.NOT_FOUND
+        );
+    }
+
+    static certificateInactive(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_INACTIVE,
+            'errors.CERTIFICATE_INACTIVE',
+            details,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static certificateExpired(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_EXPIRED,
+            'errors.CERTIFICATE_EXPIRED',
+            details,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static certificateFileNotFound(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_FILE_NOT_FOUND,
+            'errors.CERTIFICATE_FILE_NOT_FOUND',
+            details,
+            HttpStatus.NOT_FOUND
+        );
+    }
+
+    static certificateLoadError(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_LOAD_ERROR,
+            'errors.CERTIFICATE_LOAD_ERROR',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static signatureError(message: string, details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.SIGNATURE_ERROR,
+            'errors.SIGNATURE_ERROR',
+            { message, ...details },
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static signatureValidationError(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.SIGNATURE_VALIDATION_ERROR,
+            'errors.SIGNATURE_VALIDATION_ERROR',
+            details,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static signatureInsertionError(message: string): AppError {
+        return new AppError(
+            ErrorCode.SIGNATURE_INSERTION_ERROR,
+            'errors.SIGNATURE_INSERTION_ERROR',
+            { message },
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
 }
