@@ -181,11 +181,27 @@ export class CertificateSigningService {
 
             // Extrair chave privada
             const bags = p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag });
-            const privateKey = bags[forge.pki.oids.pkcs8ShroudedKeyBag][0].key;
+            const keyBag = bags[forge.pki.oids.pkcs8ShroudedKeyBag];
+            if (!keyBag || keyBag.length === 0) {
+                throw new Error('Private key not found in the certificate');
+            }
+            const privateKey = keyBag[0].key;
+            if (!privateKey) {
+                throw new Error('Private key is undefined');
+            }
 
             // Extrair certificado
             const certBags = p12.getBags({ bagType: forge.pki.oids.certBag });
-            const x509 = certBags[forge.pki.oids.certBag][0].cert;
+            const certBag = certBags[forge.pki.oids.certBag];
+
+            if (!certBag || certBag.length === 0) {
+                throw new Error('Certificate not found in the certificate store');
+            }
+
+            const x509 = certBag[0].cert;
+            if (!x509) {
+                throw new Error('X509 certificate is undefined');
+            }
 
             return { privateKey, x509 };
 
@@ -233,7 +249,7 @@ export class CertificateSigningService {
     ): string {
         try {
             const certData = forge.util.encode64(
-                forge.asn1.toDer(x509.toAsn1()).getBytes()
+                forge.asn1.toDer(forge.pki.certificateToAsn1(x509)).getBytes()
             );
 
             return `

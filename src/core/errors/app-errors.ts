@@ -87,11 +87,22 @@ export enum ErrorCode {
     SIGNATURE_INSERTION_ERROR = 'SIGNATURE_INSERTION_ERROR',
     SIGNATURE_POINT_NOT_FOUND = 'SIGNATURE_POINT_NOT_FOUND',
 
+    // Certificate specific errors
+    CERTIFICATE_UPLOAD_FAILED = 'CERTIFICATE_UPLOAD_FAILED',
+    CERTIFICATE_CREATION_FAILED = 'CERTIFICATE_CREATION_FAILED',
+    CERTIFICATE_ALREADY_EXISTS = 'CERTIFICATE_ALREADY_EXISTS',
+    CERTIFICATE_PASSWORD_INVALID = 'CERTIFICATE_PASSWORD_INVALID',
+    CERTIFICATE_FORMAT_INVALID = 'CERTIFICATE_FORMAT_INVALID',
+    ACTIVE_CERTIFICATE_EXISTS = 'ACTIVE_CERTIFICATE_EXISTS',
+    CERTIFICATE_VALIDATION_FAILED = 'CERTIFICATE_VALIDATION_FAILED',
+
+
 
 
     INVALID_STATUS_TRANSITION = 'INVALID_STATUS_TRANSITION',
 
     RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
+    FILE_UPLOAD_FAILED = "FILE_UPLOAD_FAILED",
 
 }
 
@@ -571,5 +582,79 @@ export class AppError extends Error {
             { message },
             HttpStatus.INTERNAL_SERVER_ERROR
         );
+    }
+
+
+    static certificateUploadFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_UPLOAD_FAILED,
+            'errors.CERTIFICATE_UPLOAD_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static certificateCreationFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_CREATION_FAILED,
+            'errors.CERTIFICATE_CREATION_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static certificateAlreadyExists(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_ALREADY_EXISTS,
+            'errors.CERTIFICATE_ALREADY_EXISTS',
+            details,
+            HttpStatus.CONFLICT
+        );
+    }
+
+    static certificatePasswordInvalid(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_PASSWORD_INVALID,
+            'errors.CERTIFICATE_PASSWORD_INVALID',
+            details,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static certificateFormatInvalid(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_FORMAT_INVALID,
+            'errors.CERTIFICATE_FORMAT_INVALID',
+            details,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static activeCertificateExists(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.ACTIVE_CERTIFICATE_EXISTS,
+            'errors.ACTIVE_CERTIFICATE_EXISTS',
+            details,
+            HttpStatus.CONFLICT
+        );
+    }
+
+    static certificateValidationFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.CERTIFICATE_VALIDATION_FAILED,
+            'errors.CERTIFICATE_VALIDATION_FAILED',
+            details,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static fileUploadFailed(cause: any): AppError {
+        return new AppError(
+            ErrorCode.FILE_UPLOAD_FAILED,
+            'errors.FILE_UPLOAD_FAILED',
+            { cause },
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+
     }
 }

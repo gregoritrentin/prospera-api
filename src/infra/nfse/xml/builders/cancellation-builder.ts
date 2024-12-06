@@ -1,4 +1,3 @@
-// src/infra/nfse/xml/builders/cancellation-builder.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { XmlBuilderBase } from './xml-builder-base';
@@ -22,7 +21,7 @@ interface SubstitutionParams extends CancellationParams {
 
 @Injectable()
 export class CancellationBuilder extends XmlBuilderBase {
-    private readonly logger = new Logger(CancellationBuilder.name);
+    protected readonly logger = new Logger(CancellationBuilder.name);
 
     constructor(
         protected readonly xsdValidator: XsdValidator,
@@ -133,7 +132,7 @@ export class CancellationBuilder extends XmlBuilderBase {
             `<InfPedidoCancelamento Id="${pedidoId}">`,
             '<IdentificacaoNfse>',
             this.buildTagWithValue('Numero', params.nfseNumber),
-            this.buildCpfCnpj(params.businessId),
+            this.buildCpfCnpjTag(params.businessId),
             this.buildTagWithValue('InscricaoMunicipal', params.inscricaoMunicipal),
             this.buildTagWithValue('CodigoMunicipio', params.cityCode),
             '</IdentificacaoNfse>',
@@ -177,7 +176,7 @@ export class CancellationBuilder extends XmlBuilderBase {
 
     private getCancellationCode(reason: NfseCancelReason): string {
         const codes = {
-            [NfseCancelReason.ERROR_ON_EMISSION]: '1',
+            [NfseCancelReason.ERROR_ON_ISSUANCE]: '1',
             [NfseCancelReason.SERVICE_NOT_PROVIDED]: '2',
             [NfseCancelReason.WRONG_SIGNATURE]: '3',
             [NfseCancelReason.DUPLICATE]: '4',
@@ -190,7 +189,6 @@ export class CancellationBuilder extends XmlBuilderBase {
     private validateCancellationParams(params: CancellationParams): ProcessRpsError[] {
         const errors: ProcessRpsError[] = [];
 
-        // Validação do número da NFSe
         if (!/^\d{1,15}$/.test(params.nfseNumber)) {
             errors.push({
                 code: 'INVALID_NFSE_NUMBER',
@@ -199,7 +197,6 @@ export class CancellationBuilder extends XmlBuilderBase {
             });
         }
 
-        // Validação do CNPJ
         if (!/^\d{14}$/.test(params.businessId)) {
             errors.push({
                 code: 'INVALID_CNPJ',
@@ -208,7 +205,6 @@ export class CancellationBuilder extends XmlBuilderBase {
             });
         }
 
-        // Validação da Inscrição Municipal
         if (params.inscricaoMunicipal && params.inscricaoMunicipal.length > 15) {
             errors.push({
                 code: 'INVALID_IM',
@@ -217,7 +213,6 @@ export class CancellationBuilder extends XmlBuilderBase {
             });
         }
 
-        // Validação do código do município
         if (!/^\d{7}$/.test(params.cityCode)) {
             errors.push({
                 code: 'INVALID_CITY_CODE',

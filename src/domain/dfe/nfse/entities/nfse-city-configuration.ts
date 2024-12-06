@@ -1,4 +1,3 @@
-// src/domain/dfe/nfse/entities/nfse-city-configuration.ts
 import { Entity } from '@/core/entities/entity'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Optional } from '@/core/types/optional'
@@ -8,12 +7,11 @@ export interface NfseCityConfigurationProps {
     name: string
     cityCode: string
     stateCode: string
+    provider: string
     abrasfVersion: AbrasfVersion
-    sandboxUrl: string
+    sandboxUrl?: string
     productionUrl: string
-    queryUrl?: string | null
-    timeout: number
-    specificFields?: Record<string, any> | null
+    timeout?: number // Adicionado
     createdAt: Date
     updatedAt?: Date | null
 }
@@ -32,11 +30,15 @@ export class NfseCityConfiguration extends Entity<NfseCityConfigurationProps> {
         return this.props.stateCode
     }
 
+    get provider() {
+        return this.props.provider
+    }
+
     get abrasfVersion() {
         return this.props.abrasfVersion
     }
 
-    get sandboxUrl() {
+    get sandboxUrl(): string | undefined {
         return this.props.sandboxUrl
     }
 
@@ -44,16 +46,8 @@ export class NfseCityConfiguration extends Entity<NfseCityConfigurationProps> {
         return this.props.productionUrl
     }
 
-    get queryUrl() {
-        return this.props.queryUrl
-    }
-
     get timeout() {
-        return this.props.timeout
-    }
-
-    get specificFields() {
-        return this.props.specificFields
+        return this.props.timeout ?? 5000 // Valor padrão
     }
 
     get createdAt() {
@@ -80,6 +74,11 @@ export class NfseCityConfiguration extends Entity<NfseCityConfigurationProps> {
         this.touch()
     }
 
+    set provider(provider: string) {
+        this.props.provider = provider
+        this.touch()
+    }
+
     set abrasfVersion(abrasfVersion: AbrasfVersion) {
         this.props.abrasfVersion = abrasfVersion
         this.touch()
@@ -95,18 +94,8 @@ export class NfseCityConfiguration extends Entity<NfseCityConfigurationProps> {
         this.touch()
     }
 
-    set queryUrl(queryUrl: string | null | undefined) {
-        this.props.queryUrl = queryUrl
-        this.touch()
-    }
-
     set timeout(timeout: number) {
         this.props.timeout = timeout
-        this.touch()
-    }
-
-    set specificFields(specificFields: Record<string, any> | null | undefined) {
-        this.props.specificFields = specificFields
         this.touch()
     }
 
@@ -115,15 +104,14 @@ export class NfseCityConfiguration extends Entity<NfseCityConfigurationProps> {
     }
 
     static create(
-        props: Optional<NfseCityConfigurationProps, 'createdAt' | 'updatedAt' | 'queryUrl' | 'specificFields'>,
+        props: Optional<NfseCityConfigurationProps, 'createdAt' | 'updatedAt'>,
         id?: UniqueEntityID,
     ) {
         const nfseCityConfiguration = new NfseCityConfiguration(
             {
                 ...props,
+                timeout: props.timeout ?? 5000, // Definir valor padrão ao criar
                 createdAt: props.createdAt ?? new Date(),
-                queryUrl: props.queryUrl ?? null,
-                specificFields: props.specificFields ?? null,
             },
             id,
         )
@@ -133,17 +121,9 @@ export class NfseCityConfiguration extends Entity<NfseCityConfigurationProps> {
 
     // Helper methods
     getEndpoint(environment: 'production' | 'sandbox'): string {
-        return environment === 'production' ? this.productionUrl : this.sandboxUrl
-    }
-
-    hasSpecificField(fieldName: string): boolean {
-        return this.specificFields !== null && this.specificFields !== undefined && fieldName in this.specificFields
-    }
-
-    getSpecificField<T>(fieldName: string, defaultValue: T): T {
-        if (!this.specificFields || !(fieldName in this.specificFields)) {
-            return defaultValue
+        if (environment === 'sandbox' && !this.sandboxUrl) {
+            throw new Error('Sandbox URL is not configured')
         }
-        return this.specificFields[fieldName] as T
+        return environment === 'production' ? this.productionUrl : this.sandboxUrl!
     }
 }

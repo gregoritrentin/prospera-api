@@ -1,25 +1,29 @@
-// src/infra/nfse/services/abrasf-nfse.service.ts
-
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { NfseProvider } from '@/domain/dfe/nfse/providers/nfse-provider';
-import { NfseResponse } from '@/domain/dfe/nfse/providers/nfse-response';
+import { NfseProvider, NfseResponse } from '@/domain/interfaces/nfse-provider';
 import { NfseCityConfiguration } from '@/domain/dfe/nfse/entities/nfse-city-configuration';
 import { Nfse } from '@/domain/dfe/nfse/entities/nfse';
 import { NfseEvent } from '@/domain/dfe/nfse/entities/nfse-event';
-import { NfseEventType, NfseEventStatus, NfseStatus } from '@/core/types/enums';
-import { TransmissionBuilder } from '../xml/builders/transmission-builder';
+import { NfseEventType, NfseEventStatus, NfseStatus, NfseCancelReason } from '@/core/types/enums';
+import { TransmissionBuilder } from '@/infra/nfse/xml/builders/transmition-builder';
 import { QueryBuilder } from '../xml/builders/query-builder';
 import { CancellationBuilder } from '../xml/builders/cancellation-builder';
 import { CertificateSigningService } from './certificate-signing.service';
 import { RpsResponseProcessor } from './rps-response-processor.service';
+import { GetBusinessUseCase } from '@/domain/application/use-cases/get-business';
+import { UniqueEntityID } from '@/core/entities/unique-entity-id';
+
+interface BusinessDataForXml {
+    inscricaoMunicipal: string;
+    simplesNacional: string;
+}
 
 @Injectable()
 export class AbrasfNfseService implements NfseProvider {
     private readonly logger = new Logger(AbrasfNfseService.name);
     private readonly RETRY_ATTEMPTS = 3;
-    private readonly RETRY_DELAY = 1000; // 1 segundo
+    private readonly RETRY_DELAY = 1000;
 
     constructor(
         private httpService: HttpService,
@@ -27,11 +31,27 @@ export class AbrasfNfseService implements NfseProvider {
         private queryBuilder: QueryBuilder,
         private cancellationBuilder: CancellationBuilder,
         private certificateService: CertificateSigningService,
-        private responseProcessor: RpsResponseProcessor
+        private responseProcessor: RpsResponseProcessor,
+        private getBusinessUseCase: GetBusinessUseCase,
+        private cityConfig: NfseCityConfiguration
     ) { }
 
-    async transmit(nfse: Nfse, config: NfseCityConfiguration): Promise<NfseResponse> {
-        // Cria evento de transmissão
+    private async getBusinessData(businessId: string): Promise<BusinessDataForXml> {
+        const result = await this.getBusinessUseCase.execute({ businessId });
+
+        if (result.isRight()) {
+            const business = result.value.business[0];
+            return {
+                inscricaoMunicipal: business.im ?? '',
+                simplesNacional: business.businessSize === 'SIMPLES_NACIONAL' ? '1' : '2'
+            };
+        }
+
+        throw new Error('Failed to fetch business data');
+    }
+
+    async transmit(nfse: Nfse): Promise<NfseResponse> {
+        const businessData = await this.getBusinessData(nfse.businessId.toString());
         const event = NfseEvent.create({
             nfseId: nfse.id,
             type: NfseEventType.TRANSMISSION,
@@ -39,14 +59,17 @@ export class AbrasfNfseService implements NfseProvider {
         });
 
         try {
-            // 1. Gera o XML
-            const { xml, errors } = await this.transmissionBuilder.buildTransmissionXml(nfse, config);
+            const { xml, errors } = await this.transmissionBuilder.buildTransmissionXml(
+                nfse,
+                this.cityConfig,
+                businessData
+            );
+
             if (errors.length > 0) {
-                event.markAsError('XML validation errors', undefined, errors);
+                event.markAsError('XML validation errors', undefined);
                 throw new Error('XML validation failed');
             }
 
-            // 2. Assina o XML
             const { signedXml, event: signEvent } = await this.certificateService.signXml(
                 xml,
                 nfse.businessId.toString(),
@@ -54,22 +77,18 @@ export class AbrasfNfseService implements NfseProvider {
             );
             nfse.addEvent(signEvent);
 
-            // 3. Registra XML no evento
             event.requestXml = signedXml;
 
-            // 4. Faz requisição com retry
             const response = await this.executeWithRetry(async () => {
-                return await this.makeRequest(signedXml, config, 'transmit');
+                return await this.makeRequest(signedXml, this.cityConfig, 'transmit');
             });
 
-            // 5. Processa a resposta
             const processedResponse = await this.responseProcessor.processResponse({
                 businessId: nfse.businessId.toString(),
                 nfseId: nfse.id.toString(),
                 xml: response
             });
 
-            // 6. Atualiza evento
             if (processedResponse.isLeft()) {
                 event.markAsError('Failed to process response', response);
                 throw new Error('Response processing failed');
@@ -87,7 +106,14 @@ export class AbrasfNfseService implements NfseProvider {
                 nfse.status = NfseStatus.ERROR;
             }
 
-            return processedResponse.value;
+            nfse.addEvent(event);
+            return {
+                protocol: processedResponse.value.protocol ?? '',
+                nfseNumber: processedResponse.value.nfseNumber ?? '',
+                status: success ? NfseStatus.AUTHORIZED : NfseStatus.ERROR,
+                message: processedResponse.value.message,
+                xml: response
+            };
 
         } catch (error) {
             this.logger.error('Error transmitting NFSe', {
@@ -97,7 +123,7 @@ export class AbrasfNfseService implements NfseProvider {
 
             event.markAsError(
                 error instanceof Error ? error.message : 'Unknown error',
-                event.responseXml
+                event.responseXml ?? undefined
             );
             nfse.status = NfseStatus.ERROR;
             nfse.addEvent(event);
@@ -106,39 +132,41 @@ export class AbrasfNfseService implements NfseProvider {
         }
     }
 
-    async query(nfse: Nfse, config: NfseCityConfiguration): Promise<NfseResponse> {
+    async query(nfseNumber: string): Promise<NfseResponse> {
+        const result = await this.getBusinessUseCase.execute({ businessId: this.cityConfig.cityCode });
+
+        if (result.isLeft()) {
+            throw new Error('Failed to fetch business data');
+        }
+
+        const business = result.value.business[0];
         const event = NfseEvent.create({
-            nfseId: nfse.id,
+            nfseId: new UniqueEntityID(),
             type: NfseEventType.QUERY,
             status: NfseEventStatus.PROCESSING
         });
 
         try {
-            // 1. Gera XML de consulta
-            const { xml, errors } = await this.queryBuilder.buildQueryByRps({
-                rpsNumber: nfse.rpsNumber,
-                rpsSeries: nfse.rpsSeries,
-                rpsType: nfse.rpsType.toString(),
-                businessId: nfse.businessId.toString(),
-                inscricaoMunicipal: config.getSpecificField('inscricaoMunicipal', '')
-            }, config);
+            const { xml, errors } = await this.queryBuilder.buildQueryByNumber({
+                nfseNumber,
+                businessId: business.document,
+                inscricaoMunicipal: business.im ?? ''
+            }, this.cityConfig);
 
             if (errors.length > 0) {
-                event.markAsError('XML validation errors', undefined, errors);
+                event.markAsError('XML validation errors', undefined);
                 throw new Error('XML validation failed');
             }
 
             event.requestXml = xml;
 
-            // 2. Faz requisição com retry
             const response = await this.executeWithRetry(async () => {
-                return await this.makeRequest(xml, config, 'query');
+                return await this.makeRequest(xml, this.cityConfig, 'query');
             });
 
-            // 3. Processa resposta
             const processedResponse = await this.responseProcessor.processResponse({
-                businessId: nfse.businessId.toString(),
-                nfseId: nfse.id.toString(),
+                businessId: business.document,
+                nfseId: nfseNumber,
                 xml: response
             });
 
@@ -149,36 +177,26 @@ export class AbrasfNfseService implements NfseProvider {
 
             const { success, message } = processedResponse.value;
 
-            if (success) {
-                event.markAsSuccess(response, message);
-            } else {
-                event.markAsError(message, response);
-            }
-
-            nfse.addEvent(event);
-            return processedResponse.value;
+            return {
+                protocol: processedResponse.value.protocol ?? '',
+                nfseNumber: processedResponse.value.nfseNumber ?? '',
+                status: success ? NfseStatus.AUTHORIZED : NfseStatus.ERROR,
+                message,
+                xml: response
+            };
 
         } catch (error) {
             this.logger.error('Error querying NFSe', {
-                nfseId: nfse.id.toString(),
+                nfseNumber,
                 error: error instanceof Error ? error.message : 'Unknown error'
             });
-
-            event.markAsError(
-                error instanceof Error ? error.message : 'Unknown error',
-                event.responseXml
-            );
-            nfse.addEvent(event);
 
             throw error;
         }
     }
 
-    async cancel(
-        nfse: Nfse,
-        reason: string,
-        config: NfseCityConfiguration
-    ): Promise<NfseResponse> {
+    async cancel(nfse: Nfse, reason: string): Promise<NfseResponse> {
+        const businessData = await this.getBusinessData(nfse.businessId.toString());
         const event = NfseEvent.create({
             nfseId: nfse.id,
             type: NfseEventType.CANCELLATION,
@@ -186,22 +204,20 @@ export class AbrasfNfseService implements NfseProvider {
         });
 
         try {
-            // 1. Gera XML de cancelamento
             const { xml, errors } = await this.cancellationBuilder.buildCancellation({
-                nfseNumber: nfse.nfseNumber,
+                nfseNumber: nfse.nfseNumber ?? '',
                 businessId: nfse.businessId.toString(),
-                inscricaoMunicipal: config.getSpecificField('inscricaoMunicipal', ''),
-                cityCode: config.cityCode,
-                cancelReason: nfse.cancelReason,
+                inscricaoMunicipal: businessData.inscricaoMunicipal,
+                cityCode: this.cityConfig.cityCode,
+                cancelReason: nfse.cancelReason as NfseCancelReason,
                 cancelText: reason
-            }, config);
+            }, this.cityConfig);
 
             if (errors.length > 0) {
-                event.markAsError('XML validation errors', undefined, errors);
+                event.markAsError('XML validation errors', undefined);
                 throw new Error('XML validation failed');
             }
 
-            // 2. Assina o XML
             const { signedXml, event: signEvent } = await this.certificateService.signXml(
                 xml,
                 nfse.businessId.toString(),
@@ -211,12 +227,10 @@ export class AbrasfNfseService implements NfseProvider {
 
             event.requestXml = signedXml;
 
-            // 3. Faz requisição com retry
             const response = await this.executeWithRetry(async () => {
-                return await this.makeRequest(signedXml, config, 'cancel');
+                return await this.makeRequest(signedXml, this.cityConfig, 'cancel');
             });
 
-            // 4. Processa resposta
             const processedResponse = await this.responseProcessor.processResponse({
                 businessId: nfse.businessId.toString(),
                 nfseId: nfse.id.toString(),
@@ -239,7 +253,13 @@ export class AbrasfNfseService implements NfseProvider {
             }
 
             nfse.addEvent(event);
-            return processedResponse.value;
+            return {
+                protocol: processedResponse.value.protocol ?? '',
+                nfseNumber: processedResponse.value.nfseNumber ?? '',
+                status: success ? NfseStatus.CANCELED : NfseStatus.ERROR,
+                message,
+                xml: response
+            };
 
         } catch (error) {
             this.logger.error('Error canceling NFSe', {
@@ -249,12 +269,16 @@ export class AbrasfNfseService implements NfseProvider {
 
             event.markAsError(
                 error instanceof Error ? error.message : 'Unknown error',
-                event.responseXml
+                event.responseXml ?? undefined
             );
             nfse.addEvent(event);
 
             throw error;
         }
+    }
+
+    async substitute(nfse: Nfse, substituteReason: string): Promise<NfseResponse> {
+        throw new Error('Substitution not implemented for this provider');
     }
 
     private async makeRequest(
@@ -283,7 +307,7 @@ export class AbrasfNfseService implements NfseProvider {
     ): string {
         const endpoints = {
             transmit: config.productionUrl,
-            query: config.queryUrl || config.productionUrl,
+            query: config.productionUrl,
             cancel: config.productionUrl
         };
 

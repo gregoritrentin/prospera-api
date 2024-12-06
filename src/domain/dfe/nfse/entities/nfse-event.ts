@@ -1,4 +1,3 @@
-// src/domain/entities/nfse-event.ts
 import { Entity } from '@/core/entities/entity'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Optional } from '@/core/types/optional'
@@ -73,6 +72,12 @@ export class NfseEvent extends Entity<NfseEventProps> {
 
     set message(message: string | null | undefined) {
         this.props.message = message
+        this.touch()
+    }
+
+    // Adicionando o setter para requestXml
+    set requestXml(requestXml: string | null | undefined) {
+        this.props.requestXml = requestXml
         this.touch()
     }
 

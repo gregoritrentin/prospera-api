@@ -3,12 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { XsdValidator } from '../validators/xsd-validator';
 import { ConfigService } from '@nestjs/config';
 import { ProcessRpsError } from '@/core/types/nfse/process-rps-error';
-import {
-    Nfse,
-    NfseEvent,
-    NfseCityConfiguration
-} from '@/domain/dfe/nfse/entities';
 import { AbrasfVersion } from '@/core/types/enums';
+import { NfseCityConfiguration } from '@/domain/dfe/nfse/entities/nfse-city-configuration';
 
 @Injectable()
 export class XmlBuilderBase {

@@ -1,4 +1,3 @@
-// src/infra/nfse/xml/builders/transmission-builder.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { XmlBuilderBase } from './xml-builder-base';
@@ -8,9 +7,14 @@ import { NfseCityConfiguration } from '@/domain/dfe/nfse/entities/nfse-city-conf
 import { ProcessRpsError } from '@/core/types/nfse/process-rps-error';
 import { AbrasfVersion } from '@/core/types/enums';
 
+interface BusinessDataForXml {
+    inscricaoMunicipal: string;
+    simplesNacional: string;
+}
+
 @Injectable()
 export class TransmissionBuilder extends XmlBuilderBase {
-    private readonly logger = new Logger(TransmissionBuilder.name);
+    protected readonly logger = new Logger(TransmissionBuilder.name);
 
     constructor(
         protected readonly xsdValidator: XsdValidator,
@@ -21,7 +25,8 @@ export class TransmissionBuilder extends XmlBuilderBase {
 
     async buildTransmissionXml(
         nfse: Nfse,
-        cityConfig: NfseCityConfiguration
+        cityConfig: NfseCityConfiguration,
+        businessData: BusinessDataForXml
     ): Promise<{
         xml: string;
         errors: ProcessRpsError[];
@@ -29,8 +34,8 @@ export class TransmissionBuilder extends XmlBuilderBase {
         try {
             const version = this.getVersionFromConfig(cityConfig);
             const xml = cityConfig.abrasfVersion === AbrasfVersion.V1_0
-                ? this.buildV1(nfse, cityConfig)
-                : this.buildV204(nfse, cityConfig);
+                ? this.buildV1(nfse, cityConfig, businessData)
+                : this.buildV204(nfse, cityConfig, businessData);
 
             const errors = await this.validateXml(
                 xml,
@@ -56,7 +61,7 @@ export class TransmissionBuilder extends XmlBuilderBase {
         }
     }
 
-    private buildV1(nfse: Nfse, cityConfig: NfseCityConfiguration): string {
+    private buildV1(nfse: Nfse, cityConfig: NfseCityConfiguration, businessData: BusinessDataForXml): string {
         const loteId = this.generateId('lote', nfse.rpsNumber);
         const rpsId = this.generateId('rps', nfse.rpsNumber);
 
@@ -64,13 +69,13 @@ export class TransmissionBuilder extends XmlBuilderBase {
             this.buildXmlHeader('EnviarLoteRpsEnvio', '1.00'),
             `<LoteRps Id="${loteId}">`,
             `<NumeroLote>1</NumeroLote>`,
-            this.buildCpfCnpj(nfse.businessId.toString()),
-            this.buildTagWithValue('InscricaoMunicipal', cityConfig.getSpecificField('inscricaoMunicipal', '')),
+            this.buildCpfCnpjTag(nfse.businessId.toString()),
+            this.buildTagWithValue('InscricaoMunicipal', businessData.inscricaoMunicipal),
             `<QuantidadeRps>1</QuantidadeRps>`,
             '<ListaRps>',
             `<Rps>`,
             `<InfRps Id="${rpsId}">`,
-            this.buildRpsV1(nfse, cityConfig),
+            this.buildRpsV1(nfse, cityConfig, businessData),
             '</InfRps>',
             '</Rps>',
             '</ListaRps>',
@@ -79,7 +84,7 @@ export class TransmissionBuilder extends XmlBuilderBase {
         ].join('');
     }
 
-    private buildV204(nfse: Nfse, cityConfig: NfseCityConfiguration): string {
+    private buildV204(nfse: Nfse, cityConfig: NfseCityConfiguration, businessData: BusinessDataForXml): string {
         const loteId = this.generateId('lote', nfse.rpsNumber);
         const rpsId = this.generateId('rps', nfse.rpsNumber);
 
@@ -87,13 +92,13 @@ export class TransmissionBuilder extends XmlBuilderBase {
             this.buildXmlHeader('EnviarLoteRpsEnvio', '2.04'),
             `<LoteRps Id="${loteId}" versao="2.04">`,
             `<NumeroLote>1</NumeroLote>`,
-            this.buildCpfCnpj(nfse.businessId.toString()),
-            this.buildTagWithValue('InscricaoMunicipal', cityConfig.getSpecificField('inscricaoMunicipal', '')),
+            this.buildCpfCnpjTag(nfse.businessId.toString()),
+            this.buildTagWithValue('InscricaoMunicipal', businessData.inscricaoMunicipal),
             `<QuantidadeRps>1</QuantidadeRps>`,
             '<ListaRps>',
             `<Rps>`,
             `<InfRps Id="${rpsId}">`,
-            this.buildRpsV204(nfse, cityConfig),
+            this.buildRpsV204(nfse, cityConfig, businessData),
             '</InfRps>',
             '</Rps>',
             '</ListaRps>',
@@ -102,7 +107,7 @@ export class TransmissionBuilder extends XmlBuilderBase {
         ].join('');
     }
 
-    private buildRpsV1(nfse: Nfse, cityConfig: NfseCityConfiguration): string {
+    private buildRpsV1(nfse: Nfse, cityConfig: NfseCityConfiguration, businessData: BusinessDataForXml): string {
         return [
             '<IdentificacaoRps>',
             this.buildTagWithValue('Numero', nfse.rpsNumber),
@@ -112,16 +117,16 @@ export class TransmissionBuilder extends XmlBuilderBase {
             this.buildTagWithValue('DataEmissao', this.formatDateTime(nfse.issueDate)),
             this.buildTagWithValue('NaturezaOperacao', nfse.operationType.toString()),
             this.buildTagWithValue('RegimeEspecialTributacao', nfse.issRequirement.toString()),
-            this.buildTagWithValue('OptanteSimplesNacional', cityConfig.getSpecificField('simplesNacional', '2')),
+            this.buildTagWithValue('OptanteSimplesNacional', businessData.simplesNacional),
             this.buildTagWithValue('IncentivadorCultural', '2'),
             this.buildTagWithValue('Status', '1'),
             this.buildServiceV1(nfse),
-            this.buildPrestadorV1(nfse, cityConfig),
+            this.buildPrestadorV1(nfse, businessData),
             this.buildTomadorV1(nfse),
         ].join('');
     }
 
-    private buildRpsV204(nfse: Nfse, cityConfig: NfseCityConfiguration): string {
+    private buildRpsV204(nfse: Nfse, cityConfig: NfseCityConfiguration, businessData: BusinessDataForXml): string {
         return [
             '<IdentificacaoRps>',
             this.buildTagWithValue('Numero', nfse.rpsNumber),
@@ -131,11 +136,11 @@ export class TransmissionBuilder extends XmlBuilderBase {
             this.buildTagWithValue('DataEmissao', this.formatDateTime(nfse.issueDate)),
             this.buildTagWithValue('NaturezaOperacao', nfse.operationType.toString()),
             this.buildTagWithValue('RegimeEspecialTributacao', nfse.issRequirement.toString()),
-            this.buildTagWithValue('OptanteSimplesNacional', cityConfig.getSpecificField('simplesNacional', '2')),
+            this.buildTagWithValue('OptanteSimplesNacional', businessData.simplesNacional),
             this.buildTagWithValue('IncentivadorCultural', '2'),
             this.buildTagWithValue('Status', '1'),
             this.buildServiceV204(nfse),
-            this.buildPrestadorV204(nfse, cityConfig),
+            this.buildPrestadorV204(nfse, businessData),
             this.buildTomadorV204(nfse),
         ].join('');
     }
@@ -200,20 +205,20 @@ export class TransmissionBuilder extends XmlBuilderBase {
         ].join('');
     }
 
-    private buildPrestadorV1(nfse: Nfse, cityConfig: NfseCityConfiguration): string {
+    private buildPrestadorV1(nfse: Nfse, businessData: BusinessDataForXml): string {
         return [
             '<Prestador>',
             this.buildTagWithValue('Cnpj', nfse.businessId.toString(), { clean: true }),
-            this.buildTagWithValue('InscricaoMunicipal', cityConfig.getSpecificField('inscricaoMunicipal', '')),
+            this.buildTagWithValue('InscricaoMunicipal', businessData.inscricaoMunicipal),
             '</Prestador>'
         ].join('');
     }
 
-    private buildPrestadorV204(nfse: Nfse, cityConfig: NfseCityConfiguration): string {
+    private buildPrestadorV204(nfse: Nfse, businessData: BusinessDataForXml): string {
         return [
             '<Prestador>',
             this.buildTagWithValue('CpfCnpj', nfse.businessId.toString(), { clean: true }),
-            this.buildTagWithValue('InscricaoMunicipal', cityConfig.getSpecificField('inscricaoMunicipal', '')),
+            this.buildTagWithValue('InscricaoMunicipal', businessData.inscricaoMunicipal),
             '</Prestador>'
         ].join('');
     }
@@ -222,7 +227,7 @@ export class TransmissionBuilder extends XmlBuilderBase {
         return [
             '<Tomador>',
             '<IdentificacaoTomador>',
-            this.buildCpfCnpj(nfse.personId.toString()),
+            this.buildCpfCnpjTag(nfse.personId.toString()),
             '</IdentificacaoTomador>',
             '</Tomador>'
         ].join('');
@@ -232,7 +237,7 @@ export class TransmissionBuilder extends XmlBuilderBase {
         return [
             '<TomadorServico>',
             '<IdentificacaoTomador>',
-            this.buildCpfCnpj(nfse.personId.toString()),
+            this.buildCpfCnpjTag(nfse.personId.toString()),
             '</IdentificacaoTomador>',
             '</TomadorServico>'
         ].join('');

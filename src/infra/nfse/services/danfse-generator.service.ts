@@ -19,7 +19,7 @@ interface GeneratePdfResult {
 @Injectable()
 export class DanfseGeneratorService {
     private readonly logger = new Logger(DanfseGeneratorService.name);
-    private template: HandlebarsTemplateDelegate;
+    private template!: HandlebarsTemplateDelegate;
 
     constructor(
         private uploadFileUseCase: UploadAndCreateFileUseCase
@@ -93,10 +93,12 @@ export class DanfseGeneratorService {
             });
 
             if (uploadResult.isLeft()) {
-                return left(AppError.fileUploadError({
-                    message: 'Failed to upload DANFSE PDF',
-                    cause: uploadResult.value
-                }));
+                return left(
+                    AppError.fileUploadFailed({
+                        message: 'Failed to upload DANFSE PDF',
+                        cause: uploadResult.value,
+                    })
+                );
             }
 
             return right({
@@ -178,7 +180,7 @@ export class DanfseGeneratorService {
 
     private async generatePdf(html: string): Promise<Buffer> {
         const browser = await puppeteer.launch({
-            headless: 'new',
+            headless: true,
             args: ['--no-sandbox']
         });
 

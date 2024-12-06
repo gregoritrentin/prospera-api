@@ -24,12 +24,10 @@ export class PrismaNfseCityConfigurationRepository implements NfseCityConfigurat
                 name: configuration.name,
                 cityCode: configuration.cityCode,
                 stateCode: configuration.stateCode,
+                provider: configuration.provider,
                 abrasfVersion: PrismaNfseCityConfigurationMapper.toDomain(configuration.abrasfVersion),
-                sandboxUrl: configuration.sandboxUrl,
+                sandboxUrl: configuration.sandboxUrl ?? undefined,
                 productionUrl: configuration.productionUrl,
-                queryUrl: configuration.queryUrl,
-                timeout: configuration.timeout,
-                specificFields: configuration.specificFields as Record<string, any>,
                 createdAt: configuration.createdAt,
                 updatedAt: configuration.updatedAt
             },
@@ -49,12 +47,10 @@ export class PrismaNfseCityConfigurationRepository implements NfseCityConfigurat
                 name: configuration.name,
                 cityCode: configuration.cityCode,
                 stateCode: configuration.stateCode,
+                provider: configuration.provider,
                 abrasfVersion: PrismaNfseCityConfigurationMapper.toDomain(configuration.abrasfVersion),
-                sandboxUrl: configuration.sandboxUrl,
+                sandboxUrl: configuration.sandboxUrl ?? undefined,
                 productionUrl: configuration.productionUrl,
-                queryUrl: configuration.queryUrl,
-                timeout: configuration.timeout,
-                specificFields: configuration.specificFields as Record<string, any>,
                 createdAt: configuration.createdAt,
                 updatedAt: configuration.updatedAt
             },
@@ -69,14 +65,12 @@ export class PrismaNfseCityConfigurationRepository implements NfseCityConfigurat
                 name: config.name,
                 cityCode: config.cityCode,
                 stateCode: config.stateCode,
+                provider: config.provider,
                 abrasfVersion: PrismaNfseCityConfigurationMapper.toPrisma(config.abrasfVersion),
                 sandboxUrl: config.sandboxUrl,
                 productionUrl: config.productionUrl,
-                queryUrl: config.queryUrl,
-                timeout: config.timeout,
-                specificFields: config.specificFields as Prisma.InputJsonValue,
                 createdAt: config.createdAt,
-                updatedAt: config.updatedAt
+                updatedAt: config.updatedAt,
             }
         })
     }
@@ -88,13 +82,10 @@ export class PrismaNfseCityConfigurationRepository implements NfseCityConfigurat
                 name: config.name,
                 cityCode: config.cityCode,
                 stateCode: config.stateCode,
+                provider: config.provider,
                 abrasfVersion: PrismaNfseCityConfigurationMapper.toPrisma(config.abrasfVersion),
                 sandboxUrl: config.sandboxUrl,
                 productionUrl: config.productionUrl,
-                queryUrl: config.queryUrl,
-                timeout: config.timeout,
-                //specificFields: config.specificFields,
-                specificFields: config.specificFields as Prisma.InputJsonValue,
                 updatedAt: config.updatedAt
             }
         })
@@ -125,12 +116,10 @@ export class PrismaNfseCityConfigurationRepository implements NfseCityConfigurat
                     name: configuration.name,
                     cityCode: configuration.cityCode,
                     stateCode: configuration.stateCode,
+                    provider: configuration.provider,
                     abrasfVersion: PrismaNfseCityConfigurationMapper.toDomain(configuration.abrasfVersion),
-                    sandboxUrl: configuration.sandboxUrl,
+                    sandboxUrl: configuration.sandboxUrl ?? undefined,
                     productionUrl: configuration.productionUrl,
-                    queryUrl: configuration.queryUrl,
-                    timeout: configuration.timeout,
-                    specificFields: configuration.specificFields as Record<string, any>,
                     createdAt: configuration.createdAt,
                     updatedAt: configuration.updatedAt
                 },

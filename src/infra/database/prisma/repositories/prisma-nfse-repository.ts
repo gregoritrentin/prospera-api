@@ -1,118 +1,196 @@
-import {
-    Nfse as PrismaNfse,
-    Business as PrismaBusiness,
-    Person as PrismaPerson,
-    NfseEvent as PrismaNfseEvent,
-    City as PrismaCity,
-    State as PrismaState,
-    File as PrismaFile
-} from '@prisma/client'
-import { NfseDetails } from '@/domain/dfe/nfse/entities/value-objects/nfse-details'
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import {
-    RpsType,
-    NfseStatus,
-    OperationType,
-    IssRequirement,
-    ServiceCode,
-    NfseSubstituteReason,
-    NfseCancelReason
-} from '@/core/types/enums'
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
+import { PaginationParams } from '@/core/repositories/pagination-params';
+import { Nfse } from '@/domain/dfe/nfse/entities/nfse';
+import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository';
+import { NfseDetails } from '@/domain/dfe/nfse/entities/value-objects/nfse-details';
+import { PrismaNfseMapper } from '@/infra/database/mappers/prisma-nfse-mapper';
+import { PrismaNfseDetailsMapper } from '@/infra/database/mappers/prisma-nfse-details-mapper';
 
-type PrismaNfseWithRelations = Omit<PrismaNfse, 'business'> & {
-    business: Omit<PrismaBusiness, 'im'> & {
-        im: string | null
+@Injectable()
+export class PrismaNfseRepository implements NfseRepository {
+    constructor(private prisma: PrismaService) { }
+
+    async findById(id: string, businessId: string): Promise<Nfse | null> {
+        const nfse = await this.prisma.nfse.findFirst({
+            where: {
+                id,
+                businessId,
+            },
+            include: {
+                NfseEvent: true
+            }
+        });
+
+        if (!nfse) {
+            return null;
+        }
+
+        return PrismaNfseMapper.toDomain(nfse as any);
     }
-    person: PrismaPerson
-    NfseEvent: PrismaNfseEvent[]
-    incidenceCityCode: PrismaCity
-    incidenceStateCode: PrismaState
-    serviceCityCode: PrismaCity
-    serviceStateCode: PrismaState
-    pdfFile?: PrismaFile | null
-    xmlFile?: PrismaFile | null
-}
 
-export class PrismaNfseDetailsMapper {
-    static toDomain(raw: PrismaNfseWithRelations): NfseDetails {
-        return NfseDetails.create({
-            businessId: new UniqueEntityID(raw.businessId),
-            businessName: raw.business.name,
-            businessDocument: raw.business.document,
-            businessCityCode: raw.business.cityCode,
-            businessInscricaoMunicipal: raw.business.im ?? '',
+    async findByIdDetails(id: string, businessId: string): Promise<NfseDetails | null> {
+        const nfse = await this.prisma.nfse.findFirst({
+            where: {
+                id,
+                businessId,
+            },
+            include: {
+                business: true,
+                person: true,
+                NfseEvent: true,
+                incidenceCityCode: true,
+                incidenceStateCode: true,
+                serviceCityCode: true,
+                serviceStateCode: true,
+                pdfFile: true,
+                xmlFile: true,
+            }
+        });
 
-            personId: new UniqueEntityID(raw.personId),
-            personName: raw.person.name,
-            personDocument: raw.person.document,
-            personEmail: raw.person.email,
-            personPhone: raw.person.phone,
+        if (!nfse) {
+            return null;
+        }
 
-            rpsNumber: raw.rpsNumber,
-            rpsSeries: raw.rpsSeries,
-            rpsType: raw.rpsType as RpsType,
-            issueDate: raw.issueDate,
-            competenceDate: raw.competenceDate,
+        return PrismaNfseDetailsMapper.toDomain(nfse as any);
+    }
 
-            description: raw.description,
-            additionalInformation: raw.additionalInformation,
-            operationType: raw.operationType as OperationType,
-            serviceCode: raw.serviceCode as ServiceCode,
-            serviceName: 'TODO: Add service name lookup',
-            issRequirement: raw.issRequirement as IssRequirement,
-            cnaeCode: raw.cnaeCode,
-            cityTaxCode: raw.cityTaxCode,
-            issRetention: raw.issRetention,
+    async findByNfseNumber(nfseNumber: string, businessId: string): Promise<Nfse | null> {
+        const nfse = await this.prisma.nfse.findFirst({
+            where: {
+                nfseNumber,
+                businessId,
+            },
+            include: {
+                NfseEvent: true
+            }
+        });
 
-            serviceAmount: raw.serviceAmount.toNumber(),
-            unconditionalDiscount: raw.unconditionalDiscount.toNumber(),
-            conditionalDiscount: raw.conditionalDiscount.toNumber(),
-            calculationBase: raw.calculationBase.toNumber(),
-            netAmount: raw.netAmount.toNumber(),
+        if (!nfse) {
+            return null;
+        }
 
-            issRate: raw.issRate.toNumber(),
-            pisRate: raw.pisRate.toNumber(),
-            cofinsRate: raw.cofinsRate.toNumber(),
-            irRate: raw.irRate.toNumber(),
-            inssRate: raw.inssRate.toNumber(),
-            csllRate: raw.csllRate.toNumber(),
+        return PrismaNfseMapper.toDomain(nfse as any);
+    }
 
-            issAmount: raw.issAmount.toNumber(),
-            pisAmount: raw.pisAmount.toNumber(),
-            cofinsAmount: raw.cofinsAmount.toNumber(),
-            inssAmount: raw.inssAmount.toNumber(),
-            irAmount: raw.irAmount.toNumber(),
-            csllAmount: raw.csllAmount.toNumber(),
-            otherRetentions: raw.otherRetentions.toNumber(),
+    async findByRpsNumber(rpsNumber: string, rpsSeries: string, businessId: string): Promise<Nfse | null> {
+        const nfse = await this.prisma.nfse.findFirst({
+            where: {
+                rpsNumber,
+                rpsSeries,
+                businessId,
+            },
+            include: {
+                NfseEvent: true
+            }
+        });
 
-            incidenceState: raw.incidenceState,
-            incidenceCity: raw.incidenceCity,
-            serviceState: raw.serviceState,
-            serviceCity: raw.serviceCity,
+        if (!nfse) {
+            return null;
+        }
 
-            status: raw.status as NfseStatus,
-            batchNumber: raw.batchNumber,
-            protocol: raw.protocol,
-            nfseNumber: raw.nfseNumber,
-            substituteNfseNumber: raw.substituteNfseNumber,
-            substituteReason: raw.substituteReason as NfseSubstituteReason || undefined,
-            cancelReason: raw.cancelReason as NfseCancelReason || undefined,
+        return PrismaNfseMapper.toDomain(nfse as any);
+    }
 
-            pdfFileId: raw.pdfFileId,
-            xmlFileId: raw.xmlFileId,
+    async create(nfse: Nfse): Promise<void> {
+        const data = PrismaNfseMapper.toPrisma(nfse) as any;
 
-            eventsCount: raw.NfseEvent.length,
-            eventsDetails: raw.NfseEvent.map(event => ({
-                id: event.id,
-                type: event.type,
-                status: event.status,
-                message: event.message ?? undefined,
-                createdAt: event.createdAt
-            })),
+        await this.prisma.nfse.create({
+            data
+        });
+    }
 
-            createdAt: raw.createdAt,
-            updatedAt: raw.updatedAt,
-            canceledAt: raw.canceledAt,
-        })
+    async save(nfse: Nfse): Promise<void> {
+        const data = PrismaNfseMapper.toPrisma(nfse) as any;
+
+        await this.prisma.nfse.update({
+            where: { id: data.id },
+            data
+        });
+    }
+
+    async delete(nfse: Nfse): Promise<void> {
+        await this.prisma.nfse.delete({
+            where: { id: nfse.id.toString() }
+        });
+    }
+
+    async findMany(
+        { page }: PaginationParams,
+        businessId: string,
+        startDate?: Date,
+        endDate?: Date
+    ): Promise<Nfse[]> {
+        const nfses = await this.prisma.nfse.findMany({
+            where: {
+                businessId,
+                ...(startDate && endDate ? {
+                    issueDate: {
+                        gte: startDate,
+                        lte: endDate,
+                    }
+                } : {})
+            },
+            include: {
+                NfseEvent: true
+            },
+            orderBy: {
+                issueDate: 'desc',
+            },
+            take: 20,
+            skip: (page - 1) * 20,
+        });
+
+        return nfses.map(nfse => PrismaNfseMapper.toDomain(nfse as any));
+    }
+
+    async findByPeriod(
+        businessId: string,
+        startDate: Date,
+        endDate: Date,
+        { page }: PaginationParams
+    ): Promise<Nfse[]> {
+        const nfses = await this.prisma.nfse.findMany({
+            where: {
+                businessId,
+                issueDate: {
+                    gte: startDate,
+                    lte: endDate,
+                }
+            },
+            include: {
+                NfseEvent: true
+            },
+            orderBy: {
+                issueDate: 'desc',
+            },
+            take: 20,
+            skip: (page - 1) * 20,
+        });
+
+        return nfses.map(nfse => PrismaNfseMapper.toDomain(nfse as any));
+    }
+
+    async findByCityConfiguration(
+        cityCode: string,
+        { page }: PaginationParams
+    ): Promise<Nfse[]> {
+        const nfses = await this.prisma.nfse.findMany({
+            where: {
+                business: {
+                    cityCode,
+                }
+            },
+            include: {
+                NfseEvent: true
+            },
+            orderBy: {
+                issueDate: 'desc',
+            },
+            take: 20,
+            skip: (page - 1) * 20,
+        });
+
+        return nfses.map(nfse => PrismaNfseMapper.toDomain(nfse as any));
     }
 }

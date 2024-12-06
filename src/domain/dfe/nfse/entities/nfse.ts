@@ -6,7 +6,8 @@ import {
     NfseStatus,
     OperationType,
     IssRequirement,
-    ServiceCode
+    ServiceCode,
+    NfseCancelReason
 } from '@/core/types/enums'
 import { NfseEvent } from '@/domain/dfe/nfse/entities/nfse-event'
 
@@ -71,7 +72,7 @@ export interface NfseProps {
 
     substituteNfseNumber?: string | null
     substituteReason?: string | null
-    cancelReason?: string | null
+    cancelReason?: NfseCancelReason | null
 
     // Files
     pdfFileId?: string | null
@@ -504,6 +505,11 @@ export class Nfse extends AggregateRoot<NfseProps> {
         this.touch()
     }
 
+    set canceledAt(canceledAt: Date | null | undefined) {
+        this.props.canceledAt = canceledAt
+        this.touch()
+    }
+
     // Event management
     addEvent(event: NfseEvent) {
         this.props.events.push(event)
@@ -515,7 +521,7 @@ export class Nfse extends AggregateRoot<NfseProps> {
     }
 
     // Status management methods
-    cancel(reason: string) {
+    cancel(reason: NfseCancelReason) {
         this.status = NfseStatus.CANCELED
         this.props.cancelReason = reason
         this.props.canceledAt = new Date()

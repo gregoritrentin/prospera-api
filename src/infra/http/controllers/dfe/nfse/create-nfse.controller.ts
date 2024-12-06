@@ -1,21 +1,16 @@
-import {
-    BadRequestException,
-    Body,
-    Controller,
-    HttpCode,
-    Post,
-    Req,
-} from '@nestjs/common'
-import { Request } from 'express'
-import { z } from 'zod'
-import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
-import { CreateNfseUseCase } from '@/domain/dfe/nfse/use-cases/create-nfse'
-import { Language } from '@/i18n'
-import { RpsType, OperationType, IssRequirement, ServiceCode } from '@/core/types/enums'
-import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiHeader } from '@nestjs/swagger'
-import { createZodDto } from 'nestjs-zod'
-import { UserPayload } from '@/infra/auth/jwt.strategy'
-import { CurrentUser } from '@/infra/auth/current-user-decorator'
+// src/infra/http/controllers/nfse/create-nfse.controller.ts
+
+import { Body, Controller, HttpCode, Post, Req, BadRequestException } from '@nestjs/common';
+import { Request } from 'express';
+import { z } from 'zod';
+import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe';
+import { CreateNfseUseCase } from '@/domain/dfe/nfse/use-cases/create-nfse';
+import { Language } from '@/i18n';
+import { RpsType, OperationType, IssRequirement, ServiceCode } from '@/core/types/enums';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiHeader } from '@nestjs/swagger';
+import { createZodDto } from 'nestjs-zod';
+import { UserPayload } from '@/infra/auth/jwt.strategy';
+import { CurrentUser } from '@/infra/auth/current-user-decorator';
 
 const createNfseBodySchema = z.object({
     personId: z.string().uuid(),
@@ -29,14 +24,14 @@ const createNfseBodySchema = z.object({
     issueDate: z.string().datetime(),
     competenceDate: z.string().datetime(),
 
-    // Service Description
+    // Service
     description: z.string(),
-    additionalInformation: z.string().nullable().optional(),
+    additionalInformation: z.string().optional(),
     operationType: z.nativeEnum(OperationType),
     serviceCode: z.nativeEnum(ServiceCode),
     issRequirement: z.nativeEnum(IssRequirement),
     cnaeCode: z.string(),
-    cityTaxCode: z.string().nullable().optional(),
+    cityTaxCode: z.string().optional(),
     issRetention: z.boolean(),
 
     // Values
@@ -57,13 +52,13 @@ const createNfseBodySchema = z.object({
     incidenceState: z.string(),
     incidenceCity: z.string(),
     serviceState: z.string(),
-    serviceCity: z.string()
-})
+    serviceCity: z.string(),
+});
 
-class NfseRequest extends createZodDto(createNfseBodySchema) { }
+class CreateNfseRequest extends createZodDto(createNfseBodySchema) { }
 
-const bodyValidationPipe = new ZodValidationPipe(createNfseBodySchema)
-type CreateNfseBodySchema = z.infer<typeof createNfseBodySchema>
+const bodyValidationPipe = new ZodValidationPipe(createNfseBodySchema);
+type CreateNfseBodySchema = z.infer<typeof createNfseBodySchema>;
 
 @ApiTags('NFSe')
 @Controller('/nfse')
@@ -74,7 +69,7 @@ export class CreateNfseController {
     @HttpCode(201)
     @ApiOperation({
         summary: 'Create a new NFSe',
-        description: 'Create a new NFSe (Nota Fiscal de Serviço Eletrônica). Requires Bearer Token authentication.'
+        description: 'Create a new NFSe (Service Invoice). Requires Bearer Token authentication.'
     })
     @ApiHeader({
         name: 'Authorization',
@@ -83,12 +78,12 @@ export class CreateNfseController {
     })
     @ApiHeader({
         name: 'Accept-Language',
-        description: 'Preferred language for the response. If not provided, defaults to en-US.',
+        description: 'Preferred language for response',
         required: false,
         schema: { type: 'string', default: 'en-US', enum: ['en-US', 'pt-BR'] },
     })
-    @ApiBody({ type: NfseRequest })
-    @ApiResponse({ status: 201, description: 'NFSe creation queued successfully' })
+    @ApiBody({ type: CreateNfseRequest })
+    @ApiResponse({ status: 201, description: 'NFSe created successfully' })
     @ApiResponse({ status: 400, description: 'Bad request' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     async handle(
@@ -96,85 +91,59 @@ export class CreateNfseController {
         @CurrentUser() user: UserPayload,
         @Req() req: Request
     ) {
-        const language = ((req.headers['accept-language'] as string) || 'en-US') as Language
-
-        const businessId = user.bus
-
-        const {
-            personId,
-            rpsNumber,
-            rpsSeries,
-            rpsType,
-            issueDate,
-            competenceDate,
-            description,
-            additionalInformation,
-            operationType,
-            serviceCode,
-            issRequirement,
-            cnaeCode,
-            cityTaxCode,
-            issRetention,
-            serviceAmount,
-            unconditionalDiscount,
-            conditionalDiscount,
-            calculationBase,
-            issRate,
-            pisRate,
-            cofinsRate,
-            irRate,
-            inssRate,
-            csllRate,
-            incidenceState,
-            incidenceCity,
-            serviceState,
-            serviceCity
-        } = body
+        const language = ((req.headers['accept-language'] as string) || 'en-US') as Language;
+        const businessId = user.bus;
 
         const result = await this.createNfse.execute({
             businessId,
-            personId,
-            rpsNumber,
-            rpsSeries,
-            rpsType,
-            issueDate: new Date(issueDate),
-            competenceDate: new Date(competenceDate),
-            description,
-            additionalInformation: additionalInformation ?? undefined,
-            operationType,
-            serviceCode,
-            issRequirement,
-            cnaeCode,
-            cityTaxCode: cityTaxCode ?? undefined,
-            issRetention,
-            serviceAmount,
-            unconditionalDiscount,
-            conditionalDiscount,
-            calculationBase,
-            issRate,
-            pisRate: pisRate ?? 0,
-            cofinsRate: cofinsRate ?? 0,
-            irRate: irRate ?? 0,
-            inssRate: inssRate ?? 0,
-            csllRate: csllRate ?? 0,
-            incidenceState,
-            incidenceCity,
-            serviceState,
-            serviceCity
-        }, language)
+            personId: body.personId,
+
+            rpsNumber: body.rpsNumber,
+            rpsSeries: body.rpsSeries,
+            rpsType: body.rpsType,
+
+            issueDate: new Date(body.issueDate),
+            competenceDate: new Date(body.competenceDate),
+
+            description: body.description,
+            additionalInformation: body.additionalInformation,
+            operationType: body.operationType,
+            serviceCode: body.serviceCode,
+            issRequirement: body.issRequirement,
+            cnaeCode: body.cnaeCode,
+            cityTaxCode: body.cityTaxCode,
+            issRetention: body.issRetention,
+
+            serviceAmount: body.serviceAmount,
+            unconditionalDiscount: body.unconditionalDiscount,
+            conditionalDiscount: body.conditionalDiscount,
+            calculationBase: body.calculationBase,
+
+            issRate: body.issRate,
+            pisRate: body.pisRate,
+            cofinsRate: body.cofinsRate,
+            irRate: body.irRate,
+            inssRate: body.inssRate,
+            csllRate: body.csllRate,
+
+            incidenceState: body.incidenceState,
+            incidenceCity: body.incidenceCity,
+            serviceState: body.serviceState,
+            serviceCity: body.serviceCity,
+        }, language);
 
         if (result.isLeft()) {
-            const error = result.value
+            const error = result.value;
             throw new BadRequestException({
                 message: error.message,
                 code: error.errorCode,
                 details: error.details,
-            })
+            });
         }
 
         return {
             jobId: result.value.jobId,
             message: result.value.message,
-        }
+        };
     }
 }

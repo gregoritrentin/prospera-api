@@ -5,9 +5,9 @@ import { Process, Processor, OnQueueFailed } from '@nestjs/bull';
 import { Job } from 'bull';
 import { I18nService } from '@/i18n/i18n.service';
 import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository';
-import { AbrasfNfseService } from '../../services/abrasf-nfse.service';
+import { AbrasfNfseService } from '@/infra/nfse/services/abrasf-nfse.service';
 import { GetNfseCityProviderUseCase } from '@/domain/dfe/nfse/use-cases/get-nfse-city-provider.use-case';
-import { DanfseGeneratorService } from '../../services/danfse-generator.service';
+import { DanfseGeneratorService } from '@/infra/nfse/services/danfse-generator.service';
 import { NfseQueueProducer } from '../producers/nfse-queue-producer';
 import { AppError } from '@/core/errors/app-errors';
 import { NfseStatus } from '@/core/types/enums';
@@ -67,10 +67,10 @@ export class NfseQueueConsumer {
             const { provider: cityConfig } = cityProviderResult.value;
 
             // 3. Transmite para prefeitura
-            const response = await this.nfseService.transmit(nfse, cityConfig);
+            const response = await this.nfseService.transmit(nfse);
 
             // 4. Se sucesso, gera PDF
-            if (response.success && response.nfseNumber) {
+            if (response.status === 'AUTHORIZED' && response.nfseNumber) {
                 // Busca detalhes atualizados para gerar PDF
                 const nfseDetails = await this.nfseRepository.findByIdDetails(nfseId, businessId);
                 if (nfseDetails) {
@@ -97,10 +97,11 @@ export class NfseQueueConsumer {
         } catch (error) {
             // Se ainda houver tentativas, recoloca na fila
             if (attempt < this.MAX_ATTEMPTS) {
-                await job.retry({
+                await job.update({
                     ...job.data,
                     attempt: attempt + 1
                 });
+                await job.retry();
                 return;
             }
 
@@ -138,7 +139,10 @@ export class NfseQueueConsumer {
             const { provider: cityConfig } = cityProviderResult.value;
 
             // 3. Consulta status na prefeitura
-            const response = await this.nfseService.query(nfse, cityConfig);
+            if (!nfse.nfseNumber) {
+                throw new Error('NFSe number is required for querying status');
+            }
+            const response = await this.nfseService.query(nfse.nfseNumber);
 
             // 4. Se ainda em processamento, agenda nova consulta
             if (response.status === 'PROCESSING') {
@@ -156,7 +160,7 @@ export class NfseQueueConsumer {
             }
 
             // 5. Se autorizada, gera PDF
-            if (response.success && nfse.status === NfseStatus.AUTHORIZED) {
+            if (response.status === 'AUTHORIZED' && nfse.status === NfseStatus.AUTHORIZED) {
                 const nfseDetails = await this.nfseRepository.findByIdDetails(nfseId, businessId);
                 if (nfseDetails) {
                     const pdfResult = await this.danfseGenerator.generate(nfseDetails, cityConfig);
@@ -195,11 +199,12 @@ export class NfseQueueConsumer {
         // Se for transmissão e ainda houver tentativas
         if (job.name === 'transmit-nfse' && job.data.attempt < this.MAX_ATTEMPTS) {
             const delay = Math.pow(2, job.data.attempt) * 1000; // Backoff exponencial
-            await job.retry({
+            await job.update({
                 ...job.data,
                 attempt: job.data.attempt + 1,
                 delay
             });
+            await job.retry();
         }
     }
 }

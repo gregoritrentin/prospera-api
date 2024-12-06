@@ -116,7 +116,9 @@ export enum NfseEventType {
     PROCESSING = 'PROCESSING',       // Processamento
     BATCH_PROCESSING = 'BATCH_PROCESSING', // Processamento em Lote
     ERROR_CORRECTION = 'ERROR_CORRECTION', // Correção de Erro
-    STATUS_UPDATE = 'STATUS_UPDATE',  // Atualização de Status
+    STATUS_UPDATE = 'STATUS_UPDATE',
+    TRANSMISSION = "TRANSMISSION",
+    SIGNING = "SIGNING",  // Atualização de Status
 }
 
 // Event Status
@@ -126,7 +128,8 @@ export enum NfseEventStatus {
     WARNING = 'WARNING',    // Alerta
     PENDING = 'PENDING',    // Pendente
     TIMEOUT = 'TIMEOUT',    // Timeout
-    PARTIAL = 'PARTIAL',    // Parcial
+    PARTIAL = 'PARTIAL',
+    PROCESSING = "PROCESSING",    // Parcial
 }
 
 // ABRASF Versions
@@ -169,7 +172,11 @@ export enum NfseCancelReason {
     FILLING_ERROR = 'FILLING_ERROR',           // Erro de preenchimento
     SERVICE_NOT_PROVIDED = 'SERVICE_NOT_PROVIDED', // Serviço não prestado
     FRAUD = 'FRAUD',                           // Fraude
-    OTHER = 'OTHER',                          // Outros
+    OTHER = 'OTHER',
+    ERROR_ON_ISSUANCE = "ERROR_ON_ISSUANCE",
+    WRONG_SIGNATURE = "WRONG_SIGNATURE",
+    DUPLICATE = "DUPLICATE",
+    ERROR_ON_PROCESSING = "ERROR_ON_PROCESSING",                          // Outros
 }
 
 export enum ServiceCode {

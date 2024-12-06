@@ -141,7 +141,7 @@ export class XsdValidator implements OnModuleInit {
         // Exemplo de validação específica v1.0
         const rpsNode = xmlDoc.get('//nfse:Rps', nsMap);
         if (rpsNode) {
-            const id = rpsNode.attr('Id')?.value();
+            const id = (rpsNode as libxmljs.Element).attr('Id')?.value();
             if (!id) {
                 errors.push({
                     code: 'MISSING_RPS_ID',
@@ -161,8 +161,8 @@ export class XsdValidator implements OnModuleInit {
         // Exemplo de validação específica v2.04
         const valoresNode = xmlDoc.get('//nfse:Valores', nsMap);
         if (valoresNode) {
-            const baseCalculo = valoresNode.get('nfse:BaseCalculo', nsMap);
-            const aliquota = valoresNode.get('nfse:Aliquota', nsMap);
+            const baseCalculo = (valoresNode as libxmljs.Element).get('nfse:BaseCalculo', nsMap);
+            const aliquota = (valoresNode as libxmljs.Element).get('nfse:Aliquota', nsMap);
 
             if (baseCalculo && !aliquota) {
                 errors.push({
@@ -183,12 +183,12 @@ export class XsdValidator implements OnModuleInit {
         // Validação de valores numéricos
         const valueNodes = xmlDoc.find('//*[starts-with(local-name(), "Valor")]', nsMap);
         for (const node of valueNodes) {
-            const value = node.text();
+            const value = (node as libxmljs.Element).text();
             if (value && !/^\d+(\.\d{2})?$/.test(value)) {
                 errors.push({
                     code: 'INVALID_VALUE_FORMAT',
-                    message: `Invalid value format in ${node.name()}: ${value}`,
-                    location: node.path(),
+                    message: `Invalid value format in ${(node as libxmljs.Element).name()}: ${value}`,
+                    location: (node as libxmljs.Element).path(),
                     solution: 'Use format: 0.00'
                 });
             }
@@ -197,12 +197,12 @@ export class XsdValidator implements OnModuleInit {
         // Validação de datas
         const dateNodes = xmlDoc.find('//*[contains(local-name(), "Data")]', nsMap);
         for (const node of dateNodes) {
-            const date = node.text();
+            const date = (node as libxmljs.Element).text();
             if (date && !/^\d{4}-\d{2}-\d{2}/.test(date)) {
                 errors.push({
                     code: 'INVALID_DATE_FORMAT',
-                    message: `Invalid date format in ${node.name()}: ${date}`,
-                    location: node.path(),
+                    message: `Invalid date format in ${(node as libxmljs.Element).name()}: ${date}`,
+                    location: (node as libxmljs.Element).path(),
                     solution: 'Use format: YYYY-MM-DD'
                 });
             }

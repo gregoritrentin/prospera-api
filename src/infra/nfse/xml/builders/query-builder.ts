@@ -1,4 +1,3 @@
-// src/infra/nfse/xml/builders/query-builder.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { XmlBuilderBase } from './xml-builder-base';
@@ -31,7 +30,7 @@ interface QueryByNumberParams {
 
 @Injectable()
 export class QueryBuilder extends XmlBuilderBase {
-    private readonly logger = new Logger(QueryBuilder.name);
+    protected readonly logger = new Logger(QueryBuilder.name);
 
     constructor(
         protected readonly xsdValidator: XsdValidator,
@@ -176,7 +175,7 @@ export class QueryBuilder extends XmlBuilderBase {
             this.buildTagWithValue('Tipo', params.rpsType),
             '</IdentificacaoRps>',
             '<Prestador>',
-            this.buildCpfCnpj(params.businessId),
+            this.buildCpfCnpjTag(params.businessId),
             this.buildTagWithValue('InscricaoMunicipal', params.inscricaoMunicipal),
             '</Prestador>',
             this.buildXmlFooter('ConsultarNfseRpsEnvio')
@@ -203,7 +202,7 @@ export class QueryBuilder extends XmlBuilderBase {
         return [
             this.buildXmlHeader('ConsultarNfseEnvio', '2.04'),
             '<Prestador>',
-            this.buildCpfCnpj(params.businessId),
+            this.buildCpfCnpjTag(params.businessId),
             this.buildTagWithValue('InscricaoMunicipal', params.inscricaoMunicipal),
             '</Prestador>',
             '<PeriodoEmissao>',
@@ -231,7 +230,7 @@ export class QueryBuilder extends XmlBuilderBase {
         return [
             this.buildXmlHeader('ConsultarNfseEnvio', '2.04'),
             '<Prestador>',
-            this.buildCpfCnpj(params.businessId),
+            this.buildCpfCnpjTag(params.businessId),
             this.buildTagWithValue('InscricaoMunicipal', params.inscricaoMunicipal),
             '</Prestador>',
             this.buildTagWithValue('NumeroNfse', params.nfseNumber),

@@ -1,3 +1,4 @@
+// src/domain/digital-certificate/repositories/digital-certificate-repository.ts
 import { PaginationParams } from '@/core/repositories/pagination-params'
 import { DigitalCertificate } from '../entities/digital-certificate'
 
@@ -5,6 +6,7 @@ export abstract class DigitalCertificateRepository {
     // Métodos de busca
     abstract findById(id: string, businessId: string): Promise<DigitalCertificate | null>
     abstract findUniqueActive(businessId: string): Promise<DigitalCertificate | null>
+    abstract findBySerialNumber(serialNumber: string, businessId: string): Promise<DigitalCertificate | null>
     abstract findMany(
         params: PaginationParams,
         businessId: string
@@ -24,7 +26,6 @@ export abstract class DigitalCertificateRepository {
 
     // Métodos de manipulação
     abstract create(certificate: DigitalCertificate): Promise<void>
-
     abstract save(certificate: DigitalCertificate): Promise<void>
     abstract deactivateAllFromBusiness(businessId: string): Promise<void>
 }
