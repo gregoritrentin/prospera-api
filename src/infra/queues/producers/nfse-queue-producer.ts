@@ -1,13 +1,8 @@
-// src/infra/nfse/queues/producers/nfse-queue-producer.ts
+// src/infra/nfse/queues/nfse-queue-producer.ts
 
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import { NfseEvent } from '@/domain/dfe/nfse/entities/nfse-event';
-import {
-    NfseEventStatus,
-    NfseEventType
-} from '@/core/types/enums';
 
 interface TransmitJobData {
     businessId: string;
@@ -42,7 +37,7 @@ export class NfseQueueProducer {
                 attempts: 3,
                 backoff: {
                     type: 'exponential',
-                    delay: 5000 // 5 segundos inicial
+                    delay: 5000
                 },
                 removeOnComplete: true,
                 removeOnFail: false
@@ -70,11 +65,11 @@ export class NfseQueueProducer {
                 ...data,
                 attempt: data.attempt || 1
             }, {
-                delay: 30000, // 30 segundos de delay inicial
-                attempts: 10, // Máximo de 10 tentativas
+                delay: 30000,
+                attempts: 10,
                 backoff: {
                     type: 'fixed',
-                    delay: 30000 // 30 segundos entre tentativas
+                    delay: 30000
                 },
                 removeOnComplete: true,
                 removeOnFail: false
@@ -92,84 +87,6 @@ export class NfseQueueProducer {
             this.logger.error('Error adding query job to queue', {
                 error: error instanceof Error ? error.message : 'Unknown error',
                 data
-            });
-            throw error;
-        }
-    }
-
-    async addBatchTransmitNfseJob(data: TransmitJobData[]) {
-        try {
-            const jobs = await Promise.all(
-                data.map(item => this.addTransmitNfseJob(item))
-            );
-
-            this.logger.log(`Batch transmit jobs added to queue`, {
-                count: jobs.length,
-                jobIds: jobs.map(job => job.id)
-            });
-
-            return jobs;
-        } catch (error) {
-            this.logger.error('Error adding batch transmit jobs to queue', {
-                error: error instanceof Error ? error.message : 'Unknown error',
-                count: data.length
-            });
-            throw error;
-        }
-    }
-
-    async getJobStatus(jobId: string) {
-        try {
-            const job = await this.nfseQueue.getJob(jobId);
-            if (!job) {
-                return {
-                    found: false
-                };
-            }
-
-            const state = await job.getState();
-            const progress = await job.progress();
-
-            return {
-                found: true,
-                state,
-                progress,
-                attempts: job.attemptsMade,
-                data: job.data
-            };
-        } catch (error) {
-            this.logger.error('Error getting job status', {
-                error: error instanceof Error ? error.message : 'Unknown error',
-                jobId
-            });
-            throw error;
-        }
-    }
-
-    async removeJob(jobId: string) {
-        try {
-            const job = await this.nfseQueue.getJob(jobId);
-            if (job) {
-                await job.remove();
-                this.logger.log(`Job removed from queue: ${jobId}`);
-            }
-        } catch (error) {
-            this.logger.error('Error removing job', {
-                error: error instanceof Error ? error.message : 'Unknown error',
-                jobId
-            });
-            throw error;
-        }
-    }
-
-    async cleanQueue() {
-        try {
-            await this.nfseQueue.clean(0, 'completed');
-            await this.nfseQueue.clean(0, 'failed');
-            this.logger.log('Queue cleaned successfully');
-        } catch (error) {
-            this.logger.error('Error cleaning queue', {
-                error: error instanceof Error ? error.message : 'Unknown error'
             });
             throw error;
         }
@@ -198,23 +115,10 @@ export class NfseQueueProducer {
                 data: job.data
             });
         });
-
-        this.nfseQueue.on('error', (error) => {
-            this.logger.error('Queue error', {
-                error: error.message
-            });
-        });
     }
 
-    // Métodos úteis para monitoramento
     async getQueueMetrics() {
-        const [
-            waiting,
-            active,
-            completed,
-            failed,
-            delayed
-        ] = await Promise.all([
+        const [waiting, active, completed, failed, delayed] = await Promise.all([
             this.nfseQueue.getWaitingCount(),
             this.nfseQueue.getActiveCount(),
             this.nfseQueue.getCompletedCount(),

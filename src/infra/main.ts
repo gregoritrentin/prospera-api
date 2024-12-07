@@ -5,9 +5,11 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { TaskSchedulerConfig } from './task-scheduling/task-scheduling-config';
 import { patchNestJsSwagger } from 'nestjs-zod';
 
+// Adicione aqui, antes de tudo
+require('events').EventEmitter.defaultMaxListeners = 20;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-
     logger: ['log', 'debug', 'verbose'],
   })
 
@@ -32,18 +34,6 @@ async function bootstrap() {
   taskSchedulerConfig.configure();
 
   await app.listen(port);
-
 }
 
 bootstrap()
-
-
-
-
-
-
-
-
-
-
-

@@ -4,6 +4,24 @@
   "sourceRoot": "src",
   "entryFile": "/infra/main",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "assets": [
+      {
+        "include": "infra/nfse/danfse/**/*",
+        "outDir": "dist/src",
+        "watchAssets": true
+      },
+      {
+        "include": "infra/nfse/xml/schemas/**/*.xsd",
+        "outDir": "dist/src",
+        "watchAssets": true
+      },
+      {
+        "include": "infra/nfse/xml/schemas/**/*.wsdl",
+        "outDir": "dist/src",
+        "watchAssets": true
+      }
+    ],
+    "watchAssets": true
   }
 }

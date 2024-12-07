@@ -1,5 +1,5 @@
 // src/infra/queues/queue.module.ts
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -10,6 +10,7 @@ import { DatabaseModule } from '../database/database.module';
 import { FileModule } from '../file/file.module';
 import { BoletoModule } from '../boleto/boleto.module';
 import { I18nModule } from '@/i18n';
+import { NfseModule } from '../nfse/nfse.module';
 
 // Service
 import { BullQueueService } from '@/infra/queues/queue.service';
@@ -18,20 +19,20 @@ import { BullQueueService } from '@/infra/queues/queue.service';
 import { EmailQueueProducer } from './producers/email-queue-producer';
 import { BoletoQueueProducer } from './producers/boleto-queue-producer';
 import { CreateInvoiceQueueProducer } from './producers/create-invoice-queue-producer';
+import { NfseQueueProducer } from './producers/nfse-queue-producer';
 
 // Consumers
 import { EmailQueueConsumer } from './consumers/email-queue-consumer';
 import { BoletoQueueConsumer } from './consumers/create-boleto-queue-consumer';
 import { CreateInvoiceQueueConsumer } from './consumers/create-invoice-queue-consumer';
-
-// Use Cases
-import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file';
-import { QueueProvider } from '@/domain/interfaces/queue-provider';
-import { CreateBoletoUseCase } from '@/domain/transaction/use-cases/create-boleto';
 import { ProcessSubscriptionInvoiceQueueConsumer } from './consumers/process-subscription-invoice-queue-consumer';
-import { CreateInvoiceUseCase } from '@/domain/invoice/use-cases/create-invoice';
 import { NfseQueueConsumer } from './consumers/nfse-queue-consumer';
-import { NfseQueueProducer } from './producers/nfse-queue-producer';
+
+// Providers & Use Cases
+import { QueueProvider } from '@/domain/interfaces/queue-provider';
+import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file';
+import { CreateBoletoUseCase } from '@/domain/transaction/use-cases/create-boleto';
+import { CreateInvoiceUseCase } from '@/domain/invoice/use-cases/create-invoice';
 
 @Module({
     imports: [
@@ -42,6 +43,7 @@ import { NfseQueueProducer } from './producers/nfse-queue-producer';
         FileModule,
         I18nModule,
         BoletoModule,
+        forwardRef(() => NfseModule),
 
         // Configuração do Bull
         BullModule.forRootAsync({
@@ -49,17 +51,17 @@ import { NfseQueueProducer } from './producers/nfse-queue-producer';
             useFactory: (configService: ConfigService) => ({
                 redis: configService.get('REDIS_URL'),
                 defaultJobOptions: {
-                    removeOnComplete: true, // Remove jobs completados
-                    removeOnFail: false,    // Mantém jobs que falharam para análise
-                    attempts: 3,            // Número de tentativas em caso de falha
+                    removeOnComplete: true,
+                    removeOnFail: false,
+                    attempts: 3,
                     backoff: {
                         type: 'exponential',
-                        delay: 1000,        // Delay inicial de 1 segundo
+                        delay: 1000,
                     },
                 },
                 settings: {
-                    stalledInterval: 30000, // Verifica jobs travados a cada 30 segundos
-                    maxStalledCount: 3,     // Número máximo de vezes que um job pode travar
+                    stalledInterval: 30000,
+                    maxStalledCount: 3,
                 }
             }),
             inject: [ConfigService],
@@ -94,6 +96,18 @@ import { NfseQueueProducer } from './producers/nfse-queue-producer';
                     removeOnComplete: true,
                     removeOnFail: false,
                 }
+            },
+            {
+                name: 'nfse',
+                defaultJobOptions: {
+                    removeOnComplete: true,
+                    removeOnFail: false,
+                    attempts: 3,
+                    backoff: {
+                        type: 'exponential',
+                        delay: 5000,
+                    }
+                }
             }
         ),
     ],
@@ -115,7 +129,6 @@ import { NfseQueueProducer } from './producers/nfse-queue-producer';
         BoletoQueueConsumer,
         CreateInvoiceQueueConsumer,
         ProcessSubscriptionInvoiceQueueConsumer,
-        CreateInvoiceUseCase,
         NfseQueueConsumer,
 
         // Use Cases

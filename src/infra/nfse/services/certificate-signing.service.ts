@@ -1,6 +1,5 @@
-// infra/nfse/services/certificate-signing.service.ts
 import { Injectable, Logger } from '@nestjs/common';
-import { FileProvider } from '@/domain/interfaces/file-provider';
+import { FileProvider, FileDownloadParams } from '@/domain/interfaces/file-provider';
 import { DigitalCertificateRepository } from '@/domain/digital-certificate/repositories/digital-certificate-repository';
 import { GetBusinessActiveDigitalCertificateUseCase } from '@/domain/digital-certificate/use-cases/get-business-ative-digital-certificate'
 import { NfseEvent } from '@/domain/dfe/nfse/entities/nfse-event';
@@ -59,11 +58,16 @@ export class CertificateSigningService {
             }
 
             // 4. Buscar arquivo do certificado
-            const certificateFile = await this.fileProvider.get(
-                certificate.certificateFileId.toString()
-            );
+            const fileParams: FileDownloadParams = {
+                businessId,
+                folderName: 'certificates',
+                fileName: certificate.certificateFileId.toString()
+            };
 
-            if (!certificateFile) {
+            let certificateFile: Buffer;
+            try {
+                certificateFile = await this.fileProvider.download(fileParams);
+            } catch (error) {
                 signEvent.markAsError('Certificate file not found');
                 throw AppError.certificateFileNotFound({
                     certificateId: certificate.id.toString()
@@ -79,7 +83,7 @@ export class CertificateSigningService {
 
             // 7. Carregar certificado e chave privada
             const { privateKey, x509 } = await this.loadCertificateAndKey(
-                certificateFile.buffer,
+                certificateFile,
                 certificate.password
             );
 
@@ -134,6 +138,7 @@ export class CertificateSigningService {
         }
     }
 
+    // ... (rest of the methods remain the same, as they don't interact with FileProvider)
     private normalizeXml(xml: string): string {
         return xml
             .replace(/\r?\n|\r/g, '')
