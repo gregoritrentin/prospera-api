@@ -15,9 +15,12 @@ import {
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { AppError } from '@/core/errors/app-errors'
+import { ApiTags, ApiOperation, ApiParam, ApiResponse, ApiConsumes, ApiBody, ApiSecurity } from '@nestjs/swagger'
 
-@Controller('user/upload-photo/:id')
-export class SetUserPhotoController {
+@ApiTags('Businesses')
+@Controller('business/logo/:id')
+@ApiSecurity('bearer')
+export class SetBusinessLogoController {
     constructor(
         private uploadBusinessLogo: UploadAndCreateFileUseCase,
         private setBusinessLogo: SetBusinessLogoUseCase,
@@ -25,6 +28,68 @@ export class SetUserPhotoController {
 
     @Post()
     @UseInterceptors(FileInterceptor('file'))
+    @ApiOperation({
+        summary: 'Upload business logo',
+        description: 'Uploads and sets a new logo for a business'
+    })
+    @ApiConsumes('multipart/form-data')
+    @ApiParam({
+        name: 'id',
+        description: 'Business ID',
+        type: 'string',
+        format: 'uuid',
+        required: true
+    })
+    @ApiBody({
+        description: 'Logo file upload',
+        type: 'multipart/form-data',
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'Image file (PNG, JPG, JPEG) max 2MB'
+                }
+            }
+        }
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Logo uploaded successfully',
+        schema: {
+            type: 'object',
+            properties: {
+                fileId: {
+                    type: 'string',
+                    format: 'uuid',
+                    description: 'Uploaded file ID'
+                }
+            }
+        }
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Bad request - Invalid file type or size',
+        schema: {
+            type: 'object',
+            properties: {
+                message: {
+                    type: 'string',
+                    description: 'Error message',
+                    example: 'Invalid file type'
+                },
+                statusCode: {
+                    type: 'number',
+                    example: 400
+                }
+            }
+        }
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token'
+    })
     async handle(
         @CurrentUser() user: UserPayload,
         @Param('id') businessId: string,
@@ -42,7 +107,6 @@ export class SetUserPhotoController {
         )
         fileMulter: Express.Multer.File,
     ) {
-
         const business = user.bus
 
         const result = await this.uploadBusinessLogo.execute({

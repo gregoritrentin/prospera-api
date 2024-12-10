@@ -9,6 +9,8 @@ import {
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
 import { EditAppUseCase } from '@/domain/application/use-cases/edit-app'
+import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger'
+import { createZodDto } from 'nestjs-zod'
 
 const editAppBodySchema = z.object({
     name: z.string(),
@@ -17,19 +19,41 @@ const editAppBodySchema = z.object({
     quantity: z.number(),
     type: z.string(),
     status: z.string(),
-
 })
+
+// Create DTO for Swagger documentation
+class EditAppRequest extends createZodDto(editAppBodySchema) { }
 
 const bodyValidationPipe = new ZodValidationPipe(editAppBodySchema)
 
 type EditAppBodySchema = z.infer<typeof editAppBodySchema>
 
+@ApiTags('Applications')
 @Controller('/app/:id')
 export class EditAppController {
     constructor(private editApp: EditAppUseCase) { }
 
     @Put()
     @HttpCode(204)
+    @ApiOperation({
+        summary: 'Edit an application',
+        description: 'Updates an existing application with the provided details'
+    })
+    @ApiParam({
+        name: 'id',
+        description: 'Unique identifier of the application to be updated',
+        type: 'string',
+        required: true
+    })
+    @ApiBody({ type: EditAppRequest })
+    @ApiResponse({
+        status: 204,
+        description: 'Application updated successfully'
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Bad request - Invalid input data or application not found'
+    })
     async handle(
         @Body(bodyValidationPipe) body: EditAppBodySchema,
         @Param('id') appId: string,

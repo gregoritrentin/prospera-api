@@ -142,7 +142,6 @@ import { FetchItemGroupUseCase } from "@/domain/item/use-cases/fetch-item-group"
 
 //item-taxation
 import { FetchItemTaxationController } from "@/infra/http/controllers/item/fetch-item-taxation.controller";
-import { CreateItemTaxationController } from "@/infra/http/controllers/item/create-item-taxation.controller";
 import { EditItemTaxationController } from "@/infra/http/controllers/item/edit-taxation.controller";
 import { DeleteItemTaxationController } from "@/infra/http/controllers/item/delete-item-taxation.controller";
 
@@ -196,6 +195,7 @@ import { CreateSubscriptionController } from "./controllers/subscription/create-
 import { CreateSubscriptionUseCase } from "@/domain/subscription/use-cases/create-subscription";
 import { CreateNfseUseCase } from "@/domain/dfe/nfse/use-cases/create-nfse";
 import { GetNfseUseCase } from "@/domain/dfe/nfse/use-cases/get-nfse";
+import { CreateItemTaxationController } from "./controllers/item/create-item-taxation.controller";
 
 
 @Module({
@@ -286,7 +286,6 @@ import { GetNfseUseCase } from "@/domain/dfe/nfse/use-cases/get-nfse";
     FetchItemGroupController,
 
     //item-taxation
-    CreateItemTaxationController,
     EditItemTaxationController,
     DeleteItemTaxationController,
     FetchItemTaxationController,

@@ -5,7 +5,6 @@ import {
   Controller,
   HttpCode,
   Post,
-  UsePipes,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -13,50 +12,8 @@ import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { CreateUserUseCase } from '@/domain/application/use-cases/create-user'
 import { Public } from '@/infra/auth/public'
 import { AppError } from '@/core/errors/app-errors'
+import { createZodDto } from 'nestjs-zod'
 
-// Utilitário de conversão Zod para Swagger corrigido
-function zodToSwagger(schema: z.ZodType<any, any, any>) {
-  if (schema instanceof z.ZodObject) {
-    const shape = schema.shape;
-    const swaggerSchema: any = {
-      type: 'object',
-      properties: {},
-      required: [],
-    };
-
-    Object.entries(shape).forEach(([key, value]) => {
-      let propertySchema: any = {};
-
-      if (value instanceof z.ZodString) {
-        propertySchema.type = 'string';
-        if (value._def.checks.some(check => check.kind === 'email')) {
-          propertySchema.format = 'email';
-        }
-      } else if (value instanceof z.ZodNumber) {
-        propertySchema.type = 'number';
-      } else if (value instanceof z.ZodBoolean) {
-        propertySchema.type = 'boolean';
-      } else if (value instanceof z.ZodOptional) {
-        propertySchema = zodToSwagger(value.unwrap());
-        propertySchema.nullable = true;
-      }
-      // Adicione mais casos conforme necessário para outros tipos Zod
-
-      swaggerSchema.properties[key] = propertySchema;
-
-      if (!(value instanceof z.ZodOptional)) {
-        swaggerSchema.required.push(key);
-      }
-    });
-
-    return swaggerSchema;
-  }
-
-  // Para tipos não-objeto, retorne um schema básico
-  return { type: 'object' };
-}
-
-// Schema de validação Zod
 const createUserBodySchema = z.object({
   name: z.string(),
   email: z.string().email(),
@@ -65,9 +22,12 @@ const createUserBodySchema = z.object({
   photoFileId: z.string().optional(),
 })
 
+// Create DTO for Swagger documentation
+class CreateUserRequest extends createZodDto(createUserBodySchema) { }
+
 type CreateUserBodySchema = z.infer<typeof createUserBodySchema>
 
-//@ApiTags('usersssss')
+@ApiTags('Users')
 @Controller('/user')
 @Public()
 export class CreateUserController {
@@ -75,13 +35,96 @@ export class CreateUserController {
 
   @Post()
   @HttpCode(201)
-  //@UsePipes(new ZodValidationPipe(createUserBodySchema))
-  //@ApiOperation({ summary: 'Create a new user' })
-  // @ApiBody({ schema: zodToSwagger(createUserBodySchema) })
-  // @ApiResponse({ status: 201, description: 'The user has been successfully created.' })
-  // @ApiResponse({ status: 400, description: 'Bad Request.' })
-  // @ApiResponse({ status: 409, description: 'User already exists.' })
-  async handle(@Body() body: CreateUserBodySchema) {
+  @ApiOperation({
+    summary: 'Create user',
+    description: 'Creates a new user in the system'
+  })
+  @ApiBody({
+    type: CreateUserRequest,
+    description: 'User creation details',
+    schema: {
+      type: 'object',
+      required: ['name', 'email', 'password'],
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Full name of the user'
+        },
+        email: {
+          type: 'string',
+          format: 'email',
+          description: 'Email address (must be unique)'
+        },
+        password: {
+          type: 'string',
+          description: 'User password',
+          minLength: 6
+        },
+        defaultBusiness: {
+          type: 'string',
+          format: 'uuid',
+          description: 'Default business ID for the user',
+          nullable: true
+        },
+        photoFileId: {
+          type: 'string',
+          format: 'uuid',
+          description: 'ID of uploaded profile photo',
+          nullable: true
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'User created successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'User created successfully'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          description: 'Error message',
+          example: 'Invalid user data'
+        },
+        statusCode: {
+          type: 'number',
+          example: 400
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict - Email already in use',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          description: 'Error message',
+          example: 'Email already in use'
+        },
+        statusCode: {
+          type: 'number',
+          example: 409
+        }
+      }
+    }
+  })
+  async handle(@Body(new ZodValidationPipe(createUserBodySchema)) body: CreateUserBodySchema) {
     const {
       name,
       email,
@@ -108,5 +151,7 @@ export class CreateUserController {
           throw new BadRequestException(error.message)
       }
     }
+
+    return { message: 'User created successfully' }
   }
 }
