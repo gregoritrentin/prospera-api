@@ -1,6 +1,6 @@
 import { WhatsApp as PrismaWhatsApp, Prisma } from '@prisma/client'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { WhatsApp } from '@/domain/whatsApp/entities/whatsapp'
+import { WhatsApp } from '@/domain/whatsapp/entities/whatsapp'
 
 export class PrismaWhatsAppMapper {
     static toDomain(raw: PrismaWhatsApp): WhatsApp {

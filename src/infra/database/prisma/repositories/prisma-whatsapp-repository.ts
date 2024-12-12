@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma.service'
 import { WhatsAppRepository } from '@/domain/whatsapp/repositories/whatsapp-repository'
-import { WhatsApp } from '@/domain/whatsApp/entities/whatsapp'
+import { WhatsApp } from '@/domain/whatsapp/entities/whatsapp'
 import { PaginationParams } from '@/core/repositories/pagination-params'
 import { PrismaWhatsAppMapper } from '@/infra/database/mappers/prisma-whatsapp-mapper'
 
