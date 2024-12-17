@@ -36,6 +36,7 @@ export class PrismaTransactionDetailsMapper {
 
             // Boleto
             ourNumber: raw.ourNumber,
+            //yourNumber: raw.yourNumber,
             digitableLine: raw.digitableLine,
             barcode: raw.barcode,
 

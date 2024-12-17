@@ -5,6 +5,7 @@ export class BoletoDetailsPresenter {
 
             businessId: boleto.businessId.toString(),
             businessName: boleto.businessName,
+            boletoId: boleto.id.toString(),
             personId: boleto.personId?.toString() ?? null,
             personName: boleto.personName,
             description: boleto.description,
@@ -15,6 +16,8 @@ export class BoletoDetailsPresenter {
             feeAmount: boleto.feeAmount,
             paymentAmount: boleto.paymentAmount,
             digitableLine: boleto.digitableLine,
+            ourNumber: boleto.ourNumber,
+            //yourNumber: boleto.yourNumber,
             barcode: boleto.barcode,
             pixQrCode: boleto.pixQrCode,
             pixId: boleto.pixId,

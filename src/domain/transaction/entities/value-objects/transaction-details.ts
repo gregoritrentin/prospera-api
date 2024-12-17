@@ -28,6 +28,7 @@ export interface TransactionDetailsProps {
 
     // Boleto
     ourNumber?: string | null;
+    //yourNumber?: string | null;
     digitableLine?: string | null;
     barcode?: string | null;
 
@@ -96,6 +97,10 @@ export class TransactionDetails extends AggregateRoot<TransactionDetailsProps> {
     get ourNumber() {
         return this.props.ourNumber;
     }
+
+    // get yourNumber() {
+    //     return this.props.ourNumber;
+    // }
 
     get digitableLine() {
         return this.props.digitableLine;
