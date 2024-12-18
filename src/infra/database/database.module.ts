@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common'
 import { EnvModule } from '../env/env.module'
 import { PrismaService } from './prisma/prisma.service';
 import { RedisService } from './redis/redis.service';
-
 import { BusinessRepository } from '@/domain/application/repositories/business-repository';
 import { AppRepository } from '@/domain/application/repositories/app-repository';
 import { UserRepository } from '@/domain/application/repositories/user-repository';
@@ -47,6 +46,20 @@ import { RedisRateLimitRepository } from './redis/repositories/redis-rate-limit-
 import { SubscriptionRepository } from '@/domain/subscription/repositories/subscription-repository';
 import { PrismaSubscriptionRepository } from './prisma/repositories/prisma-subscription-repository';
 import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository';
+import { AccountsRepository } from '@/domain/account/repositories/account-repository';
+import { AccountMovementsRepository } from '@/domain/account/repositories/account-movement-repository';
+import { PrismaAccountBalanceSnapshotRepository } from './prisma/repositories/prisma-account-ballance-repository';
+import { PrismaAccountsRepository } from './prisma/repositories/prisma-account.repository';
+import { AccountBalanceSnapshotRepository } from '@/domain/account/repositories/account-balance-snapshot-repository'
+import { PrismaAccountMovementsRepository } from './prisma/repositories/prisma-account-movement-repository';
+import { TwoFactorAutenticationRepository } from '@/domain/application/repositories/two-factor-autentication';
+import { PrismaTwoFactorAuthenticationRepository } from './prisma/repositories/prisma-two-factor-autentication-repository';
+import { TransactionSplitRepository } from '@/domain/transaction/repositories/transaction-split-repository';
+import { PrismaTransactionSplitRepository } from './prisma/repositories/prisma-transaction-split-repository';
+import { ReceivableRepository } from '@/domain/transaction/repositories/receivable-repository';
+import { PrismaReceivableRepository } from './prisma/repositories/prisma-receivable-repository';
+import { PrismaTransactionManager } from './prisma/prisma-transaction-manager';
+import { TransactionManager } from '@/core/transaction/transaction-manager';
 
 @Module({
     imports: [EnvModule],
@@ -59,6 +72,10 @@ import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository';
         RedisRateLimitRepository,
 
 
+        {
+            provide: TransactionManager,
+            useClass: PrismaTransactionManager
+        },
         {
             provide: BusinessRepository,
             useClass: PrismaBusinessRepository,
@@ -145,6 +162,15 @@ import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository';
             useClass: PrismaTransactionRepository,
         },
         {
+            provide: TransactionSplitRepository,
+            useClass: PrismaTransactionSplitRepository,
+        },
+        {
+            provide: ReceivableRepository,
+            useClass: PrismaReceivableRepository,
+        },
+
+        {
             provide: PaymentRepository,
             useClass: PrismaPaymentRepository,
         },
@@ -163,11 +189,28 @@ import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository';
         {
             provide: NfseRepository,
             useClass: PrismaUserRepository,
+        },
+        {
+            provide: AccountsRepository,
+            useClass: PrismaAccountsRepository,
+        },
+        {
+            provide: AccountMovementsRepository,
+            useClass: PrismaAccountMovementsRepository,
+        },
+        {
+            provide: AccountBalanceSnapshotRepository,
+            useClass: PrismaAccountBalanceSnapshotRepository,
+        },
+        {
+            provide: TwoFactorAutenticationRepository,
+            useClass: PrismaTwoFactorAuthenticationRepository,
         }
     ],
     exports: [
         PrismaService,
         RedisService,
+        TransactionManager,
         UserRepository,
         AppRepository,
         UserBusinessRepository,
@@ -186,13 +229,18 @@ import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository';
         FileRepository,
         EmailRepository,
         TransactionRepository,
+        TransactionSplitRepository,
+        ReceivableRepository,
         PaymentRepository,
         WhatsAppRepository,
         NfseRepository,
-
         RedisWhatsAppRepository,
         RedisIdempotencyRepository,
         RedisRateLimitRepository,
+        AccountsRepository,
+        AccountMovementsRepository,
+        AccountBalanceSnapshotRepository,
+        TwoFactorAutenticationRepository,
     ],
 })
 export class DatabaseModule { }

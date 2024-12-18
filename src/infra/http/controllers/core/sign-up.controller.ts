@@ -23,6 +23,7 @@ import { createZodDto } from 'nestjs-zod'
 const userSchema = z.object({
     name: z.string(),
     email: z.string().email(),
+    phone: z.string(),
     password: z.string(),
     defaultBusiness: z.string().optional(),
     photoFileId: z.string().optional(),

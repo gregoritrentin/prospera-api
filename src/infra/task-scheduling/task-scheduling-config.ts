@@ -3,6 +3,7 @@ import { TaskSchedulerService } from './task-scheduler-service';
 import { SendAndCreateEmailUseCase } from '@/domain/email/use-cases/send-and-create-email';
 import { ProcessSubscriptionInvoiceUseCase } from '@/domain/subscription/use-cases/process-subscription-invoice';
 import { format } from 'date-fns';
+import { CreateMonthlySnapshotsUseCase } from '@/domain/account/use-cases/create-monthly-snapshots';
 
 @Injectable()
 export class TaskSchedulerConfig {
@@ -12,6 +13,8 @@ export class TaskSchedulerConfig {
         private taskScheduler: TaskSchedulerService,
         private sendAndCreateEmail: SendAndCreateEmailUseCase,
         private processSubscriptionInvoice: ProcessSubscriptionInvoiceUseCase,
+        private createMonthlySnapshots: CreateMonthlySnapshotsUseCase,
+
     ) { }
 
     configure() {
@@ -110,6 +113,47 @@ export class TaskSchedulerConfig {
                            - Duration: ${duration}ms
                            - Error: ${String(error)}
                            - Date Range: ${utcStartDate.toISOString()} to ${utcEndDate.toISOString()}`
+                        );
+                    }
+                }
+            }
+        );
+
+        // Account Balance Snapshots task
+        // Account Balance Snapshots task
+        this.taskScheduler.scheduleTask(
+            'createAccountBalanceSnapshots',
+            '0 0 1 * *', // Executa todo dia 1º do mês às 00:00
+            async () => {
+                this.logger.log('[AccountBalance] Starting monthly snapshots creation task');
+                const startTime = Date.now();
+
+                try {
+                    const result = await this.createMonthlySnapshots.execute();
+                    const duration = Date.now() - startTime;
+
+                    this.logger.log(
+                        `[AccountBalance] Monthly snapshots task completed:
+                        - Duration: ${duration}ms
+                        - Snapshots created: ${result.snapshots.length}
+                        - Month/Year: ${format(new Date(), 'MM/yyyy')}`
+                    );
+                } catch (error) {
+                    const duration = Date.now() - startTime;
+                    if (error instanceof Error) {
+                        this.logger.error(
+                            `[AccountBalance] Error creating monthly snapshots:
+                            - Duration: ${duration}ms
+                            - Error: ${error.message}
+                            - Stack: ${error.stack}
+                            - Month/Year: ${format(new Date(), 'MM/yyyy')}`
+                        );
+                    } else {
+                        this.logger.error(
+                            `[AccountBalance] Unknown error creating monthly snapshots:
+                            - Duration: ${duration}ms
+                            - Error: ${String(error)}
+                            - Month/Year: ${format(new Date(), 'MM/yyyy')}`
                         );
                     }
                 }

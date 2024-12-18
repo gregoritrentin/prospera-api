@@ -1,6 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 
 export enum ErrorCode {
+    // Core/Common Errors
     BAD_REQUEST = 'BAD_REQUEST',
     UNAUTHORIZED = 'UNAUTHORIZED',
     FORBIDDEN = 'FORBIDDEN',
@@ -12,53 +13,57 @@ export enum ErrorCode {
     SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
     NO_ITEMS = 'NO_ITEMS',
 
-    // Códigos de erro específicos da aplicação
+    // Validation & Data Errors
+    VALIDATION_ERROR = 'VALIDATION_ERROR',
     INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
     INVALID_OPERATION = 'INVALID_OPERATION',
     INVALID_TOKEN = 'INVALID_TOKEN',
     INVALID_FILE_TYPE = 'INVALID_FILE_TYPE',
     INVALID_DATA = 'INVALID_DATA',
+    INVALID_DATE = 'INVALID_DATE',
+    INVALID_LIMIT_DATE = 'INVALID_LIMIT_DATE',
+    INVALID_STATUS_TRANSITION = 'INVALID_STATUS_TRANSITION',
+
+    // Database & Resource Errors
     RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
     UNIQUE_CONSTRAINT_VIOLATION = 'UNIQUE_CONSTRAINT_VIOLATION',
-    VALIDATION_ERROR = 'VALIDATION_ERROR',
     DATABASE_ERROR = 'DATABASE_ERROR',
     EXTERNAL_SERVICE_ERROR = 'EXTERNAL_SERVICE_ERROR',
 
-    // Códigos específicos para transações/boletos
+    // File Operations
+    FILE_UPLOAD_FAILED = 'FILE_UPLOAD_FAILED',
+    RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
+
+    // Payment & Financial Module
     INVALID_AMOUNT = 'INVALID_AMOUNT',
     INVALID_DUE_DATE = 'INVALID_DUE_DATE',
-    INVALID_DATE = 'INVALID_DATE',
-    INVALID_LIMIT_DATE = 'INVALID_LIMIT_DATE',
+    INVALID_PIX_KEY = 'INVALID_PIX_KEY',
 
+    // Boleto Submodule
     BOLETO_CREATION_FAILED = 'BOLETO_CREATION_FAILED',
-    BOLETO_CANCELATION_FAILED = 'BOLETO_CANCELAION_FAILED',
+    BOLETO_CANCELATION_FAILED = 'BOLETO_CANCELATION_FAILED',
     BOLETO_PRINT_FAILED = 'BOLETO_PRINT_FAILED',
 
+    // PIX Submodule
     PIX_CREATION_FAILED = 'PIX_CREATION_FAILED',
-
-
     PAYMENT_PIX_CREATION_FAILED = 'PAYMENT_PIX_CREATION_FAILED',
     PAYMENT_PIX_UPDATE_FAILED = 'PAYMENT_PIX_UPDATE_FAILED',
     PAYMENT_PIX_PROOF_FETCH_FAILED = 'PAYMENT_PIX_PROOF_FETCH_FAILED',
     PAYMENT_PIX_CANCELATION_FAILED = 'PAYMENT_PIX_CANCELATION_FAILED',
 
-    //INVOICE
-    INVOICE_CANCELATION_FAILED = 'INVOICE_CANCELATION_FAILED',
-
-    //SUBSCRIPTION
-    SUBSCRIPTION_CANCELATION_FAILED = 'INVOICE_CANCELATION_FAILED',
-
-    INVALID_PIX_KEY = 'INVALID_PIX_KEY',
-
-    //SALE
+    // Sales Module
     PRODUCT_AMOUNT_MISMATCH = 'PRODUCT_AMOUNT_MISMATCH',
     GROSS_AMOUNT_MISMATCH = 'GROSS_AMOUNT_MISMATCH',
     TOTAL_AMOUNT_MISMATCH = 'TOTAL_AMOUNT_MISMATCH',
     COMMISSION_AMOUNT_MISMATCH = 'COMMISSION_AMOUNT_MISMATCH',
 
+    // Invoice Module
+    INVOICE_CANCELATION_FAILED = 'INVOICE_CANCELATION_FAILED',
 
+    // Subscription Module
+    SUBSCRIPTION_CANCELATION_FAILED = 'SUBSCRIPTION_CANCELATION_FAILED', // Fixed the value
 
-    // NFSe specific errors
+    // NFSe Module
     NFSE_CREATION_FAILED = 'NFSE_CREATION_FAILED',
     NFSE_TRANSMISSION_FAILED = 'NFSE_TRANSMISSION_FAILED',
     NFSE_CANCELLATION_FAILED = 'NFSE_CANCELLATION_FAILED',
@@ -71,23 +76,13 @@ export enum ErrorCode {
     NFSE_INVALID_XML = 'NFSE_INVALID_XML',
     NFSE_INVALID_RESPONSE = 'NFSE_INVALID_RESPONSE',
 
-
-    // Certificate errors
+    // Certificate Module
     CERTIFICATE_NOT_FOUND = 'CERTIFICATE_NOT_FOUND',
     CERTIFICATE_INACTIVE = 'CERTIFICATE_INACTIVE',
     CERTIFICATE_EXPIRED = 'CERTIFICATE_EXPIRED',
     CERTIFICATE_FILE_NOT_FOUND = 'CERTIFICATE_FILE_NOT_FOUND',
     CERTIFICATE_LOAD_ERROR = 'CERTIFICATE_LOAD_ERROR',
     CERTIFICATE_VALIDATION_ERROR = 'CERTIFICATE_VALIDATION_ERROR',
-
-    // Signature errors
-    SIGNATURE_ERROR = 'SIGNATURE_ERROR',
-    SIGNATURE_CREATION_ERROR = 'SIGNATURE_CREATION_ERROR',
-    SIGNATURE_VALIDATION_ERROR = 'SIGNATURE_VALIDATION_ERROR',
-    SIGNATURE_INSERTION_ERROR = 'SIGNATURE_INSERTION_ERROR',
-    SIGNATURE_POINT_NOT_FOUND = 'SIGNATURE_POINT_NOT_FOUND',
-
-    // Certificate specific errors
     CERTIFICATE_UPLOAD_FAILED = 'CERTIFICATE_UPLOAD_FAILED',
     CERTIFICATE_CREATION_FAILED = 'CERTIFICATE_CREATION_FAILED',
     CERTIFICATE_ALREADY_EXISTS = 'CERTIFICATE_ALREADY_EXISTS',
@@ -96,31 +91,24 @@ export enum ErrorCode {
     ACTIVE_CERTIFICATE_EXISTS = 'ACTIVE_CERTIFICATE_EXISTS',
     CERTIFICATE_VALIDATION_FAILED = 'CERTIFICATE_VALIDATION_FAILED',
 
+    // Signature Module
+    SIGNATURE_ERROR = 'SIGNATURE_ERROR',
+    SIGNATURE_CREATION_ERROR = 'SIGNATURE_CREATION_ERROR',
+    SIGNATURE_VALIDATION_ERROR = 'SIGNATURE_VALIDATION_ERROR',
+    SIGNATURE_INSERTION_ERROR = 'SIGNATURE_INSERTION_ERROR',
+    SIGNATURE_POINT_NOT_FOUND = 'SIGNATURE_POINT_NOT_FOUND',
 
-
-
-    INVALID_STATUS_TRANSITION = 'INVALID_STATUS_TRANSITION',
-
-    RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
-    FILE_UPLOAD_FAILED = "FILE_UPLOAD_FAILED",
-
+    // Two Factor Authentication Module
+    TWO_FACTOR_USER_NO_PHONE = 'TWO_FACTOR_USER_NO_PHONE',
+    TWO_FACTOR_ALREADY_ACTIVE = 'TWO_FACTOR_ALREADY_ACTIVE',
+    TWO_FACTOR_SEND_FAILED = 'TWO_FACTOR_SEND_FAILED',
+    TWO_FACTOR_EXPIRED = 'TWO_FACTOR_EXPIRED',
+    TWO_FACTOR_INVALID_CODE = 'TWO_FACTOR_INVALID_CODE',
+    TWO_FACTOR_MAX_ATTEMPTS = 'TWO_FACTOR_MAX_ATTEMPTS',
+    TWO_FACTOR_NOT_FOUND = 'TWO_FACTOR_NOT_FOUND',
+    TWO_FACTOR_ALREADY_VERIFIED = 'TWO_FACTOR_ALREADY_VERIFIED',
+    TWO_FACTOR_VERIFICATION_FAILED = 'TWO_FACTOR_VERIFICATION_FAILED'
 }
-
-// static productAmountMismatch(expected: number, actual: number): SaleValidationError {
-//     return new SaleValidationError('PRODUCT_AMOUNT_MISMATCH', 'errors.PRODUCT_AMOUNT_MISMATCH', { expected, actual });
-// }
-
-// static grossAmountMismatch(expected: number, actual: number): SaleValidationError {
-//     return new SaleValidationError('GROSS_AMOUNT_MISMATCH', 'errors.GROSS_AMOUNT_MISMATCH', { expected, actual });
-// }
-
-// static totalAmountMismatch(expected: number, actual: number): SaleValidationError {
-//     return new SaleValidationError('TOTAL_AMOUNT_MISMATCH', 'errors.TOTAL_AMOUNT_MISMATCH', { expected, actual });
-// }
-
-// static commissionAmountMismatch(expected: number, actual: number): SaleValidationError {
-//     return new SaleValidationError('COMMISSION_AMOUNT_MISMATCH', 'errors.COMMISSION_AMOUNT_MISMATCH', { expected, actual });
-// }
 
 export class AppError extends Error {
     constructor(
@@ -657,4 +645,86 @@ export class AppError extends Error {
         );
 
     }
+    static twoFactorUserNoPhone(): AppError {
+        return new AppError(
+            ErrorCode.TWO_FACTOR_USER_NO_PHONE,
+            'errors.TWO_FACTOR_USER_NO_PHONE',
+            {},
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static twoFactorAlreadyActive(): AppError {
+        return new AppError(
+            ErrorCode.TWO_FACTOR_ALREADY_ACTIVE,
+            'errors.TWO_FACTOR_ALREADY_ACTIVE',
+            {},
+            HttpStatus.CONFLICT
+        );
+    }
+
+    static twoFactorSendFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.TWO_FACTOR_SEND_FAILED,
+            'errors.TWO_FACTOR_SEND_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+
+    static twoFactorNotFound(): AppError {
+        return new AppError(
+            ErrorCode.TWO_FACTOR_NOT_FOUND,
+            'errors.TWO_FACTOR_NOT_FOUND',
+            {},
+            HttpStatus.NOT_FOUND
+        );
+    }
+
+    static twoFactorExpired(): AppError {
+        return new AppError(
+            ErrorCode.TWO_FACTOR_EXPIRED,
+            'errors.TWO_FACTOR_EXPIRED',
+            {},
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static twoFactorInvalidCode(): AppError {
+        return new AppError(
+            ErrorCode.TWO_FACTOR_INVALID_CODE,
+            'errors.TWO_FACTOR_INVALID_CODE',
+            {},
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static twoFactorMaxAttempts(): AppError {
+        return new AppError(
+            ErrorCode.TWO_FACTOR_MAX_ATTEMPTS,
+            'errors.TWO_FACTOR_MAX_ATTEMPTS',
+            {},
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static twoFactorAlreadyVerified(): AppError {
+        return new AppError(
+            ErrorCode.TWO_FACTOR_ALREADY_VERIFIED,
+            'errors.TWO_FACTOR_ALREADY_VERIFIED',
+            {},
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    static twoFactorVerificationFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.TWO_FACTOR_VERIFICATION_FAILED,
+            'errors.TWO_FACTOR_VERIFICATION_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
 }

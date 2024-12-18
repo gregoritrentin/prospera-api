@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { CreateAppUseCase } from '@/domain/application/use-cases/create-app'
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
+import { AppType } from '@/core/types/enums'
 
 // Define the validation schema for app creation
 const createAppBodySchema = z.object({
@@ -11,7 +12,7 @@ const createAppBodySchema = z.object({
     description: z.string(),
     price: z.number(),
     quantity: z.number(),
-    type: z.string(),
+    type: z.enum([AppType.UNIT, AppType.PERCENTAGE]),
     status: z.string(),
 })
 

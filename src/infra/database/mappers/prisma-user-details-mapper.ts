@@ -14,6 +14,7 @@ export class PrismaUserDetailsMapper {
             id: new UniqueEntityID(raw.id),
             name: raw.name,
             email: raw.email,
+            phone: raw.phone,
             status: raw.status,
             defaultBusiness: raw.defaultBusiness,
             photoFileUrl: raw.file?.url ?? null,

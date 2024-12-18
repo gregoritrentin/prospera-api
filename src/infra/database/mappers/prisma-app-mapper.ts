@@ -1,6 +1,7 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { App as PrismaApp, Prisma } from '@prisma/client'
 import { App } from '@/domain/application/entities/app'
+import { AppType } from '@/core/types/enums'
 
 export class PrismaAppMapper {
     static toDomain(raw: PrismaApp): App {
@@ -8,11 +9,12 @@ export class PrismaAppMapper {
             name: raw.name,
             description: raw.description,
             price: raw.price,
+            type: raw.type as AppType,
             quantity: raw.quantity,
-            type: raw.type,
             status: raw.status,
             createdAt: raw.createdAt,
             updatedAt: raw.updatedAt,
+
         },
             new UniqueEntityID(raw.id),
         )

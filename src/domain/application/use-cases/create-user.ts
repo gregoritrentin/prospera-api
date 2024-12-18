@@ -9,6 +9,7 @@ import { AppError } from '@/core/errors/app-errors'
 interface CreateUserUseCaseRequest {
   name: string
   email: string
+  phone: string
   password: string
   defaultBusiness: string | undefined
   photoFileId: string | undefined
@@ -32,6 +33,7 @@ export class CreateUserUseCase {
   async execute({
     name,
     email,
+    phone,
     password,
     defaultBusiness,
     photoFileId
@@ -49,6 +51,7 @@ export class CreateUserUseCase {
     const user = User.create({
       name,
       email,
+      phone,
       password: hashedPassword,
       defaultBusiness,
       photoFileId,

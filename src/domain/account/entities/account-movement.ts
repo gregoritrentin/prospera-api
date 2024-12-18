@@ -1,12 +1,7 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { MovementType } from '@/core/types/enums'
 import { Optional } from '@/core/types/optional'
-
-export enum MovementType {
-    CREDIT = 'CREDIT',
-    DEBIT = 'DEBIT'
-}
-
 export interface AccountMovementProps {
     accountId: UniqueEntityID
     type: MovementType
@@ -78,3 +73,5 @@ export class AccountMovement extends AggregateRoot<AccountMovementProps> {
         return accountMovement
     }
 }
+
+export { MovementType }

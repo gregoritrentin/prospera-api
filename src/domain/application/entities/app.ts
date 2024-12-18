@@ -1,16 +1,17 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Optional } from '@/core/types/optional'
+import { AppType } from '@/core/types/enums'
 
 export interface AppProps {
-    name: string
-    description: string
-    price: number
-    quantity: number
-    type: string
-    status: string
-    createdAt: Date
-    updatedAt?: Date | null
+    name: string;
+    description: string;
+    price: number;
+    quantity: number;
+    type: AppType;         // Usando o enum
+    status: string;
+    createdAt: Date;
+    updatedAt?: Date | null;
 }
 
 export class App extends AggregateRoot<AppProps> {
@@ -71,7 +72,7 @@ export class App extends AggregateRoot<AppProps> {
         this.touch()
     }
 
-    set type(type: string) {
+    set type(type: AppType) {
         this.props.type = type
         this.touch()
     }

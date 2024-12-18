@@ -1,6 +1,5 @@
 import { right, left, Either } from '@/core/either';
 import { TransactionType } from '@/domain/transaction/entities/transaction';
-
 import { Injectable, Logger } from '@nestjs/common';
 import { Transaction } from '@/domain/transaction/entities/transaction';
 import { Person } from '@/domain/person/entities/person';
@@ -13,7 +12,14 @@ import { BoletoProvider, BoletoProps } from '../../interfaces/boleto-provider';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { BoletoQueueProducer } from '@/infra/queues/producers/boleto-queue-producer';
 import { AppError } from '@/core/errors/app-errors';
-
+import { TransactionManager } from '@/core/transaction/transaction-manager';
+import { ConfigService } from '@nestjs/config';
+import { TransactionSplitRepository } from '../repositories/transaction-split-repository';
+import { ReceivableRepository } from '../repositories/receivable-repository';
+import { TransactionSplit } from '@/domain/transaction/entities/transaction-split';
+import { Receivable } from '@/domain/transaction/entities/receivable';
+import { ReceivableStatus, SplitType } from '@/core/types/enums';
+import { EnvService } from '@/infra/env/env.service';
 interface CreateBoletoUseCaseRequest {
     businessId: string;
     personId: string;
@@ -35,10 +41,13 @@ type CreateBoletoResult = Either<AppError, CreateBoletoUseCaseResponse>;
 @Injectable()
 export class CreateBoletoUseCase {
     private readonly logger = new Logger(CreateBoletoUseCase.name);
-
     constructor(
+        private readonly envService: EnvService,
+        private transactionManager: TransactionManager,
         private boletoProvider: BoletoProvider,
-        private boletoRepository: TransactionRepository,
+        private transactionRepository: TransactionRepository,
+        private transactionSplitRepository: TransactionSplitRepository,
+        private receivableRepository: ReceivableRepository,
         private personsRepository: PersonsRepository,
         private businessRepository: BusinessRepository,
         private i18nService: I18nService,
@@ -58,69 +67,122 @@ export class CreateBoletoUseCase {
             yourNumber: input.yourNumber
         });
 
-        try {
-            if (input.amount <= 0) {
-                this.logger.debug(`Invalid amount: ${input.amount}`);
-                return left(AppError.invalidAmount(input.amount));
+        return await this.transactionManager.start(async () => {
+            try {
+                // Validações iniciais
+                if (input.amount <= 0) {
+                    this.logger.debug(`Invalid amount: ${input.amount}`);
+                    return left(AppError.invalidAmount(input.amount));
+                }
+
+                if (input.dueDate <= new Date()) {
+                    this.logger.debug(`Invalid due date: ${input.dueDate}`);
+                    return left(AppError.invalidDueDate());
+                }
+
+                // Buscar dados necessários
+                this.logger.debug('Fetching pagador and beneficiario');
+                const [pagador, beneficiario] = await Promise.all([
+                    this.personsRepository.findById(input.personId, input.businessId),
+                    this.businessRepository.findById(input.businessId)
+                ]);
+
+                if (!pagador || !beneficiario) {
+                    this.logger.debug('Pagador or beneficiario not found');
+                    return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'));
+                }
+
+                // Criar boleto no provedor
+                this.logger.debug('Preparing boleto request');
+                const boletoRequest = this.prepareBoletoRequest(input, pagador, beneficiario);
+                this.logger.debug('Boleto request:', boletoRequest);
+
+                this.logger.debug('Calling boleto provider');
+                const boletoResponse = await this.boletoProvider.createBoleto(boletoRequest);
+                this.logger.debug('Boleto provider response:', boletoResponse);
+
+                // Criar transação
+                const transaction = this.createBoletoFromSicrediResponse(input, boletoResponse);
+                this.logger.debug('Created boleto/transaction entity:', {
+                    id: transaction.id.toString(),
+                    status: transaction.status
+                });
+
+                // No caso de uso:
+                const splits = [
+                    // Split da taxa
+                    TransactionSplit.create({
+                        transactionId: transaction.id,
+                        recipientId: new UniqueEntityID(this.envService.get('PROSPERA_ID')),
+                        splitType: SplitType.FIXED,
+                        amount: transaction.feeAmount,
+
+                    }),
+                    // Split do valor principal
+                    TransactionSplit.create({
+                        transactionId: transaction.id,
+                        recipientId: new UniqueEntityID(input.businessId), // ID do negócio que recebe o valor
+                        splitType: SplitType.FIXED,
+                        amount: transaction.amount - transaction.feeAmount,
+
+                    })
+                ];
+
+                // Criar receivables
+                const availableDate = new Date(input.dueDate);
+                availableDate.setDate(availableDate.getDate() + 1); // D+1 para boleto
+
+                const receivables = splits.map(split =>
+                    Receivable.create({
+                        transactionId: transaction.id,
+                        originalOwnerId: new UniqueEntityID(input.businessId),
+                        currentOwnerId: new UniqueEntityID(input.businessId),
+                        amount: split.amount,
+                        netAmount: split.amount,
+                        originalDueDate: input.dueDate,
+                        currentDueDate: availableDate,
+                        status: ReceivableStatus.PENDING,
+                        businessId: new UniqueEntityID(input.businessId),
+                    })
+                );
+                this.logger.debug('Created receivables');
+
+                // Persistir todas as entidades
+                await this.transactionRepository.create(transaction);
+                await Promise.all(splits.map(split =>
+                    this.transactionSplitRepository.create(split)
+                ));
+                await Promise.all(receivables.map(receivable =>
+                    this.receivableRepository.create(receivable)
+                ));
+                this.logger.debug('All entities persisted');
+
+                // Adicionar job de impressão
+                await this.boletoQueueProducer.addPrintBoletoJob({
+                    businessId: input.businessId,
+                    boletoId: transaction.id.toString(),
+                    language,
+                });
+                this.logger.debug('Print job added to queue');
+
+                const successMessage = this.i18nService.translate('messages.RECORD_CREATED', language);
+                this.logger.debug('=== CreateBoletoUseCase completed successfully ===');
+
+                return right({
+                    boleto: transaction,
+                    message: successMessage
+                });
+
+            } catch (error) {
+                this.logger.error('=== Error in CreateBoletoUseCase ===');
+                this.logger.error('Error details:', error instanceof Error ? {
+                    message: error.message,
+                    stack: error.stack
+                } : String(error));
+
+                return left(AppError.boletoCreationFailed());
             }
-
-            if (input.dueDate <= new Date()) {
-                this.logger.debug(`Invalid due date: ${input.dueDate}`);
-                return left(AppError.invalidDueDate());
-            }
-
-            this.logger.debug('Fetching pagador and beneficiario');
-            const [pagador, beneficiario] = await Promise.all([
-                this.personsRepository.findById(input.personId, input.businessId),
-                this.businessRepository.findById(input.businessId)
-            ]);
-
-            if (!pagador || !beneficiario) {
-                this.logger.debug('Pagador or beneficiario not found');
-                return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'));
-            }
-
-            this.logger.debug('Preparing boleto request');
-            const boletoRequest = this.prepareBoletoRequest(input, pagador, beneficiario);
-            this.logger.debug('Boleto request:', boletoRequest);
-
-            this.logger.debug('Calling boleto provider');
-            const boletoResponse = await this.boletoProvider.createBoleto(boletoRequest);
-            this.logger.debug('Boleto provider response:', boletoResponse);
-
-            const boleto = this.createBoletoFromSicrediResponse(input, boletoResponse);
-            this.logger.debug('Created boleto entity:', {
-                id: boleto.id.toString(),
-                status: boleto.status
-            });
-
-            await this.boletoRepository.create(boleto);
-            this.logger.debug('Boleto saved to repository');
-
-            await this.boletoQueueProducer.addPrintBoletoJob({
-                businessId: input.businessId,
-                boletoId: boleto.id.toString(),
-                language,
-            });
-            this.logger.debug('Print job added to queue');
-
-            const successMessage = this.i18nService.translate('messages.RECORD_CREATED', language);
-            this.logger.debug('=== CreateBoletoUseCase completed successfully ===');
-
-            return right({ boleto, message: successMessage });
-
-        } catch (error) {
-            this.logger.error('=== Error in CreateBoletoUseCase ===');
-            this.logger.error('Error details:', error instanceof Error ? {
-                message: error.message,
-                stack: error.stack
-            } : String(error));
-
-            const errorMessage = this.i18nService.translate('errors.SICREDI_ERROR_CREATE_BOLETO', language, {
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
-            return left(AppError.boletoCreationFailed());
-        }
+        });
     }
 
     private prepareBoletoRequest(input: CreateBoletoUseCaseRequest, pagador: Person, beneficiario: Business): BoletoProps {
@@ -165,7 +227,7 @@ export class CreateBoletoUseCase {
             digitableLine: sicrediResponse.linhaDigitavel,
             barcode: sicrediResponse.codigoBarras,
             status: 'PENDING',
-            feeAmount: 1,
+            feeAmount: 2.9,
             pixQrCode: sicrediResponse.qrCode,
             pixId: sicrediResponse.txid,
             ourNumber: sicrediResponse.nossoNumero || null,

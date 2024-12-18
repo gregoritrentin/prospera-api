@@ -5,6 +5,7 @@ import { Optional } from '@/core/types/optional'
 interface UserProps {
     name: string
     email: string
+    phone: string
     password: string
     status: string
     defaultBusiness?: string | null
@@ -20,6 +21,10 @@ export class User extends Entity<UserProps> {
 
     get email() {
         return this.props.email
+    }
+
+    get phone() {
+        return this.props.phone
     }
 
     get password() {
@@ -57,6 +62,11 @@ export class User extends Entity<UserProps> {
 
     set email(email: string) {
         this.props.email = email
+        this.touch()
+    }
+
+    set phone(phone: string) {
+        this.props.phone = phone
         this.touch()
     }
 

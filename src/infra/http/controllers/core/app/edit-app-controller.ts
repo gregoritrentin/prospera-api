@@ -11,13 +11,14 @@ import { z } from 'zod'
 import { EditAppUseCase } from '@/domain/application/use-cases/edit-app'
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
+import { AppType } from '@/core/types/enums'
 
 const editAppBodySchema = z.object({
     name: z.string(),
     description: z.string(),
     price: z.number(),
     quantity: z.number(),
-    type: z.string(),
+    type: z.enum([AppType.UNIT, AppType.PERCENTAGE]),
     status: z.string(),
 })
 

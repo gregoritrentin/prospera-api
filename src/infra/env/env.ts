@@ -46,6 +46,8 @@ export const envSchema = z.object({
   SICREDI_CA: z.string(),
 
   PORT: z.coerce.number().optional().default(3333),
+
+  PROSPERA_ID: z.string().uuid(),
 })
 
 export type Env = z.infer<typeof envSchema>

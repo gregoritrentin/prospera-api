@@ -15,6 +15,7 @@ import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiHeader } from '@nestjs/
 import { createZodDto } from 'nestjs-zod';
 import { UserPayload } from '@/infra/auth/jwt.strategy';
 import { CurrentUser } from '@/infra/auth/current-user-decorator';
+import { TransactionBoletoPresenter } from '@/infra/http/presenters/transaction-boleto-presenter';
 
 const createBoletoBodySchema = z.object({
     personId: z.string().uuid(),
@@ -38,7 +39,6 @@ export class CreateBoletoController {
 
     @Post()
     @HttpCode(201)
-
     @ApiOperation({
         summary: 'Create a new Boleto',
         description: 'Create a new Boleto transaction. Requires Bearer Token authentication.'
@@ -54,20 +54,16 @@ export class CreateBoletoController {
         required: false,
         schema: { type: 'string', default: 'en-US', enum: ['en-US', 'pt-BR'] },
     })
-
     @ApiBody({ type: BoletoRequest })
     @ApiResponse({ status: 201, description: 'Boleto created successfully' })
     @ApiResponse({ status: 400, description: 'Bad request' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
-
     async handle(
-
         @Body(bodyValidationPipe) body: CreateBoletoBodySchema,
         @CurrentUser() user: UserPayload,
-        @Req() req: Request) {
-
+        @Req() req: Request
+    ) {
         const language = ((req.headers['accept-language'] as string) || 'en-US') as Language;
-
         const businessId = user.bus;
 
         const { personId, yourNumber, ourNumber, description, dueDate, paymentLimitDate, amount } = body;
@@ -93,7 +89,7 @@ export class CreateBoletoController {
         }
 
         return {
-            boleto: result.value.boleto,
+            boleto: TransactionBoletoPresenter.toHttp(result.value.boleto),
             message: result.value.message,
         };
     }

@@ -50,6 +50,19 @@ export class PrismaAccountsRepository implements AccountsRepository {
         return accounts.map(PrismaAccountMapper.toDomain)
     }
 
+    async findManyActive(): Promise<Account[]> {
+        const accounts = await this.prisma.account.findMany({
+            where: {
+                status: 'ACTIVE'
+            },
+            orderBy: {
+                number: 'asc',
+            }
+        })
+
+        return accounts.map(PrismaAccountMapper.toDomain)
+    }
+
     async save(account: Account): Promise<void> {
         const data = PrismaAccountMapper.toPrisma(account)
 

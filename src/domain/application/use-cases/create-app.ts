@@ -2,6 +2,7 @@ import { App } from '@/domain/application/entities/app'
 import { AppRepository } from '@/domain/application/repositories/app-repository'
 import { Either, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
+import { AppType } from '@/core/types/enums'
 
 interface CreateAppUseCaseRequest {
 
@@ -9,7 +10,7 @@ interface CreateAppUseCaseRequest {
     description: string
     price: number
     quantity: number
-    type: string
+    type: AppType
     status: string
 }
 

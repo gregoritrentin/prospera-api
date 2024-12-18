@@ -145,7 +145,7 @@ export class CreatePixUseCase {
             dueDate: input.dueDate || null,
             paymentLimitDate: input.paymentLimitDate || null,
             amount: input.amount,
-            feeAmount: 0,
+            feeAmount: 1,
             pixQrCode: response.pixCopiaECola,
             pixId: response.txid,
             type: TransactionType.PIX,

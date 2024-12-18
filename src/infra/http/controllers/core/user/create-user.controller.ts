@@ -17,6 +17,7 @@ import { createZodDto } from 'nestjs-zod'
 const createUserBodySchema = z.object({
   name: z.string(),
   email: z.string().email(),
+  phone: z.string(),
   password: z.string(),
   defaultBusiness: z.string().optional(),
   photoFileId: z.string().optional(),
@@ -128,6 +129,7 @@ export class CreateUserController {
     const {
       name,
       email,
+      phone,
       password,
       defaultBusiness,
       photoFileId,
@@ -136,6 +138,7 @@ export class CreateUserController {
     const result = await this.createUser.execute({
       name,
       email,
+      phone,
       password,
       defaultBusiness: defaultBusiness || undefined,
       photoFileId: photoFileId || undefined,

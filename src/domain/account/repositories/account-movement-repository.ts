@@ -7,5 +7,9 @@ export abstract class AccountMovementsRepository {
         params: PaginationParams,
         accountId: string
     ): Promise<AccountMovement[]>
+    abstract findManyByAccountId(
+        accountId: string,
+        orderBy?: 'asc' | 'desc'
+    ): Promise<AccountMovement[]>
     abstract create(accountMovement: AccountMovement): Promise<void>
 }

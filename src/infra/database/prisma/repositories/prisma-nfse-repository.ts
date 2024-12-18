@@ -18,7 +18,7 @@ export class PrismaNfseRepository implements NfseRepository {
                 businessId,
             },
             include: {
-                NfseEvent: true
+                nfseEvent: true
             }
         });
 
@@ -38,7 +38,7 @@ export class PrismaNfseRepository implements NfseRepository {
             include: {
                 business: true,
                 person: true,
-                NfseEvent: true,
+                nfseEvent: true,
                 incidenceCityCode: true,
                 incidenceStateCode: true,
                 serviceCityCode: true,
@@ -62,7 +62,7 @@ export class PrismaNfseRepository implements NfseRepository {
                 businessId,
             },
             include: {
-                NfseEvent: true
+                nfseEvent: true
             }
         });
 
@@ -81,7 +81,7 @@ export class PrismaNfseRepository implements NfseRepository {
                 businessId,
             },
             include: {
-                NfseEvent: true
+                nfseEvent: true
             }
         });
 
@@ -132,7 +132,7 @@ export class PrismaNfseRepository implements NfseRepository {
                 } : {})
             },
             include: {
-                NfseEvent: true
+                nfseEvent: true
             },
             orderBy: {
                 issueDate: 'desc',
@@ -159,7 +159,7 @@ export class PrismaNfseRepository implements NfseRepository {
                 }
             },
             include: {
-                NfseEvent: true
+                nfseEvent: true
             },
             orderBy: {
                 issueDate: 'desc',
@@ -182,7 +182,7 @@ export class PrismaNfseRepository implements NfseRepository {
                 }
             },
             include: {
-                NfseEvent: true
+                nfseEvent: true
             },
             orderBy: {
                 issueDate: 'desc',

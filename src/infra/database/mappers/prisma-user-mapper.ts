@@ -8,6 +8,7 @@ export class PrismaUserMapper {
       {
         name: raw.name,
         email: raw.email,
+        phone: raw.phone,
         password: raw.password,
         defaultBusiness: raw.defaultBusiness,
         photoFileId: raw.photoFileId,
@@ -23,6 +24,7 @@ export class PrismaUserMapper {
       id: user.id.toString(),
       name: user.name,
       email: user.email,
+      phone: user.phone,
       password: user.password,
       defaultBusiness: user.defaultBusiness,
       status: user.status,

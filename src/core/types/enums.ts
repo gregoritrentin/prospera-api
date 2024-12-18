@@ -9,6 +9,26 @@ enum Status {
     INACTIVE = 'INACTIVE',
 }
 
+export enum TwoFactorType {
+    WITHDRAWAL = 'WITHDRAWAL',
+    LOGIN = 'LOGIN',
+    CHANGE_PASSWORD = 'CHANGE_PASSWORD',
+    DELETE_ACCOUNT = 'DELETE_ACCOUNT',
+}
+
+export enum AppType {
+    UNIT = 'UNIT',
+    PERCENTAGE = 'PERCENTAGE'
+}
+
+export enum ReceivableStatus {
+    PENDING = 'PENDING',
+    AVAILABLE = 'AVAILABLE',
+    ANTICIPATED = 'ANTICIPATED',
+    PAID = 'PAID',
+    CANCELLED = 'CANCELLED'
+}
+
 //USER
 export enum UserGender {
     MALE = 'MALE',

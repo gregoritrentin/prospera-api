@@ -71,6 +71,11 @@ enum InvoiceStatus {
   CANCELED
 }
 
+enum AppType {
+  UNIT
+  PERCENTAGE
+}
+
 enum SaleStatus {
   DRAFT
   CREDIT_ANALYSIS
@@ -466,12 +471,44 @@ enum CertificateStatus {
   INVALID
 }
 
+enum AnticipationReceivableStatus {
+  PENDING // Aguardando análise
+  IN_ANALYSIS // Em análise
+  APPROVED // Aprovado para antecipação
+  PARTIALLY_APPROVED // Aprovado com valor parcial
+  REJECTED // Rejeitado
+  COMPLETED // Antecipação concluída
+  CANCELLED // Cancelado
+}
+
+enum AnticipationType {
+  TOTAL // Antecipação de todos os recebíveis
+  PARTIAL // Antecipação parcial de recebíveis
+  SELECTED // Antecipação de recebíveis selecionados
+}
+
+enum ReceivableStatus {
+  PENDING
+  ANTICIPATED
+  PAID
+  CANCELLED
+}
+
+enum AnticipationStatus {
+  PENDING
+  ANALYSIS
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id              String    @id @default(uuid())
   name            String
   email           String    @unique
   cpf             String?   @unique
-  phone           String?
+  phone           String
   password        String
   birthDate       DateTime? @map("birth_date")
   status          String
@@ -484,24 +521,28 @@ model User {
   updatedAt       DateTime? @updatedAt @map("updated_at")
   suspendedAt     DateTime? @map("suspended_at")
 
+  // Relacionamentos principais
   business Business? @relation(fields: [defaultBusiness], references: [id])
   file     File?     @relation(fields: [photoFileId], references: [id])
   state    State?    @relation(fields: [stateId], references: [id])
   country  Country?  @relation(fields: [countryId], references: [id])
 
-  userBusiness         UserBusiness[]
-  userTerms            UserTerms[]
-  ddeal                Deal[]
-  sale                 Sale[]
-  serviceOrder         ServiceOrder[]
-  featureSuggestion    FeatureSuggestion[]
-  featureVote          FeatureVote[]
-  eventRegistration    EventRegistration[]
-  campaignContribution CampaignContribution[]
-  ticketAgent          Ticket[]               @relation("TicketAgent")
-  ticketOwner          Ticket[]               @relation("TicketOwner")
-  stockMovement        StockMovement[]
-  loginLog             LoginLog[]
+  // Outros relacionamentos
+  userBusiness            UserBusiness[]
+  userTerms               UserTerms[]
+  ddeal                   Deal[]
+  sale                    Sale[]
+  serviceOrder            ServiceOrder[]
+  featureSuggestion       FeatureSuggestion[]
+  featureVote             FeatureVote[]
+  eventRegistration       EventRegistration[]
+  campaignContribution    CampaignContribution[]
+  ticketAgent             Ticket[]                  @relation("TicketAgent")
+  ticketOwner             Ticket[]                  @relation("TicketOwner")
+  stockMovement           StockMovement[]
+  loginLog                LoginLog[]
+  twoFactorAuthentication TwoFactorAuthentication[]
+  AnticipationReceivable  AnticipationReceivable[]
 
   @@map("users")
 }
@@ -696,8 +737,8 @@ model Business {
   email                    String
   phone                    String
   document                 String    @unique
-  ie                       String?
-  im                       String?
+  ie                       String? // Inscrição Estadual
+  im                       String? // Inscrição Municipal
   addressLine1             String    @map("address_line1")
   addressLine2             String    @map("address_line2")
   addressLine3             String?   @map("address_line3")
@@ -715,6 +756,7 @@ model Business {
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime? @updatedAt @map("updated_at")
 
+  // Relações principais
   marketplace            Marketplaces @relation(fields: [marketplaceId], references: [id])
   logoFile               File?        @relation("LogoFile", fields: [logoFileId], references: [id])
   digitalCertificateFile File?        @relation("DigitalCertificateFile", fields: [digitalCertificateFileId], references: [id])
@@ -722,6 +764,16 @@ model Business {
   state                  State        @relation(fields: [stateCode], references: [code])
   city                   City         @relation(fields: [cityCode], references: [code])
 
+  // Relações com Receivable (Recebíveis)
+  receivablesAsOriginalOwner Receivable[] @relation("OriginalOwner")
+  receivablesAsCurrentOwner  Receivable[] @relation("CurrentOwner")
+  receivables                Receivable[]
+
+  // Relações com ReceivableHistory (Histórico de Recebíveis)
+  receivableHistoryAsFromOwner ReceivableHistory[] @relation("FromOwner")
+  receivableHistoryAsToOwner   ReceivableHistory[] @relation("ToOwner")
+
+  // Outras relações do negócio
   person               Person[]
   userBusiness         UserBusiness[]
   businessApps         BusinessApps[]
@@ -741,7 +793,6 @@ model Business {
   sale                 Sale[]
   priceList            PriceList[]
   invoice              Invoice[]
-  receivable           Receivable[]
   serviceOrder         ServiceOrder[]
   ticket               Ticket[]
   featureSuggestion    FeatureSuggestion[]
@@ -760,8 +811,9 @@ model Business {
   transaction          Transaction[]
   salesChannel         SalesChannel[]
   pipeline             Pipeline[]
-  Nfse                 Nfse[]
-  DigitalCertificate   DigitalCertificate[]
+  nfse                 Nfse[]
+  digitalCertificate   DigitalCertificate[]
+  anticipation         Anticipation[]
 
   @@map("business")
 }
@@ -881,7 +933,7 @@ model App {
   description String
   price       Float
   quantity    Float
-  type        String
+  type        AppType
   status      String
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @updatedAt @map("updated_at")
@@ -918,6 +970,23 @@ model Marketplaces {
   business Business[]
 
   @@map("marketplaces")
+}
+
+model TwoFactorAuthentication {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String // Enum será mapeado como string
+  code      String
+  expiresAt DateTime
+  attempts  Int       @default(0)
+  verified  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, type])
+  @@map("two_factor_authentications")
 }
 
 model Person {
@@ -1235,12 +1304,11 @@ model Transaction {
 }
 
 model TransactionSplit {
-  id            String          @id @default(uuid())
-  transactionId String          @unique @map("transaction_id")
-  recipientId   String          @map("recipient_id")
-  splitType     CalculationMode @map("split_type")
+  id            String    @id @default(uuid())
+  transactionId String    @map("transaction_id")
+  recipientId   String    @map("recipient_id")
+  splitType     SplitType @map("split_type")
   amount        Float
-  feeAmount     Float           @map("fee_amount")
 
   transaction Transaction @relation(fields: [transactionId], references: [id])
   recipient   Business    @relation(fields: [recipientId], references: [id])
@@ -1248,20 +1316,127 @@ model TransactionSplit {
   @@map("transaction_splits")
 }
 
+// Modelo Receivable - Representa os recebíveis no sistema
 model Receivable {
-  id            String    @id @default(uuid())
-  businessId    String    @map("business_id")
-  transactionId String    @map("transaction_id")
-  dueDate       DateTime  @map("due_date")
-  amount        Float
-  status        String
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime? @updatedAt @map("updated_at")
+  id              String           @id @default(uuid())
+  transactionId   String           @map("transaction_id")
+  originalOwnerId String           @map("original_owner_id")
+  currentOwnerId  String           @map("current_owner_id")
+  amount          Float
+  netAmount       Float            @map("net_amount")
+  originalDueDate DateTime         @map("original_due_date")
+  currentDueDate  DateTime         @map("current_due_date")
+  status          ReceivableStatus
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime?        @updatedAt
+  businessId      String?
 
-  business    Business    @relation(fields: [businessId], references: [id])
-  transaction Transaction @relation(fields: [transactionId], references: [id])
+  // Relações
+  transaction   Transaction              @relation(fields: [transactionId], references: [id])
+  originalOwner Business                 @relation("OriginalOwner", fields: [originalOwnerId], references: [id])
+  currentOwner  Business                 @relation("CurrentOwner", fields: [currentOwnerId], references: [id])
+  Business      Business?                @relation(fields: [businessId], references: [id])
+  history       ReceivableHistory[]
+  anticipations AnticipationReceivable[]
 
   @@map("receivables")
+}
+
+model ReceivableHistory {
+  id            String   @id @default(uuid())
+  receivableId  String   @map("receivable_id")
+  fromOwnerId   String   @map("from_owner_id")
+  toOwnerId     String   @map("to_owner_id")
+  operationType String   @map("operation_type")
+  amount        Float
+  feeAmount     Float?   @map("fee_amount")
+  createdAt     DateTime @default(now())
+
+  receivable Receivable @relation(fields: [receivableId], references: [id])
+  fromOwner  Business   @relation("FromOwner", fields: [fromOwnerId], references: [id])
+  toOwner    Business   @relation("ToOwner", fields: [toOwnerId], references: [id])
+
+  @@map("receivable_history")
+}
+
+model Anticipation {
+  id                String             @id @default(uuid())
+  businessId        String             @map("business_id")
+  requestedAmount   Float              @map("requested_amount")
+  anticipatedAmount Float              @map("anticipated_amount")
+  feeAmount         Float              @map("fee_amount")
+  feePercentage     Float              @map("fee_percentage")
+  status            AnticipationStatus
+
+  // Estatísticos/análise
+  averageDaysAhead Float            @map("average_days_ahead")
+  oldestDueDate    DateTime         @map("oldest_due_date")
+  newestDueDate    DateTime         @map("newest_due_date")
+  receivablesCount Int              @map("receivables_count")
+  riskScore        Float?           @map("risk_score")
+  operationType    AnticipationType @map("operation_type")
+
+  // Campos de datas
+  requestDate       DateTime  @map("request_date")
+  analysisStartDate DateTime? @map("analysis_start_date")
+  analysisEndDate   DateTime? @map("analysis_end_date")
+  approvalDate      DateTime? @map("approval_date")
+  completionDate    DateTime? @map("completion_date")
+  canceledDate      DateTime? @map("canceled_date")
+
+  // Campos de análise/aprovação
+  analyzerNotes   String? @map("analyzer_notes")
+  rejectionReason String? @map("rejection_reason")
+  approvedById    String? @map("approved_by_id")
+  analyzedById    String? @map("analyzed_by_id")
+
+  // Campos financeiros adicionais
+  minimumPaymentDate DateTime @map("minimum_payment_date")
+  maximumPaymentDate DateTime @map("maximum_payment_date")
+  effectiveRate      Float    @map("effective_rate")
+  annualRate         Float    @map("annual_rate")
+
+  // Relacionamentos
+  business Business @relation(fields: [businessId], references: [id])
+
+  AnticipationReceivable AnticipationReceivable[]
+
+  @@map("anticipations")
+}
+
+model AnticipationReceivable {
+  id             String @id @default(uuid())
+  anticipationId String @map("anticipation_id")
+  receivableId   String @map("receivable_id")
+
+  // Valores
+  requestedAmount Float  @map("requested_amount")
+  approvedAmount  Float? @map("approved_amount")
+  feeAmount       Float  @map("fee_amount")
+  effectiveRate   Float  @map("effective_rate")
+
+  // Status e Análise
+  status          AnticipationReceivableStatus
+  riskScore       Float?                       @map("risk_score")
+  rejectionReason String?                      @map("rejection_reason")
+  analyzerNotes   String?                      @map("analyzer_notes")
+
+  // Datas
+  createdAt  DateTime  @default(now())
+  analyzedAt DateTime? @map("analyzed_at")
+  approvedAt DateTime? @map("approved_at")
+
+  // Responsáveis
+  analyzedById String? @map("analyzed_by_id")
+  approvedById String? @map("approved_by_id")
+  userId       String? @map("user_id")
+
+  // Relacionamentos
+  anticipation Anticipation @relation(fields: [anticipationId], references: [id])
+  receivable   Receivable   @relation(fields: [receivableId], references: [id])
+  User         User?        @relation(fields: [userId], references: [id])
+
+  @@map("anticipation_receivables")
 }
 
 model Payment {
@@ -1305,9 +1480,10 @@ model Account {
 
   business Business @relation(fields: [businessId], references: [id])
 
-  accountMovement     AccountMovement[]
-  transferFromAccount Transfer[]        @relation("TransferFromAccount")
-  transferToAccount   Transfer[]        @relation("TransferToAccount")
+  accountMovement        AccountMovement[]
+  transferFromAccount    Transfer[]               @relation("TransferFromAccount")
+  transferToAccount      Transfer[]               @relation("TransferToAccount")
+  AccountBalanceSnapshot AccountBalanceSnapshot[]
 
   @@map("accounts")
 }
@@ -1327,6 +1503,25 @@ model AccountMovement {
   transferTo   Transfer? @relation("TransferToAccountMovement")
 
   @@map("account_movement")
+}
+
+model AccountBalanceSnapshot {
+  id                       String    @id @default(uuid())
+  accountId                String
+  balance                  Decimal
+  month                    Int
+  year                     Int
+  snapshotTimestamp        DateTime
+  lastTransactionId        String
+  lastTransactionTimestamp DateTime
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime?
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId, month, year])
+  @@index([accountId, snapshotTimestamp])
+  @@map("account_balance_snapshots")
 }
 
 model Transfer {
@@ -2056,7 +2251,7 @@ model Nfse {
 
   pdfFile   File?       @relation("NfsePdfFile", fields: [pdfFileId], references: [id])
   xmlFile   File?       @relation("NfseXmlFile", fields: [xmlFileId], references: [id])
-  NfseEvent NfseEvent[]
+  nfseEvent NfseEvent[]
 
   // Índices
   @@index([businessId])

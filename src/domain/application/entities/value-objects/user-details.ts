@@ -5,6 +5,7 @@ export interface UserDetailsProps {
     id: UniqueEntityID
     name: string
     email: string
+    phone: string
     defaultBusiness: string | null
     photoFileUrl: string | null
     photoFileId: string | null
@@ -25,6 +26,10 @@ export class UserDetails extends ValueObject<UserDetailsProps> {
 
     get email() {
         return this.props.email
+    }
+
+    get phone() {
+        return this.props.phone
     }
 
     get status() {
