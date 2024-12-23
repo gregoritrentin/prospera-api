@@ -271,3 +271,62 @@ export enum ServiceCode {
     S1723 = "17.23", // Apresentações e palestras
     S1724 = "17.24", // Inserção de propaganda
 }
+
+// src/core/types/enums.ts ou arquivo similar onde estão seus enums
+export enum PaymentStatus {
+    PENDING = 'PENDING',
+    PAID = 'PAID',
+    CANCELLED = 'CANCELLED',
+    SCHEDULED = 'SCHEDULED',
+    FAILURE = 'FAILURE'
+}
+
+export enum MetricType {
+    PIX = 'PIX',
+    BOLETO = 'BOLETO',
+    CARD = 'CARD',
+    PIX_PAYMENT = 'PIX_PAYMENT',
+    PIX_KEY_PAYMENT = 'PIX_KEY_PAYMENT',
+    PIX_BANK_DATA_PAYMENT = 'PIX_BANK_DATA_PAYMENT'
+}
+
+// src/core/types/enums.ts
+
+// Transaction & Payment Enums
+export enum TransactionStatus {
+    PENDING = 'PENDING',
+    PAID = 'PAID',
+    CANCELLED = 'CANCELLED',
+    SCHEDULED = 'SCHEDULED',
+    FAILURE = 'FAILURE'
+}
+
+// Person Enums
+export enum PersonType {
+    FISICA = 'PESSOA_FISICA',
+    JURIDICA = 'PESSOA_JURIDICA'
+}
+
+
+
+export enum AccountType {
+    CORRENTE = 'CORRENTE',
+    PAGAMENTO = 'PAGAMENTO',
+    SALARIO = 'SALARIO',
+    POUPANCA = 'POUPANCA'
+}
+
+// Bank Data Enums
+export enum BankAccountType {
+    CHECKING = 'CORRENTE',
+    PAYMENT = 'PAGAMENTO',
+    SALARY = 'SALARIO',
+    SAVINGS = 'POUPANCA'
+}
+
+// Document Enums
+export enum DocumentType {
+    IMMEDIATE = 'IMMEDIATE',
+    DUEDATE = 'DUEDATE'
+}
+

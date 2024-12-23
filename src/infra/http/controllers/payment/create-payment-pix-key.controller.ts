@@ -11,14 +11,16 @@ import { AppError } from '@/core/errors/app-errors';
 
 const createPixPaymentBodySchema = z.object({
     personId: z.string().uuid().optional(),
-    keyPix: z.string(),
-    document: z.string(),
-    paymentDate: z.string().datetime(),
-    amount: z.number().positive(),
+    keyPix: z.string().min(1, 'PIX key is required'),
+    document: z.string().min(11, 'Document must be CPF or CNPJ').max(14),
+    paymentDate: z.string().datetime({
+        message: 'Invalid date format. Use ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)',
+    }),
+    amount: z.number().positive('Amount must be greater than 0'),
     messagePix: z.string().optional(),
 });
 
-class PixPaymentRequest extends createZodDto(createPixPaymentBodySchema) { }
+export class PixPaymentRequest extends createZodDto(createPixPaymentBodySchema) { }
 
 const bodyValidationPipe = new ZodValidationPipe(createPixPaymentBodySchema);
 type CreatePixPaymentBodySchema = z.infer<typeof createPixPaymentBodySchema>;
@@ -35,7 +37,7 @@ export class CreatePaymentPixKeyController {
     @HttpCode(201)
     @ApiOperation({
         summary: 'Create a new Pix Payment',
-        description: 'Create a new Pix Payment transaction. Requires Bearer Token authentication.'
+        description: 'Create a new Pix Payment transaction using PIX key. Requires Bearer Token authentication.'
     })
     @ApiHeader({
         name: 'Authorization',
@@ -49,18 +51,28 @@ export class CreatePaymentPixKeyController {
         schema: { type: 'string', default: 'pt-BR', enum: ['en-US', 'pt-BR'] },
     })
     @ApiBody({ type: PixPaymentRequest })
-    @ApiResponse({ status: 201, description: 'Pix Payment created successfully' })
-    @ApiResponse({ status: 400, description: 'Bad request' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-
+    @ApiResponse({
+        status: 201,
+        description: 'Pix Payment created successfully'
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Bad request - Invalid data provided or insufficient balance'
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing authentication token'
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Not Found - Business account not found'
+    })
     async handle(
         @Body(bodyValidationPipe) body: CreatePixPaymentBodySchema,
         @CurrentUser() user: UserPayload,
         @Req() req: Request
     ): Promise<CreatePixPaymentUseCaseResponse> {
-
-        const language = ((req.headers['accept-language'] as string) || 'en-US') as Language;
-
+        const language = ((req.headers['accept-language'] as string) || 'pt-BR') as Language;
         const businessId = user.bus;
 
         const {
@@ -82,11 +94,10 @@ export class CreatePaymentPixKeyController {
             dataPagamento: paymentDate,
             valorPagamento: amount,
             mensagemPix: messagePix,
-
         }, language);
 
         if (result.isLeft()) {
-            const error: any = result.value;
+            const error = result.value;
             if (error instanceof AppError) {
                 throw new HttpException({
                     statusCode: error.httpStatus,
@@ -95,11 +106,10 @@ export class CreatePaymentPixKeyController {
                     details: error.details,
                 }, error.httpStatus);
             } else {
-                throw new BadRequestException(this.i18nService.translate(error.message, language));
+                throw new BadRequestException(this.i18nService.translate('errors.unexpected', language));
             }
         }
 
         return result.value;
     }
-
 }

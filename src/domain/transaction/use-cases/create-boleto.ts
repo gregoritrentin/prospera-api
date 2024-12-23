@@ -13,13 +13,20 @@ import { I18nService, Language } from '@/i18n/i18n.service';
 import { BoletoQueueProducer } from '@/infra/queues/producers/boleto-queue-producer';
 import { AppError } from '@/core/errors/app-errors';
 import { TransactionManager } from '@/core/transaction/transaction-manager';
-import { ConfigService } from '@nestjs/config';
 import { TransactionSplitRepository } from '../repositories/transaction-split-repository';
 import { ReceivableRepository } from '../repositories/receivable-repository';
 import { TransactionSplit } from '@/domain/transaction/entities/transaction-split';
 import { Receivable } from '@/domain/transaction/entities/receivable';
-import { ReceivableStatus, SplitType } from '@/core/types/enums';
+import {
+    ReceivableStatus,
+    SplitType,
+    TransactionStatus,
+    MetricType,
+    PersonType
+} from '@/core/types/enums';
 import { EnvService } from '@/infra/env/env.service';
+import { RecordTransactionMetricUseCase } from '@/domain/metric/use-case/record-transaction-metrics';
+
 interface CreateBoletoUseCaseRequest {
     businessId: string;
     personId: string;
@@ -41,6 +48,7 @@ type CreateBoletoResult = Either<AppError, CreateBoletoUseCaseResponse>;
 @Injectable()
 export class CreateBoletoUseCase {
     private readonly logger = new Logger(CreateBoletoUseCase.name);
+
     constructor(
         private readonly envService: EnvService,
         private transactionManager: TransactionManager,
@@ -52,6 +60,7 @@ export class CreateBoletoUseCase {
         private businessRepository: BusinessRepository,
         private i18nService: I18nService,
         private boletoQueueProducer: BoletoQueueProducer,
+        private recordTransactionMetric: RecordTransactionMetricUseCase,
     ) { }
 
     async execute(
@@ -108,29 +117,24 @@ export class CreateBoletoUseCase {
                     status: transaction.status
                 });
 
-                // No caso de uso:
                 const splits = [
-                    // Split da taxa
                     TransactionSplit.create({
                         transactionId: transaction.id,
                         recipientId: new UniqueEntityID(this.envService.get('PROSPERA_ID')),
                         splitType: SplitType.FIXED,
                         amount: transaction.feeAmount,
-
                     }),
-                    // Split do valor principal
                     TransactionSplit.create({
                         transactionId: transaction.id,
-                        recipientId: new UniqueEntityID(input.businessId), // ID do negócio que recebe o valor
+                        recipientId: new UniqueEntityID(input.businessId),
                         splitType: SplitType.FIXED,
                         amount: transaction.amount - transaction.feeAmount,
-
                     })
                 ];
 
                 // Criar receivables
                 const availableDate = new Date(input.dueDate);
-                availableDate.setDate(availableDate.getDate() + 1); // D+1 para boleto
+                availableDate.setDate(availableDate.getDate() + 1);
 
                 const receivables = splits.map(split =>
                     Receivable.create({
@@ -156,6 +160,18 @@ export class CreateBoletoUseCase {
                     this.receivableRepository.create(receivable)
                 ));
                 this.logger.debug('All entities persisted');
+
+                // Registrar métrica
+                const metricResult = await this.recordTransactionMetric.execute({
+                    businessId: input.businessId,
+                    type: MetricType.BOLETO,
+                    amount: input.amount,
+                    status: TransactionStatus.PENDING
+                });
+
+                if (metricResult.isLeft()) {
+                    this.logger.warn('Failed to record transaction metric:', metricResult.value);
+                }
 
                 // Adicionar job de impressão
                 await this.boletoQueueProducer.addPrintBoletoJob({
@@ -193,8 +209,8 @@ export class CreateBoletoUseCase {
                 documento: pagador.document,
                 nome: pagador.name,
                 endereco: pagador.addressLine1,
-                cidade: 'ERECHIM', // Considere usar pagador.cityCode se disponível
-                uf: 'RS', // Considere usar pagador.stateCode se disponível
+                cidade: 'ERECHIM',
+                uf: 'RS',
                 cep: pagador.postalCode,
                 telefone: pagador.phone,
                 email: pagador.email
@@ -226,7 +242,7 @@ export class CreateBoletoUseCase {
             description: input.description,
             digitableLine: sicrediResponse.linhaDigitavel,
             barcode: sicrediResponse.codigoBarras,
-            status: 'PENDING',
+            status: TransactionStatus.PENDING,
             feeAmount: 2.9,
             pixQrCode: sicrediResponse.qrCode,
             pixId: sicrediResponse.txid,
@@ -236,7 +252,9 @@ export class CreateBoletoUseCase {
         });
     }
 
-    private getTipoPessoa(document: string): 'PESSOA_FISICA' | 'PESSOA_JURIDICA' {
-        return document.replace(/\D/g, '').length === 11 ? 'PESSOA_FISICA' : 'PESSOA_JURIDICA';
+    private getTipoPessoa(document: string): PersonType {
+        return document.replace(/\D/g, '').length === 11
+            ? PersonType.FISICA
+            : PersonType.JURIDICA;
     }
 }

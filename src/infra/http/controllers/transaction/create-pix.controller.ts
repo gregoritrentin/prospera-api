@@ -8,6 +8,8 @@ import { I18nService } from '@/i18n/i18n.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
 import { createZodDto } from 'nestjs-zod';
 import { AppError } from '@/core/errors/app-errors';
+import { TransactionPixPresenter } from '../../presenters/transaction-pix-presenter';
+
 
 const createPixBodySchema = z.object({
     personId: z.string().uuid().optional(),
@@ -33,7 +35,6 @@ export class CreatePixController {
 
     @Post()
     @HttpCode(201)
-
     @ApiOperation({
         summary: 'Create a new Pix',
         description: 'Create a new Pix transaction. Requires Bearer Token authentication.'
@@ -53,15 +54,11 @@ export class CreatePixController {
     @ApiResponse({ status: 201, description: 'Pix created successfully' })
     @ApiResponse({ status: 400, description: 'Bad request' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
-
     async handle(
-
         @Body(bodyValidationPipe) body: CreatePixBodySchema,
         @CurrentUser() user: UserPayload,
-        @Req() req: Request) {
-
-        //const language = ((req.headers['accept-language'] as string) || 'pt-BR') as Language;
-
+        @Req() req: Request
+    ) {
         const businessId = user.bus;
 
         const { personId, documentType, description, dueDate, paymentLimitDate, amount } = body;
@@ -90,6 +87,7 @@ export class CreatePixController {
             }
         }
 
-        return result.value;
+        // Transform the result using the presenter
+        return TransactionPixPresenter.toHttp(result.value.pix);
     }
 }

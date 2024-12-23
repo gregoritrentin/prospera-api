@@ -1,67 +1,138 @@
-import { Injectable } from '@nestjs/common';
-import { PaymentsProvider } from '@/domain/interfaces/payments-provider';
-import { I18nService, Language } from '@/i18n/i18n.service';
-import { AppError } from '@/core/errors/app-errors';
-import { PaymentRepository } from '@/domain/payment/repositories/payment-repository';
-import { Either, left, right } from '@/core/either';
+// import { Injectable, Logger } from '@nestjs/common';
+// import { PaymentsProvider } from '@/domain/interfaces/payments-provider';
+// import { I18nService, Language } from '@/i18n/i18n.service';
+// import { AppError } from '@/core/errors/app-errors';
+// import { PaymentRepository } from '@/domain/payment/repositories/payment-repository';
+// import { Either, left, right } from '@/core/either';
+// import { TransactionManager } from '@/core/transaction/transaction-manager';
+// import { CreateAccountMovementUseCase } from '@/domain/account/use-cases/create-account-movement';
+// import { RecordTransactionMetricUseCase } from '@/domain/metric/use-case/record-transaction-metrics';
+// import { MovementType, PaymentStatus, MetricType } from '@/core/types/enums';
 
-interface CancelScheduledPixPaymentUseCaseRequest {
-    paymentId: string;
-    businessId: string;
-}
+// interface CancelScheduledPixPaymentUseCaseRequest {
+//     paymentId: string;
+//     businessId: string;
+//     accountId: string;
+// }
 
-export interface CancelScheduledPixPaymentUseCaseResponse {
-    message: string;
-}
+// interface CancelScheduledPixPaymentUseCaseResponse {
+//     message: string;
+// }
 
-type CancelScheduledPixPaymentResult = Either<AppError, CancelScheduledPixPaymentUseCaseResponse>;
+// type CancelScheduledPixPaymentResult = Either<AppError, CancelScheduledPixPaymentUseCaseResponse>;
 
-@Injectable()
-export class CancelPaymentPixScheduledUseCase {
-    constructor(
-        private paymentProvider: PaymentsProvider,
-        private paymentRepository: PaymentRepository,
-        private i18nService: I18nService,
-    ) { }
+// @Injectable()
+// export class CancelPaymentPixScheduledUseCase {
+//     private readonly logger = new Logger(CancelPaymentPixScheduledUseCase.name);
 
-    async execute(
-        input: CancelScheduledPixPaymentUseCaseRequest,
-        language: Language = 'en-US'
-    ): Promise<CancelScheduledPixPaymentResult> {
-        try {
-            const existingPayment = await this.paymentRepository.findById(input.paymentId, input.businessId);
+//     constructor(
+//         private transactionManager: TransactionManager,
+//         private paymentProvider: PaymentsProvider,
+//         private paymentRepository: PaymentRepository,
+//         private createAccountMovement: CreateAccountMovementUseCase,
+//         private recordTransactionMetric: RecordTransactionMetricUseCase,
+//         private i18nService: I18nService,
+//     ) { }
 
-            if (!existingPayment) {
-                const errorMessage = this.i18nService.translate('errors.RESOURCE_NOT_FOUND', language);
-                return left(AppError.resourceNotFound(errorMessage));
-            }
+//     async execute(
+//         input: CancelScheduledPixPaymentUseCaseRequest,
+//         language: Language = 'pt-BR'
+//     ): Promise<CancelScheduledPixPaymentResult> {
+//         this.logger.debug('=== Starting CancelPaymentPixScheduledUseCase ===');
+//         this.logger.debug('Input:', {
+//             paymentId: input.paymentId,
+//             businessId: input.businessId,
+//             accountId: input.accountId
+//         });
 
-            if (!existingPayment.paymentId) {
-                const errorMessage = this.i18nService.translate('errors.RESOURCE_NOT_FOUND', language);
-                return left(AppError.resourceNotFound(errorMessage));
-            }
+//         return await this.transactionManager.start(async () => {
+//             try {
+//                 // Buscar o pagamento
+//                 const existingPayment = await this.paymentRepository.findById(input.paymentId, input.businessId);
 
-            if (existingPayment.status !== 'SCHEDULED') {
-                const errorMessage = this.i18nService.translate('errors.INVALID_OPERATION', language);
-                return left(AppError.invalidOperation(errorMessage));
-            }
+//                 if (!existingPayment) {
+//                     this.logger.debug('Payment not found');
+//                     return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'));
+//                 }
 
-            await this.paymentProvider.cancelarPixAgendado({
-                idTransacao: existingPayment.paymentId
-            });
+//                 if (!existingPayment.paymentId) {
+//                     this.logger.debug('Payment ID not found');
+//                     return left(AppError.resourceNotFound('errors.RESOURCE_NOT_FOUND'));
+//                 }
 
-            existingPayment.status = 'CANCELLED';
-            await this.paymentRepository.save(existingPayment);
+//                 // Verificar se o pagamento está agendado
+//                 if (existingPayment.status !== PaymentStatus.SCHEDULED) {
+//                     this.logger.debug('Invalid payment status for cancellation:', existingPayment.status);
+//                     return left(AppError.invalidOperation('errors.INVALID_OPERATION'));
+//                 }
 
-            const successMessage = this.i18nService.translate('messages.PIX_PAYMENT_CANCELLED', language);
+//                 try {
+//                     // Cancelar no provedor
+//                     this.logger.debug('Cancelling scheduled payment in provider');
+//                     await this.paymentProvider.cancelarPixAgendado({
+//                         idTransacao: existingPayment.paymentId
+//                     });
+//                 } catch (providerError) {
+//                     this.logger.error('Provider error:', providerError);
+//                     return left(AppError.paymentPixCancelationFailed());
+//                 }
 
-            return right({ message: successMessage });
+//                 // Atualizar status do pagamento
+//                 existingPayment.status = PaymentStatus.CANCELLED;
+//                 //existingPayment.updatedAt = new Date();
 
-        } catch (error) {
-            const errorMessage = this.i18nService.translate('errors.PIX_PAYMENT_CANCELLATION_FAILED', language, {
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
-            return left(AppError.paymentPixCancelationFailed());
-        }
-    }
-}
+//                 try {
+//                     await this.paymentRepository.save(existingPayment);
+//                     this.logger.debug('Payment status updated to CANCELLED');
+//                 } catch (saveError) {
+//                     this.logger.error('Failed to save payment:', saveError);
+//                     return left(AppError.internalServerError('errors.INTERNAL_SERVER_ERROR'));
+//                 }
+
+//                 // Se houve débito prévio, fazer estorno
+//                 if (existingPayment.amount > 0) {
+//                     this.logger.debug('Creating refund movement');
+//                     const refundResult = await this.createAccountMovement.execute({
+//                         accountId: input.accountId,
+//                         businessId: input.businessId,
+//                         type: MovementType.CREDIT,
+//                         amount: existingPayment.amount,
+//                         description: `Estorno PIX Agendado - ${existingPayment.paymentId}`
+//                     });
+
+//                     if (refundResult.isLeft()) {
+//                         this.logger.error('Failed to create refund movement:', refundResult.value);
+//                         return left(refundResult.value);
+//                     }
+//                 }
+
+//                 // Registrar métrica
+//                 this.logger.debug('Recording metric');
+//                 const metricResult = await this.recordTransactionMetric.execute({
+//                     businessId: input.businessId,
+//                     type: MetricType.PIX_PAYMENT,
+//                     amount: existingPayment.amount,
+//                     status: PaymentStatus.CANCELLED
+//                 });
+
+//                 if (metricResult.isLeft()) {
+//                     this.logger.warn('Failed to record transaction metric:', metricResult.value);
+//                 }
+
+//                 const successMessage = this.i18nService.translate('messages.PIX_PAYMENT_CANCELLED', language);
+//                 this.logger.debug('=== CancelPaymentPixScheduledUseCase completed successfully ===');
+
+//                 return right({ message: successMessage });
+
+//             } catch (error) {
+//                 this.logger.error('=== Error in CancelPaymentPixScheduledUseCase ===');
+//                 this.logger.error('Error details:', error instanceof Error ? {
+//                     message: error.message,
+//                     stack: error.stack
+//                 } : String(error));
+
+//                 return left(AppError.paymentPixCancelationFailed());
+//             }
+//         });
+//     }
+// }

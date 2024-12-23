@@ -23,6 +23,19 @@ export class PrismaAccountsRepository implements AccountsRepository {
         return PrismaAccountMapper.toDomain(account)
     }
 
+    async findByBusinessId(businessId: string): Promise<Account | null> {
+        const account = await this.prisma.account.findFirst({
+            where: {
+                businessId,
+            }
+        })
+
+        if (!account) {
+            return null
+        }
+        return PrismaAccountMapper.toDomain(account)
+    }
+
     async findByNumber(number: string, businessId: string): Promise<Account | null> {
         const account = await this.prisma.account.findFirst({
             where: {

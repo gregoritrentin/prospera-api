@@ -48,8 +48,8 @@ export class TaskSchedulerConfig {
         // Subscription Invoice Processing task
         this.taskScheduler.scheduleTask(
             'processSubscriptionInvoices',
-            //'0 1 * * *', //todos os dias as 1h
-            '* * * * *', //a cada minuto
+            '0 1 * * *', //todos os dias as 1h
+            //'* * * * *', //a cada minuto
             async () => {
                 this.logger.log('[Subscription] Starting processSubscriptionInvoices task');
                 const startTime = Date.now();
@@ -119,7 +119,6 @@ export class TaskSchedulerConfig {
             }
         );
 
-        // Account Balance Snapshots task
         // Account Balance Snapshots task
         this.taskScheduler.scheduleTask(
             'createAccountBalanceSnapshots',

@@ -178,28 +178,40 @@ import { FetchPixController } from "./controllers/transaction/fetch-pix.controll
 import { GetPixController } from "./controllers/transaction/get-pix.controller";
 import { GetPixUseCase } from "@/domain/transaction/use-cases/get-pix";
 import { PaymentsModule } from "../payments/payments.module";
-import { CreatePaymentPixKeyController } from "./controllers/payment/create-payment-pix-key.controller";
 import { CreatePaymentPixKeyUseCase } from "@/domain/payment/use-cases/create-payment-pix-key";
 import { ConnectWhatsAppUseCase } from "@/domain/whatsapp/use-cases/connect-whatsapp";
 import { WhatsAppController } from "./controllers/whatsapp/whatsapp.controller";
 import { SendWhatsAppUseCase } from "@/domain/whatsapp/use-cases/send-whatsapp";
-import { CreatePaymentPixBankDataController } from "./controllers/payment/create-payment-pix-bank-data.controller";
-import { CreatePaymentPixBankDataUseCase } from "@/domain/payment/use-cases/create-payment-pix-bank-data";
-import { UpdatePaymentPixController } from "./controllers/payment/update-payments-pix.controller";
-import { UpdatePaymentPixUseCase } from "@/domain/payment/use-cases/update-payment-pix";
+//import { UpdatePaymentPixController } from "./controllers/payment/update-payments-pix.controller";
+//import { UpdatePaymentPixUseCase } from "@/domain/payment/use-cases/update-payment-pix";
 import { GetPaymentPixProofUseCase } from "@/domain/payment/use-cases/get-payment-pix-proof";
 import { GetPaymentPixProofController } from "./controllers/payment/get-payment-pix-proof.controller";
-import { CancelScheduledPixPaymentController } from "./controllers/payment/cancel-payment-pix-scheduled.controller";
-import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/cancel-payment-pix-scheduled";
+//import { CancelScheduledPixPaymentController } from "./controllers/payment/cancel-payment-pix-scheduled.controller";
+//import { CancelPaymentPixScheduledUseCase } from "@/domain/payment/use-cases/cancel-payment-pix-scheduled";
 import { CreateSubscriptionController } from "./controllers/subscription/create-subscription.controller";
 import { CreateSubscriptionUseCase } from "@/domain/subscription/use-cases/create-subscription";
 import { CreateNfseUseCase } from "@/domain/dfe/nfse/use-cases/create-nfse";
 import { GetNfseUseCase } from "@/domain/dfe/nfse/use-cases/get-nfse";
 import { CreateItemTaxationController } from "./controllers/item/create-item-taxation.controller";
+import { EnvModule } from "../env/env.module";
+import { CreatePaymentPixKeyController } from "./controllers/payment/create-payment-pix-key.controller";
+import { CreatePaymentPixBankDataController } from "./controllers/payment/create-payment-pix-bank-data.controller";
 
 
 @Module({
-  imports: [DatabaseModule, BoletoModule, PixModule, PaymentsModule, EmailModule, WhatsAppModule, CryptographyModule, FileModule, QueueModule],
+  imports: [
+    EnvModule,
+    DatabaseModule,
+    BoletoModule,
+    PixModule,
+    PaymentsModule,
+    EmailModule,
+    WhatsAppModule,
+    CryptographyModule,
+    FileModule,
+    QueueModule
+  ],
+
   controllers: [
 
     //sign-up
@@ -305,9 +317,9 @@ import { CreateItemTaxationController } from "./controllers/item/create-item-tax
     //payments
     CreatePaymentPixKeyController,
     CreatePaymentPixBankDataController,
-    UpdatePaymentPixController,
+    //UpdatePaymentPixController,
     GetPaymentPixProofController,
-    CancelScheduledPixPaymentController,
+    //CancelScheduledPixPaymentController,
 
     //subscription
     CreateSubscriptionController,
@@ -422,10 +434,10 @@ import { CreateItemTaxationController } from "./controllers/item/create-item-tax
 
     //payments
     CreatePaymentPixKeyUseCase,
-    CreatePaymentPixBankDataUseCase,
-    UpdatePaymentPixUseCase,
+    //CreatePaymentPixBankDataUseCase,
+    //UpdatePaymentPixUseCase,
     GetPaymentPixProofUseCase,
-    CancelPaymentPixScheduledUseCase,
+    //CancelPaymentPixScheduledUseCase,
 
     //subscription
     CreateSubscriptionUseCase,

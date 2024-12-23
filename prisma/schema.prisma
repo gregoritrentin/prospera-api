@@ -1444,6 +1444,7 @@ model Payment {
   businessId             String      @map("business_id")
   personId               String?     @map("person_id")
   paymentId              String?     @map("payment_id")
+  accountId              String      @map("account_id")
   paymentType            PaymentType @map("payment_type")
   description            String?
   status                 String
@@ -1463,6 +1464,7 @@ model Payment {
 
   business Business @relation(fields: [businessId], references: [id])
   person   Person?  @relation(fields: [personId], references: [id])
+  account  Account  @relation(fields: [accountId], references: [id])
 
   @@index([paymentId])
   @@index([status])
@@ -1484,6 +1486,7 @@ model Account {
   transferFromAccount    Transfer[]               @relation("TransferFromAccount")
   transferToAccount      Transfer[]               @relation("TransferToAccount")
   AccountBalanceSnapshot AccountBalanceSnapshot[]
+  Payment                Payment[]
 
   @@map("accounts")
 }

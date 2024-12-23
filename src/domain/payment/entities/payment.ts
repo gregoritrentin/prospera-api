@@ -11,14 +11,13 @@ export interface PaymentProps {
     businessId: UniqueEntityID;
     personId?: UniqueEntityID | null;
     paymentId?: string | null;
+    accountId: string;
     paymentType: PaymentType;
     description?: string | null;
     status: string;
-
     amount: number;
     feeAmount: number;
     paymentDate: Date;
-
     pixMessage?: string | null;
     pixKey?: string | null;
     beneficiaryIspb?: string | null;
@@ -44,6 +43,10 @@ export class Payment extends AggregateRoot<PaymentProps> {
 
     get paymentId() {
         return this.props.paymentId;
+    }
+
+    get accountId() {
+        return this.props.accountId;
     }
 
     get paymentType() {
@@ -125,6 +128,11 @@ export class Payment extends AggregateRoot<PaymentProps> {
 
     set personId(personId: UniqueEntityID | null | undefined) {
         this.props.personId = personId;
+        this.touch();
+    }
+
+    set accountId(accountId: string) {
+        this.props.accountId = accountId;
         this.touch();
     }
 

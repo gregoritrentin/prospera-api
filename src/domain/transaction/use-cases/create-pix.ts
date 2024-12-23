@@ -1,5 +1,5 @@
 import { right, left, Either } from '@/core/either';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Transaction, TransactionType } from '@/domain/transaction/entities/transaction';
 import { Person } from '@/domain/person/entities/person';
 import { Business } from '@/domain/application/entities/business';
@@ -9,6 +9,14 @@ import { BusinessRepository } from '@/domain/application/repositories/business-r
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
 import { PixProvider, PixProps } from '../../interfaces/pix-provider';
 import { AppError } from '@/core/errors/app-errors';
+import { TransactionManager } from '@/core/transaction/transaction-manager';
+import { TransactionSplitRepository } from '@/domain/transaction/repositories/transaction-split-repository';
+import { ReceivableRepository } from '@/domain/transaction/repositories/receivable-repository';
+import { TransactionSplit } from '@/domain/transaction/entities/transaction-split';
+import { Receivable } from '@/domain/transaction/entities/receivable';
+import { MetricType, ReceivableStatus, SplitType } from '@/core/types/enums';
+import { EnvService } from '@/infra/env/env.service';
+import { RecordTransactionMetricUseCase } from '@/domain/metric/use-case/record-transaction-metrics';
 
 interface CreatePixUseCaseRequest {
     businessId: string;
@@ -23,83 +31,169 @@ interface CreatePixUseCaseRequest {
 type CreatePixUseCaseResponse = Either<
     AppError,
     {
-        pix: Transaction
+        pix: Transaction;
     }
 >;
 
 @Injectable()
 export class CreatePixUseCase {
+    private readonly logger = new Logger(CreatePixUseCase.name);
+
     constructor(
+        private readonly envService: EnvService,
+        private transactionManager: TransactionManager,
         private pixProvider: PixProvider,
         private pixRepository: TransactionRepository,
+        private transactionSplitRepository: TransactionSplitRepository,
+        private receivableRepository: ReceivableRepository,
         private personsRepository: PersonsRepository,
         private businessRepository: BusinessRepository,
+        private recordTransactionMetric: RecordTransactionMetricUseCase,
     ) { }
 
     async execute(input: CreatePixUseCaseRequest): Promise<CreatePixUseCaseResponse> {
-        // Validações
-        if (input.amount <= 0) {
-            return left(AppError.invalidAmount(input.amount));
-        }
+        this.logger.debug('=== Starting CreatePixUseCase ===');
+        this.logger.debug('Input:', {
+            businessId: input.businessId,
+            personId: input.personId,
+            amount: input.amount,
+            documentType: input.documentType
+        });
 
-        if (input.documentType === 'DUEDATE') {
-            if (!input.dueDate) {
-                return left(AppError.invalidDueDate());
+        return await this.transactionManager.start(async () => {
+            try {
+                // Validações
+                if (input.amount <= 0) {
+                    this.logger.debug(`Invalid amount: ${input.amount}`);
+                    return left(AppError.invalidAmount(input.amount));
+                }
+
+                if (input.documentType === 'DUEDATE') {
+                    if (!input.dueDate) {
+                        this.logger.debug('Due date is required for DUEDATE PIX');
+                        return left(AppError.invalidDueDate());
+                    }
+                    if (input.dueDate <= new Date()) {
+                        this.logger.debug(`Invalid due date: ${input.dueDate}`);
+                        return left(AppError.invalidDueDate());
+                    }
+                    if (!input.personId) {
+                        this.logger.debug('Person ID is required for DUEDATE PIX');
+                        return left(AppError.badRequest('errors.PERSON_ID_REQUIRED_FOR_DUEDATE'));
+                    }
+                }
+
+                const business = await this.businessRepository.findById(input.businessId);
+                if (!business) {
+                    this.logger.debug('Business not found');
+                    return left(AppError.resourceNotFound('errors.BUSINESS_NOT_FOUND'));
+                }
+
+                let devedor: Person | null = null;
+                if (input.personId) {
+                    devedor = await this.personsRepository.findById(input.personId, input.businessId);
+                    if (!devedor) {
+                        this.logger.debug('Person not found');
+                        return left(AppError.resourceNotFound('errors.PERSON_NOT_FOUND'));
+                    }
+                }
+
+                // Preparar e criar o PIX
+                this.logger.debug('Preparing PIX request');
+                const pixRequest: PixProps = this.preparePixRequest(input, devedor, business);
+                this.logger.debug('PIX request:', pixRequest);
+
+                this.logger.debug('Calling PIX provider');
+                const pixResponse = input.documentType === 'IMMEDIATE'
+                    ? await this.pixProvider.createPixImediato(pixRequest)
+                    : await this.pixProvider.createPixVencimento(pixRequest);
+                this.logger.debug('PIX provider response:', pixResponse);
+
+                // Criar a transação
+                const transaction = this.createPixFromResponse(input, pixResponse);
+                this.logger.debug('Created PIX/transaction entity:', {
+                    id: transaction.id.toString(),
+                    status: transaction.status
+                });
+
+                // Criar splits
+                const splits = [
+                    // Split da taxa (1%)
+                    TransactionSplit.create({
+                        transactionId: transaction.id,
+                        recipientId: new UniqueEntityID(this.envService.get('PROSPERA_ID')),
+                        splitType: SplitType.PERCENT,
+                        amount: transaction.feeAmount,
+                    }),
+                    // Split do valor principal
+                    TransactionSplit.create({
+                        transactionId: transaction.id,
+                        recipientId: new UniqueEntityID(input.businessId),
+                        splitType: SplitType.PERCENT,
+                        amount: transaction.amount - transaction.feeAmount,
+                    })
+                ];
+
+                // Criar receivables
+                const availableDate = input.dueDate
+                    ? new Date(input.dueDate.setDate(input.dueDate.getDate() + 1))
+                    : new Date(new Date().setDate(new Date().getDate() + 1));
+
+                const receivables = splits.map(split =>
+                    Receivable.create({
+                        transactionId: transaction.id,
+                        originalOwnerId: new UniqueEntityID(input.businessId),
+                        currentOwnerId: new UniqueEntityID(input.businessId),
+                        amount: split.amount,
+                        netAmount: split.amount,
+                        originalDueDate: input.dueDate || new Date(),
+                        currentDueDate: availableDate,
+                        status: ReceivableStatus.PENDING,
+                        businessId: new UniqueEntityID(input.businessId),
+                    })
+                );
+                this.logger.debug('Created receivables');
+
+                // Persistir todas as entidades
+                await this.pixRepository.create(transaction);
+                await Promise.all(splits.map(split =>
+                    this.transactionSplitRepository.create(split)
+                ));
+                await Promise.all(receivables.map(receivable =>
+                    this.receivableRepository.create(receivable)
+                ));
+                this.logger.debug('All entities persisted');
+
+                // Registrar métrica
+                const metricResult = await this.recordTransactionMetric.execute({
+                    businessId: input.businessId,
+                    type: MetricType.PIX_PAYMENT,
+                    amount: input.amount,
+                    status: 'PENDING'
+                });
+
+                if (metricResult.isLeft()) {
+                    this.logger.warn('Failed to record transaction metric:', metricResult.value);
+                }
+
+                this.logger.debug('=== CreatePixUseCase completed successfully ===');
+
+                return right({
+                    pix: transaction,
+                });
+
+            } catch (error) {
+                this.logger.error('=== Error in CreatePixUseCase ===');
+                this.logger.error('Error details:', error instanceof Error ? {
+                    message: error.message,
+                    stack: error.stack
+                } : String(error));
+
+                return left(AppError.pixCreationFailed({
+                    message: error instanceof Error ? error.message : 'Erro desconhecido ao criar PIX'
+                }));
             }
-            if (input.dueDate <= new Date()) {
-                return left(AppError.invalidDueDate());
-            }
-            if (!input.personId) {
-                return left(AppError.badRequest('errors.PERSON_ID_REQUIRED_FOR_DUEDATE'));
-            }
-        }
-
-        const business = await this.businessRepository.findById(input.businessId);
-        if (!business) {
-            return left(AppError.resourceNotFound('errors.BUSINESS_NOT_FOUND'));
-        }
-
-        let devedor: Person | null = null;
-        if (input.personId) {
-            devedor = await this.personsRepository.findById(input.personId, input.businessId);
-            if (!devedor) {
-                return left(AppError.resourceNotFound('errors.PERSON_NOT_FOUND'));
-            }
-        }
-
-        try {
-            // Preparar a requisição do Pix
-            const pixRequest: PixProps = this.preparePixRequest(input, devedor, business);
-
-            // Criar o Pix usando o provedor apropriado
-            let pixResponse;
-            if (input.documentType === 'IMMEDIATE') {
-                pixResponse = await this.pixProvider.createPixImediato(pixRequest);
-            } else {
-                pixResponse = await this.pixProvider.createPixVencimento(pixRequest);
-            }
-
-            // Criar a entidade Pix
-            const pix = this.createPixFromResponse(input, pixResponse);
-
-            // Persistir o Pix no repositório
-            await this.pixRepository.create(pix);
-
-            const savedPix = pix;
-
-            return right({
-                pix: savedPix,
-            });
-
-        } catch (error) {
-            console.error('Error creating Pix:', error);
-            if (error instanceof AppError) {
-                return left(error);
-            }
-            return left(AppError.pixCreationFailed({
-                message: error instanceof Error ? error.message : 'Erro desconhecido ao criar PIX'
-            }));
-        }
+        });
     }
 
     private preparePixRequest(input: CreatePixUseCaseRequest, pagador: Person | null, beneficiario: Business): PixProps {
@@ -137,6 +231,9 @@ export class CreatePixUseCase {
     }
 
     private createPixFromResponse(input: CreatePixUseCaseRequest, response: any): Transaction {
+        // Calcula o fee amount como 1% do valor total
+        const feeAmount = Math.round(input.amount * 0.01);
+
         return Transaction.create({
             businessId: new UniqueEntityID(input.businessId),
             personId: input.personId ? new UniqueEntityID(input.personId) : null,
@@ -145,11 +242,10 @@ export class CreatePixUseCase {
             dueDate: input.dueDate || null,
             paymentLimitDate: input.paymentLimitDate || null,
             amount: input.amount,
-            feeAmount: 1,
+            feeAmount: feeAmount,
             pixQrCode: response.pixCopiaECola,
             pixId: response.txid,
             type: TransactionType.PIX,
-
         });
     }
 }

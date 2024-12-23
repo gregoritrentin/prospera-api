@@ -107,7 +107,18 @@ export enum ErrorCode {
     TWO_FACTOR_MAX_ATTEMPTS = 'TWO_FACTOR_MAX_ATTEMPTS',
     TWO_FACTOR_NOT_FOUND = 'TWO_FACTOR_NOT_FOUND',
     TWO_FACTOR_ALREADY_VERIFIED = 'TWO_FACTOR_ALREADY_VERIFIED',
-    TWO_FACTOR_VERIFICATION_FAILED = 'TWO_FACTOR_VERIFICATION_FAILED'
+    TWO_FACTOR_VERIFICATION_FAILED = 'TWO_FACTOR_VERIFICATION_FAILED',
+
+    // Lock Module
+    LOCK_ACQUISITION_FAILED = 'LOCK_ACQUISITION_FAILED',
+    LOCK_RELEASE_FAILED = 'LOCK_RELEASE_FAILED',
+    LOCK_EXTEND_FAILED = 'LOCK_EXTEND_FAILED',
+    LOCK_CLEANUP_FAILED = 'LOCK_CLEANUP_FAILED',
+    LOCK_HEARTBEAT_FAILED = 'LOCK_HEARTBEAT_FAILED',
+    LOCK_NOT_FOUND = 'LOCK_NOT_FOUND',
+    LOCK_TIMEOUT = 'LOCK_TIMEOUT',
+    LOCK_ALREADY_EXISTS = 'LOCK_ALREADY_EXISTS',
+
 }
 
 export class AppError extends Error {
@@ -724,6 +735,78 @@ export class AppError extends Error {
             'errors.TWO_FACTOR_VERIFICATION_FAILED',
             details,
             HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static lockAcquisitionFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.LOCK_ACQUISITION_FAILED,
+            'errors.LOCK_ACQUISITION_FAILED',
+            details,
+            HttpStatus.CONFLICT
+        );
+    }
+
+    static lockReleaseFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.LOCK_RELEASE_FAILED,
+            'errors.LOCK_RELEASE_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static lockExtendFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.LOCK_EXTEND_FAILED,
+            'errors.LOCK_EXTEND_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static lockCleanupFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.LOCK_CLEANUP_FAILED,
+            'errors.LOCK_CLEANUP_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static lockHeartbeatFailed(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.LOCK_HEARTBEAT_FAILED,
+            'errors.LOCK_HEARTBEAT_FAILED',
+            details,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    static lockNotFound(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.LOCK_NOT_FOUND,
+            'errors.LOCK_NOT_FOUND',
+            details,
+            HttpStatus.NOT_FOUND
+        );
+    }
+
+    static lockTimeout(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.LOCK_TIMEOUT,
+            'errors.LOCK_TIMEOUT',
+            details,
+            HttpStatus.REQUEST_TIMEOUT
+        );
+    }
+
+    static lockAlreadyExists(details?: Record<string, any>): AppError {
+        return new AppError(
+            ErrorCode.LOCK_ALREADY_EXISTS,
+            'errors.LOCK_ALREADY_EXISTS',
+            details,
+            HttpStatus.CONFLICT
         );
     }
 
