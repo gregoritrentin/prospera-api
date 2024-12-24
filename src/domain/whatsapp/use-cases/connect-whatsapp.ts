@@ -2,7 +2,7 @@
 
 import { Injectable } from '@nestjs/common'
 import { Either, right, left } from '@/core/either'
-import { WhatsAppProvider } from '@/domain/interfaces/whatsapp-provider'
+import { WhatsAppProvider } from '@/domain/providers/whatsapp-provider'
 
 type ConnectWhatsAppResponse = Either<
     Error,

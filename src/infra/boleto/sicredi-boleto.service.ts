@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EnvService } from '../env/env.service';
 import { I18nService } from '@/i18n/i18n.service';
 import axios, { AxiosInstance } from 'axios';
-import { BoletoProvider, BoletoProps } from '@/domain/interfaces/boleto-provider';
+import { BoletoProvider, BoletoProps } from '@/domain/providers/boleto-provider';
 
 interface CreateBoletoRequest {
   tipoCobranca: 'NORMAL' | 'HIBRIDO';

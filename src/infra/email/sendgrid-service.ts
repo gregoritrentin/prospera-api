@@ -1,4 +1,4 @@
-import { EmailProviderParams, EmailProvider } from '@/domain/interfaces/email-provider'
+import { EmailProviderParams, EmailProvider } from '@/domain/providers/email-provider'
 import { Injectable } from '@nestjs/common'
 import { EnvService } from '../env/env.service'
 import { randomUUID } from 'node:crypto'

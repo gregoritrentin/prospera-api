@@ -1,4 +1,4 @@
-import { WhatsAppProvider } from '@/domain/interfaces/whatsapp-provider'
+import { WhatsAppProvider } from '@/domain/providers/whatsapp-provider'
 import { Module } from '@nestjs/common'
 import { WhatsAppService } from '@/infra/whatsapp/whatsapp.service'
 import { EnvModule } from '../env/env.module'

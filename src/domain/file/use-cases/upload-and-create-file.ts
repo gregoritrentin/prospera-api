@@ -2,7 +2,7 @@ import { Either, left, right } from '@/core/either'
 import { Injectable } from '@nestjs/common'
 import { File } from '@/domain/file/entities/file'
 import { FileRepository } from '@/domain/file/repository/file-repository'
-import { FileProvider } from '@/domain/interfaces/file-provider'
+import { FileProvider } from '@/domain/providers/file-provider'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { AppError } from '@/core/errors/app-errors'
 

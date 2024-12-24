@@ -1,4 +1,4 @@
-import { Get, Module } from "@nestjs/common"
+import { forwardRef, Get, Module } from "@nestjs/common"
 import { DatabaseModule } from "../database/database.module";
 import { EmailModule } from "../email/email.module";
 import { FileModule } from "../file/file.module";
@@ -196,6 +196,8 @@ import { CreateItemTaxationController } from "./controllers/item/create-item-tax
 import { EnvModule } from "../env/env.module";
 import { CreatePaymentPixKeyController } from "./controllers/payment/create-payment-pix-key.controller";
 import { CreatePaymentPixBankDataController } from "./controllers/payment/create-payment-pix-bank-data.controller";
+import { SharedModule } from "../shared/shared.module";
+import { CreatePaymentPixBankDataUseCase } from "@/domain/payment/use-cases/create-payment-pix-bank-data";
 
 
 @Module({
@@ -209,7 +211,9 @@ import { CreatePaymentPixBankDataController } from "./controllers/payment/create
     WhatsAppModule,
     CryptographyModule,
     FileModule,
-    QueueModule
+    SharedModule,
+    forwardRef(() => QueueModule)
+
   ],
 
   controllers: [
@@ -335,6 +339,11 @@ import { CreatePaymentPixBankDataController } from "./controllers/payment/create
 
   ],
   providers: [
+
+
+    CreatePaymentPixKeyUseCase,
+    CreatePaymentPixBankDataUseCase,  // Adicione aqui
+    GetPaymentPixProofUseCase,
 
     //user
     AuthenticateUserUseCase,

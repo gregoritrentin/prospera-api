@@ -1,0 +1,18 @@
+// src/infra/templates/invoice/whatsapp/payment-confirmation.txt
+✅ *{{business.name}} - Pagamento Confirmado*
+
+Olá {{person.name}},
+
+Confirmamos o recebimento do pagamento da sua fatura!
+
+*Detalhes do Pagamento:*
+💰 Valor: R$ {{formatCurrency invoice.amount}}
+📅 Data do Pagamento: {{formatDate invoice.paymentDate}}
+💳 Forma de Pagamento: {{formatPaymentMethod invoice.paymentMethod}}
+{{#if invoice.description}}
+📝 Descrição: {{invoice.description}}
+{{/if}}
+
+Agradecemos a preferência! 🙏
+
+_Mensagem automática. Em caso de dúvidas, entre em contato conosco._

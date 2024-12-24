@@ -3,7 +3,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Either, left, right } from '@/core/either';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { AppError } from '@/core/errors/app-errors';
-import { QueueProvider } from '@/domain/interfaces/queue-provider';
+import { QueueProvider } from '@/domain/providers/queue-provider';
 import {
     RpsType,
     NfseStatus,

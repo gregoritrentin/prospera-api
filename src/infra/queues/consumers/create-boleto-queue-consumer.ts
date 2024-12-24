@@ -1,7 +1,7 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { BoletoProvider } from '@/domain/interfaces/boleto-provider';
+import { BoletoProvider } from '@/domain/providers/boleto-provider';
 import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository';
 import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file';
 import { I18nService, Language } from '@/i18n/i18n.service';

@@ -1,6 +1,6 @@
 // src/infra/nfse/queues/nfse-queue-consumer.ts
 
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
 import { I18nService } from '@/i18n';
@@ -17,7 +17,7 @@ export class NfseQueueConsumer {
     constructor(
         private nfseRepository: NfseRepository,
         private abrasfNfseService: AbrasfNfseService,
-        private nfseQueueProducer: NfseQueueProducer,
+        @Inject(forwardRef(() => NfseQueueProducer)) //private nfseQueueProducer: NfseQueueProducer,
         private getNfseCityProviderUseCase: GetNfseCityProviderUseCase,
         private danfseGeneratorService: DanfseGeneratorService,
         private i18nService: I18nService,

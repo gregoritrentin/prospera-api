@@ -1,4 +1,4 @@
-import { EmailProvider } from '@/domain/interfaces/email-provider'
+import { EmailProvider } from '@/domain/providers/email-provider'
 import { Module } from '@nestjs/common'
 import { SendGridService } from './sendgrid-service'
 import { EnvModule } from '../env/env.module'

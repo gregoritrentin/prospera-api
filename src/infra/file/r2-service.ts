@@ -1,4 +1,4 @@
-import { FileParams, FileProvider, FileDownloadParams, FileListParams } from '@/domain/interfaces/file-provider'
+import { FileParams, FileProvider, FileDownloadParams, FileListParams } from '@/domain/providers/file-provider'
 import {
     PutObjectCommand,
     S3Client,

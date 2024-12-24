@@ -2,7 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import { QueueProvider, QueueJobResult } from '@/domain/interfaces/queue-provider';
+import { QueueProvider, QueueJobResult } from '@/domain/providers/queue-provider';
 
 @Injectable()
 export class BullQueueService implements QueueProvider {

@@ -8,7 +8,7 @@ import {
     PixChaveProps,
     PixDadosBancariosProps,
     PixResponse
-} from '@/domain/interfaces/payments-provider';
+} from '@/domain/providers/payments-provider';
 
 @Injectable()
 export class SicrediMultipagService implements PaymentsProvider, OnModuleInit {

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { FileProvider, FileDownloadParams } from '@/domain/interfaces/file-provider';
+import { FileProvider, FileDownloadParams } from '@/domain/providers/file-provider';
 import { DigitalCertificateRepository } from '@/domain/digital-certificate/repositories/digital-certificate-repository';
 import { GetBusinessActiveDigitalCertificateUseCase } from '@/domain/digital-certificate/use-cases/get-business-ative-digital-certificate'
 import { NfseEvent } from '@/domain/dfe/nfse/entities/nfse-event';

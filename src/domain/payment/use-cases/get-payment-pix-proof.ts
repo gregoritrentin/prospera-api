@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentsProvider } from '../../interfaces/payments-provider';
+import { PaymentsProvider } from '../../providers/payments-provider';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { AppError } from '@/core/errors/app-errors';
 import { PaymentRepository } from '@/domain/payment/repositories/payment-repository';

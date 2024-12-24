@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Either, right, left } from '@/core/either';
 import { WhatsApp } from '../entities/whatsapp';
 import { WhatsAppRepository } from '../repositories/whatsapp-repository';
-import { WhatsAppProvider } from '@/domain/interfaces/whatsapp-provider';
+import { WhatsAppProvider } from '@/domain/providers/whatsapp-provider';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
 
 interface SendWhatsAppRequest {

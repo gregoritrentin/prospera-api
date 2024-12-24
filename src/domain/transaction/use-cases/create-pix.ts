@@ -7,7 +7,7 @@ import { TransactionRepository } from '@/domain/transaction/repositories/transac
 import { PersonsRepository } from '@/domain/person/repositories/persons-repository';
 import { BusinessRepository } from '@/domain/application/repositories/business-repository';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
-import { PixProvider, PixProps } from '../../interfaces/pix-provider';
+import { PixProvider, PixProps } from '../../providers/pix-provider';
 import { AppError } from '@/core/errors/app-errors';
 import { TransactionManager } from '@/core/transaction/transaction-manager';
 import { TransactionSplitRepository } from '@/domain/transaction/repositories/transaction-split-repository';

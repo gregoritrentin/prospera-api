@@ -3,7 +3,7 @@ import { Either, left, right } from '@/core/either';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { AppError } from '@/core/errors/app-errors';
 import { CalculationMode, InvoiceStatus, YesNo, PaymentMethod } from '@/core/types/enums';
-import { QueueProvider } from '@/domain/interfaces/queue-provider';
+import { QueueProvider } from '@/domain/providers/queue-provider';
 
 interface InvoiceItemRequest {
     itemId: string;

@@ -31,9 +31,12 @@ import { GetBusinessUseCase } from '@/domain/application/use-cases/get-business'
 import { GetNfseCityProviderUseCase } from '@/domain/dfe/nfse/use-cases/get-nfse-city-provider.use-case';
 import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file';
 
+// Queue Consumers
+import { NfseQueueConsumer } from '@/infra/queues/consumers/nfse-queue-consumer';
+
 // Providers & Repositories
-import { NfseProvider } from '@/domain/interfaces/nfse-provider';
-import { QueueProvider } from '@/domain/interfaces/queue-provider';
+import { NfseProvider } from '@/domain/providers/nfse-provider';
+import { QueueProvider } from '@/domain/providers/queue-provider';
 import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository';
 import { BusinessRepository } from '@/domain/application/repositories/business-repository';
 import { NfseCityConfigurationRepository } from '@/domain/dfe/nfse/repositories/nfse-city-configuration-repository';
@@ -43,16 +46,18 @@ import { PrismaNfseCityConfigurationRepository } from '@/infra/database/prisma/r
 
 // Entities & Configuration
 import { NfseCityConfiguration } from '@/domain/dfe/nfse/entities/nfse-city-configuration';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
     imports: [
         HttpModule,
         ConfigModule,
         DatabaseModule,
-        FileModule,
         I18nModule,
+        forwardRef(() => FileModule),
         DigitalCertificateModule,
         forwardRef(() => QueueModule),
+        SharedModule,
     ],
     providers: [
         // Builders
@@ -77,6 +82,9 @@ import { NfseCityConfiguration } from '@/domain/dfe/nfse/entities/nfse-city-conf
         GetNfseCityProviderUseCase,
         UploadAndCreateFileUseCase,
 
+        // Queue Consumers
+        NfseQueueConsumer,
+
         // City Configuration
         {
             provide: NfseCityConfiguration,
@@ -98,10 +106,10 @@ import { NfseCityConfiguration } from '@/domain/dfe/nfse/entities/nfse-city-conf
             provide: NfseProvider,
             useClass: AbrasfNfseService,
         },
-        {
-            provide: QueueProvider,
-            useClass: BullQueueService,
-        },
+        // {
+        //     provide: QueueProvider,
+        //     useClass: BullQueueService,
+        // },
         {
             provide: NfseRepository,
             useClass: PrismaNfseRepository,
@@ -123,8 +131,9 @@ import { NfseCityConfiguration } from '@/domain/dfe/nfse/entities/nfse-city-conf
         CertificateSigningService,
         RpsResponseProcessor,
 
-        // Providers
-        QueueProvider,
+        // Queue Consumers 
+        NfseQueueConsumer,
+
 
         // Repositories
         NfseRepository,

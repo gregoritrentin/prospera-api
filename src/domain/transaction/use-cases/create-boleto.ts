@@ -8,7 +8,7 @@ import { TransactionRepository } from '@/domain/transaction/repositories/transac
 import { PersonsRepository } from '@/domain/person/repositories/persons-repository';
 import { BusinessRepository } from '@/domain/application/repositories/business-repository';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
-import { BoletoProvider, BoletoProps } from '../../interfaces/boleto-provider';
+import { BoletoProvider, BoletoProps } from '../../providers/boleto-provider';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { BoletoQueueProducer } from '@/infra/queues/producers/boleto-queue-producer';
 import { AppError } from '@/core/errors/app-errors';

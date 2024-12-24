@@ -4,6 +4,7 @@ import { SendAndCreateEmailUseCase } from '@/domain/email/use-cases/send-and-cre
 import { ProcessSubscriptionInvoiceUseCase } from '@/domain/subscription/use-cases/process-subscription-invoice';
 import { format } from 'date-fns';
 import { CreateMonthlySnapshotsUseCase } from '@/domain/account/use-cases/create-monthly-snapshots';
+import { ProcessInvoiceNotificationsUseCase } from '@/domain/invoice/use-cases/process-invoice-notification';
 
 @Injectable()
 export class TaskSchedulerConfig {
@@ -14,10 +15,68 @@ export class TaskSchedulerConfig {
         private sendAndCreateEmail: SendAndCreateEmailUseCase,
         private processSubscriptionInvoice: ProcessSubscriptionInvoiceUseCase,
         private createMonthlySnapshots: CreateMonthlySnapshotsUseCase,
+        private processInvoiceNotifications: ProcessInvoiceNotificationsUseCase,
 
     ) { }
 
     configure() {
+
+
+        // Notificações de Faturas task
+        this.taskScheduler.scheduleTask(
+            'processInvoiceNotifications',
+            '0 9 * * *', // Todos os dias às 9h
+            async () => {
+                this.logger.log('[Invoice] Starting notification processing');
+                const startTime = Date.now();
+
+                try {
+                    const result = await this.processInvoiceNotifications.execute(
+                        {
+                            date: new Date()
+                        },
+                        'pt-BR'
+                    );
+
+                    if (result.isRight()) {
+                        const duration = Date.now() - startTime;
+                        this.logger.log(
+                            `[Invoice] Notifications queued successfully:
+                                - Duration: ${duration}ms
+                                - Job ID: ${result.value.jobId}
+                                - Message: ${result.value.message}
+                                `
+                        );
+                    } else {
+                        this.logger.error(
+                            '[Invoice] Failed to queue notifications:',
+                            result.value
+                        );
+                    }
+                } catch (error) {
+                    const duration = Date.now() - startTime;
+                    if (error instanceof Error) {
+                        this.logger.error(
+                            `[Invoice] Error queueing notifications:
+                                - Duration: ${duration}ms
+                                - Error: ${error.message}
+                                - Stack: ${error.stack}
+                                `
+                        );
+                    } else {
+                        this.logger.error(
+                            `[Invoice] Unknown error queueing notifications:
+                                - Duration: ${duration}ms
+                                - Error: ${String(error)}
+                                `
+                        );
+                    }
+                }
+            }
+        );
+
+
+
         // Email task configuration
         this.taskScheduler.scheduleTask(
             'sendAndCreateEmail',
@@ -45,7 +104,7 @@ export class TaskSchedulerConfig {
             }
         );
 
-        // Subscription Invoice Processing task
+        // Subscription Invoice Processing task 
         this.taskScheduler.scheduleTask(
             'processSubscriptionInvoices',
             '0 1 * * *', //todos os dias as 1h

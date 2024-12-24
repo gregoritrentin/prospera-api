@@ -1,0 +1,71 @@
+// src/infra/templates/invoice/email/due-notification.html
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .container {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .amount {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2563eb;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .warning {
+      color: #dc2626;
+    }
+    .payment-button {
+      display: block;
+      background-color: #2563eb;
+      color: white;
+      text-decoration: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      text-align: center;
+      margin: 30px auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p>Olá {{person.name}},</p>
+
+    <div class="amount">
+      R$ {{formatCurrency invoice.amount}}
+    </div>
+
+    <div {{#if isOverdue}}class="warning"{{/if}}>
+      <p>Sua fatura {{#if isOverdue}}venceu{{else}}vencerá{{/if}} em {{daysText}}</p>
+      {{#if isOverdue}}
+        <p>Por favor, regularize seu pagamento o mais breve possível para evitar juros e multas.</p>
+      {{else}}
+        <p>Não se esqueça de efetuar o pagamento para manter sua conta em dia.</p>
+      {{/if}}
+    </div>
+
+    <a href="{{invoice.paymentLink}}" class="payment-button">
+      Pagar Agora
+    </a>
+
+    <div class="invoice-details">
+      <p><strong>Número da Fatura:</strong> {{invoice.id}}</p>
+      <p><strong>Data de Vencimento:</strong> {{formatDate invoice.dueDate}}</p>
+      {{#if invoice.description}}
+        <p><strong>Descrição:</strong> {{invoice.description}}</p>
+      {{/if}}
+    </div>
+
+    <hr>
+
+    <div class="footer">
+      <p>Este é um email automático, por favor não responda.</p>
+      <p>Em caso de dúvidas, entre em contato conosco.</p>
+    </div>
+  </div>
+</body>
+</html>

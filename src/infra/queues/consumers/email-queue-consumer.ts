@@ -1,7 +1,7 @@
 import { Process, Processor, InjectQueue } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job, Queue } from 'bull';
-import { EmailProvider } from '@/domain/interfaces/email-provider';
+import { EmailProvider } from '@/domain/providers/email-provider';
 import { EmailRepository } from '@/domain/email/repositories/email-repository';
 import { Email } from '@/domain/email/entities/email';
 

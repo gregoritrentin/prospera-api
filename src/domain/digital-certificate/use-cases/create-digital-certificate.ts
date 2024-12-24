@@ -3,7 +3,7 @@ import { Either, left, right } from '@/core/either';
 import { DigitalCertificate, CertificateSource, CertificateStatus } from '@/domain/digital-certificate/entities/digital-certificate';
 import { DigitalCertificateRepository } from '@/domain/digital-certificate/repositories/digital-certificate-repository';
 import { UploadAndCreateFileUseCase } from '@/domain/file/use-cases/upload-and-create-file';
-import { DigitalCertificateProvider } from '@/domain/interfaces/digital-certificate-provider';
+import { DigitalCertificateProvider } from '@/domain/providers/digital-certificate-provider';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { AppError, ErrorCode } from '@/core/errors/app-errors';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';

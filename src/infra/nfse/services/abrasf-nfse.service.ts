@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { NfseProvider, NfseResponse } from '@/domain/interfaces/nfse-provider';
+import { NfseProvider, NfseResponse } from '@/domain/providers/nfse-provider';
 import { NfseCityConfiguration } from '@/domain/dfe/nfse/entities/nfse-city-configuration';
 import { Nfse } from '@/domain/dfe/nfse/entities/nfse';
 import { NfseEvent } from '@/domain/dfe/nfse/entities/nfse-event';

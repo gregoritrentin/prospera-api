@@ -1,7 +1,7 @@
 import { right, left, Either } from '@/core/either';
 import { Injectable, Logger } from '@nestjs/common';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
-import { PaymentsProvider } from '@/domain/interfaces/payments-provider';
+import { PaymentsProvider } from '@/domain/providers/payments-provider';
 import { I18nService, Language } from '@/i18n/i18n.service';
 import { AppError } from '@/core/errors/app-errors';
 import { Payment, PaymentType } from '@/domain/payment/entities/payment';

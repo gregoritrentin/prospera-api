@@ -6,12 +6,17 @@ import { Invoice } from "@/domain/invoice/entities/invoice"
 import { InvoiceDetails } from "@/domain/invoice/entities/value-objects/invoice-details"
 import { PrismaInvoiceMapper } from "@/infra/database/mappers/prisma-invoice-mapper"
 import { Logger } from "@nestjs/common"
+import { UniqueEntityID } from "@/core/entities/unique-entity-id"
+import { InvoiceStatus } from "@/core/types/enums"
 
 @Injectable()
 export class PrismaInvoiceRepository implements InvoiceRepository {
     private readonly logger = new Logger(PrismaInvoiceRepository.name);
 
     constructor(private prisma: PrismaService) { }
+    findMany(params: PaginationParams, businessId: string): Promise<Invoice[]> {
+        throw new Error("Method not implemented.")
+    }
 
     async findByIdDetails(id: string, businessId: string): Promise<InvoiceDetails | null> {
         throw new Error("Method not implemented.")
@@ -42,27 +47,54 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
         return PrismaInvoiceMapper.toDomain(invoice)
     }
 
-    async findMany({ page }: PaginationParams, businessId: string): Promise<Invoice[]> {
-        const invoices = await this.prisma.invoice.findMany({
-            orderBy: {
-                createdAt: 'desc',
-            },
-            take: 20,
-            where: {
-                businessId,
-            },
-            include: {
-                invoiceItem: true,
-                invoiceSplit: true,
-                invoiceTransaction: true,
-                invoiceAttachment: true,
-                invoiceEvent: true,
-                invoicePayment: true
-            },
-            skip: (page - 1) * 20,
-        })
 
-        return invoices.map(PrismaInvoiceMapper.toDomain)
+    async findByDueDate(
+        dueDate: Date,
+        status?: InvoiceStatus
+    ): Promise<Invoice[]> {
+        this.logger.debug(
+            `[FindByDueDate] Buscando faturas com vencimento em ${dueDate.toISOString()}`,
+            { status }
+        );
+
+        // Ajusta a data para considerar todo o dia
+        const startDate = new Date(dueDate);
+        startDate.setHours(0, 0, 0, 0);
+
+        const endDate = new Date(dueDate);
+        endDate.setHours(23, 59, 59, 999);
+
+        try {
+            const invoices = await this.prisma.invoice.findMany({
+                where: {
+                    dueDate: {
+                        gte: startDate,
+                        lte: endDate,
+                    },
+                    ...(status ? { status } : {}),
+                },
+                include: {
+                    person: true,
+                    business: true,
+                    invoiceItem: true,
+                    invoiceSplit: true,
+                    invoiceTransaction: true,
+                    invoiceAttachment: true,
+                    invoiceEvent: true,
+                    invoicePayment: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                },
+            });
+
+            this.logger.debug(`[FindByDueDate] Encontradas ${invoices.length} faturas`);
+
+            return invoices.map(PrismaInvoiceMapper.toDomain);
+        } catch (error) {
+            this.logger.error('[FindByDueDate] Erro ao buscar faturas:', error);
+            throw error;
+        }
     }
 
     async save(invoice: Invoice): Promise<void> {

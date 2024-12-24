@@ -1,0 +1,17 @@
+// src/infra/templates/invoice/whatsapp/due-notification.txt
+*{{business.name}}*
+
+Olá {{person.name}},
+
+{{#if isOverdue}}⚠️ Sua fatura venceu há {{daysText}}{{else}}📅 Sua fatura vencerá em {{daysText}}{{/if}}
+
+*Detalhes da Fatura:*
+💰 Valor: R$ {{formatCurrency invoice.amount}}
+📅 Vencimento: {{formatDate invoice.dueDate}}
+{{#if invoice.description}}📝 Descrição: {{invoice.description}}{{/if}}
+
+{{#if isOverdue}}⚠️ Por favor, regularize seu pagamento para evitar juros e multas.{{else}}⏰ Não se esqueça de efetuar o pagamento para manter sua conta em dia.{{/if}}
+
+💳 Pague agora: {{invoice.paymentLink}}
+
+_Mensagem automática. Em caso de dúvidas, entre em contato conosco._

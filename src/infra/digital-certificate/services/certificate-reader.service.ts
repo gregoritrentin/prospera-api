@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Either, left, right } from '@/core/either';
 import { AppError } from '@/core/errors/app-errors';
-import { DigitalCertificateProvider, CertificateInfo } from '@/domain/interfaces/digital-certificate-provider';
+import { DigitalCertificateProvider, CertificateInfo } from '@/domain/providers/digital-certificate-provider';
 import * as forge from 'node-forge';
 
 @Injectable()

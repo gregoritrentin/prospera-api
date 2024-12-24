@@ -10,10 +10,13 @@ import { TaskSchedulerConfig } from './task-scheduling-config';
 import { ProcessSubscriptionInvoiceUseCase } from '@/domain/subscription/use-cases/process-subscription-invoice';
 import { I18nModule } from '@/i18n';
 import { CreateMonthlySnapshotsUseCase } from '@/domain/account/use-cases/create-monthly-snapshots';
+import { ProcessInvoiceNotificationsUseCase } from '@/domain/invoice/use-cases/process-invoice-notification';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
     imports: [
         ScheduleModule.forRoot(),
+        SharedModule,
         QueueModule,
         EmailModule,
         DatabaseModule,
@@ -26,6 +29,7 @@ import { CreateMonthlySnapshotsUseCase } from '@/domain/account/use-cases/create
         SendAndCreateEmailUseCase,
         ProcessSubscriptionInvoiceUseCase,
         CreateMonthlySnapshotsUseCase,
+        ProcessInvoiceNotificationsUseCase,
     ],
     exports: [
         TaskSchedulerService,
@@ -33,6 +37,7 @@ import { CreateMonthlySnapshotsUseCase } from '@/domain/account/use-cases/create
         SendAndCreateEmailUseCase,
         ProcessSubscriptionInvoiceUseCase,
         CreateMonthlySnapshotsUseCase,
+        ProcessInvoiceNotificationsUseCase,
     ],
 })
 export class TaskSchedulingModule { }

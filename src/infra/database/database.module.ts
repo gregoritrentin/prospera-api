@@ -87,6 +87,10 @@ import { NfseRepository } from '@/domain/dfe/nfse/repositories/nfse-repository'
 import { SubscriptionRepository } from '@/domain/subscription/repositories/subscription-repository'
 import { PrismaSubscriptionRepository } from './prisma/repositories/prisma-subscription-repository'
 import { RedisMetricRepository } from './redis/repositories/redis-metric-repository'
+import { MetricRepository } from '@/domain/metric/repository/metric-repository'
+import { ValidateAccountBalanceUseCase } from '@/domain/account/use-cases/validate-account-balance'
+import { CreateAccountMovementUseCase } from '@/domain/account/use-cases/create-account-movement'
+import { RecordTransactionMetricUseCase } from '@/domain/metric/use-case/record-transaction-metrics'
 
 @Module({
     imports: [EnvModule],
@@ -235,15 +239,13 @@ import { RedisMetricRepository } from './redis/repositories/redis-metric-reposit
             useClass: PrismaSubscriptionRepository,
         },
         {
-            provide: RedisMetricRepository,
+            provide: MetricRepository,
             useClass: RedisMetricRepository,
         },
-        {
-            provide: RedisMetricRepository,
-            useClass: RedisMetricRepository,
-        }
-
-
+        // Casos de Uso de Conta (Account)
+        ValidateAccountBalanceUseCase,
+        CreateAccountMovementUseCase,
+        RecordTransactionMetricUseCase,
 
     ],
     exports: [
@@ -287,6 +289,13 @@ import { RedisMetricRepository } from './redis/repositories/redis-metric-reposit
         AccountMovementsRepository,
         AccountBalanceSnapshotRepository,
         TwoFactorAutenticationRepository,
+        MetricRepository,
+        TransactionRepository,
+
+
+        ValidateAccountBalanceUseCase,
+        CreateAccountMovementUseCase,
+        RecordTransactionMetricUseCase,
     ],
 })
 export class DatabaseModule { }

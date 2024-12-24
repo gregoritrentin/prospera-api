@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Either, left, right } from '@/core/either';
-import { BoletoProvider } from '@/domain/interfaces/boleto-provider';
+import { BoletoProvider } from '@/domain/providers/boleto-provider';
 import { TransactionRepository } from '@/domain/transaction/repositories/transaction-repository';
 import { AppError } from '@/core/errors/app-errors';
 import { I18nService, Language } from '@/i18n/i18n.service';

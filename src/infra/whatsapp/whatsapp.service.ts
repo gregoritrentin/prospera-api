@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Client, MessageMedia, AuthStrategy, WAState } from 'whatsapp-web.js';
-import { WhatsAppProvider, WhatsAppProviderParams } from '@/domain/interfaces/whatsapp-provider';
+import { WhatsAppProvider, WhatsAppProviderParams } from '@/domain/providers/whatsapp-provider';
 import { RedisWhatsAppRepository } from '@/infra/database/redis/repositories/redis-whatsapp-repository';
 import { RedisService } from '@/infra/database/redis/redis.service';
 import axios from 'axios';
