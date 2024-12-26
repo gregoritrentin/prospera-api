@@ -52,11 +52,11 @@ import { CreateInvoiceUseCase } from '@/domain/invoice/use-cases/create-invoice'
         },
         {
             provide: EmailProvider,
-            useClass: SendGridService // sua implementação concreta do EmailProvider
+            useClass: SendGridService
         },
         {
             provide: WhatsAppProvider,
-            useClass: WhatsAppService // sua implementação concreta do WhatsAppProvider
+            useClass: WhatsAppService
         },
 
 
