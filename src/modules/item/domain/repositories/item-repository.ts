@@ -1,0 +1,14 @@
+import { PaginationParams } from @core/co@core/repositori@core/pagination-params'
+import { Item } from '@modul@core/it@core/entiti@core/item'
+import { ItemDetails } from '@modul@core/it@core/entiti@core/value-objec@core/item-details'
+
+
+export abstract class ItemRepository {
+    abstract findById(id: string, businessId: string): Promise<Item | null>
+    abstract findMany(params: PaginationParams, businessId: string): Promise<Item[]>
+    abstract findManyDetails(params: PaginationParams, businessId: string): Promise<ItemDetails[]>
+
+    abstract create(item: Item): Promise<void>
+    abstract save(item: Item): Promise<void>
+    abstract delete(item: Item): Promise<void>
+}

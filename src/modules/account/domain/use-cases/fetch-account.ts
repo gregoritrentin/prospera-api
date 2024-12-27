@@ -1,0 +1,28 @@
+import { AccountsRepository } from '@modul@core/accou@core/repositori@core/account-repository'
+import { Either, right } from @core/co@core/either'
+import { Injectable } from '@nest@core/common'
+import { Account } from '@core/entiti@core/account'
+
+interface FetchAccountsUseCaseRequest {
+    page: number
+}
+
+type FetchAccountsUseCaseResponse = Either<
+    null,
+    {
+        accounts: Account[]
+    }
+>
+
+@Injectable()
+export class FetchAccountsUseCase {
+    constructor(private accountsRepository: AccountsRepository) { }
+
+    async execute({ page }: FetchAccountsUseCaseRequest): Promise<FetchAccountsUseCaseResponse> {
+        const accounts = await this.accountsRepository.findMany({ page })
+
+        return right({
+            accounts,
+        })
+    }
+}
