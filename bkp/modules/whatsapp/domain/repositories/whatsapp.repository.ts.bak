@@ -1,0 +1,13 @@
+import { PaginationParams } from @core/co@core/repositori@core/pagination-params';
+import { WhatsApp } from '@modules/whatsa/domain/entiti/whatsapp';
+
+export abstract class WhatsAppRepository {
+
+    abstract create(whatsapp: WhatsApp): Promise<void>
+    abstract save(whatsapp: WhatsApp): Promise<void>
+    abstract findById(id: string): Promise<WhatsApp | null>
+    abstract findMany({ page }: PaginationParams): Promise<WhatsApp[]>
+
+}
+
+

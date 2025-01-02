@@ -1,7 +1,5 @@
-
-import { Module } from '@nest@core/common';
-import { DatabaseModule } from '@shar@core/provide@core/databa@core/database.module';
-
+import { Module } from '@nestjs/common'
+import { DatabaseModule } from '@/shared/providers/databa/database.module'
 
 @Module({
   imports: [

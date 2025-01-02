@@ -1,7 +1,6 @@
-
-import { Module } from '@nest@core/common';
-import { DatabaseModule } from '@shar@core/provide@core/databa@core/database.module';
-import { QueueModule } from '@shar@core/provide@core/que@core/queue.module';
+import { Module } from '@nestjs/common'
+import { DatabaseModule } from '@/shared/providers/databa/database.module'
+import { QueueModule } from '@/shared/providers/que/queue.module'
 
 @Module({
   imports: [

@@ -29,9 +29,6 @@
       ],
       "@modules/*": [
         "./src/modules/*"
-      ],
-      "@infra/*": [
-        "./src/core/infra/*"
       ]
     },
     "types": [

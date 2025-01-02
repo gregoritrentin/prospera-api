@@ -1,8 +1,8 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpException, HttpStatus } from '@nestjs/common';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { AppError } from '@core/error/app-errors';
-import { I18nService } from '@/i18n/i18n.service';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpException, HttpStatus } from '@nestjs/common'
+import { Observable, throwError } from 'rxjs'
+import { catchError } from 'rxjs/operators'
+import { AppError } from '@/core/error/app-errors'
+import { I18nService } from '@/i18n/i18n.service'
 
 @Injectable()
 export class ErrorInterceptor implements NestInterceptor {

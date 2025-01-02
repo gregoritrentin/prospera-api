@@ -2,26 +2,9 @@
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
-  "entryFile": "/infra/main",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": [
-      {
-        "include": "infra/nfse/danfse/**/*",
-        "outDir": "dist/src",
-        "watchAssets": true
-      },
-      {
-        "include": "infra/nfse/xml/schemas/**/*.xsd",
-        "outDir": "dist/src",
-        "watchAssets": true
-      },
-      {
-        "include": "infra/nfse/xml/schemas/**/*.wsdl",
-        "outDir": "dist/src",
-        "watchAssets": true
-      }
-    ],
-    "watchAssets": true
+    "webpack": true,
+    "webpackConfigPath": "webpack.config.js"
   }
 }

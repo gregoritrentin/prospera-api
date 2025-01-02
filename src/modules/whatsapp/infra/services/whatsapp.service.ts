@@ -1,11 +1,11 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Client, MessageMedia, AuthStrategy, WAState } from 'whatsapp-web.js';
-import { WhatsAppProvider, WhatsAppProviderParams } from '@/domain/providers/whatsapp-provider';
-import { RedisWhatsAppRepository } from '@/infra/database/redis/repositories/redis-whatsapp-repository';
-import { RedisService } from '@/infra/database/redis/redis.service';
-import axios from 'axios';
-import * as path from 'path';
-import * as fs from 'fs';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Client, MessageMedia, AuthStrategy, WAState } from 'whatsapp-web.js'
+import { WhatsAppProvider, WhatsAppProviderParams } from '@/modules/providers/domain/whatsapp-provider'
+import { RedisWhatsAppRepository } from '@/core/infra/database/redis/repositories/redis-whatsapp-repository'
+import { RedisService } from '@/core/infra/database/redis/redis.service'
+import axios from 'axios'
+import * as path from 'path'
+import * as fs from 'fs'
 
 class RedisAuthStrategy implements AuthStrategy {
     private redisService: RedisService;

@@ -1,35 +1,23 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { envSchema } from './env/env'
-import { EnvService } from './env/env.service'
-import { AuthModule } from './auth/auth.module'
+import { I18nModule } from '@/modules/i18n/i18n.module'
 import { HttpModule } from './http/http.module'
-import { EnvModule } from './env/env.module'
-import { QueueModule } from './queues/queue.module'
-import { TaskSchedulingModule } from './task-scheduling/task-scheduling.module'
-import { EventEmitterModule } from '@nestjs/event-emitter'
+import { DatabaseModule } from './database/database.module'
+import { AuthModule } from './auth/auth.module'
+import { CryptographyModule } from './cryptography/cryptografhy.module'
+import { EnvModule } from './config/env.module'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      validate: (env) => envSchema.parse(env),
       isGlobal: true,
     }),
-    EventEmitterModule.forRoot({
-      wildcard: true,
-      delimiter: '.',
-      newListener: false,
-      removeListener: false,
-      maxListeners: 10,
-      verboseMemoryLeak: true,
-      ignoreErrors: false,
-    }),
-    AuthModule,
-    HttpModule,
     EnvModule,
-    QueueModule,
-    TaskSchedulingModule,
+    DatabaseModule,
+    AuthModule,
+    CryptographyModule,
+    HttpModule,
+    I18nModule,
   ],
-  providers: [EnvService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,20 +1,18 @@
 import { NestFactory } from '@nestjs/core'
-import { AppModule } from './app.module'
-import { EnvService } from './env/env.service'
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { TaskSchedulerConfig } from './task-scheduling/task-scheduling-config';
-import { patchNestJsSwagger } from 'nestjs-zod';
+import { AppModule } from '@/core/infra/module'
+import { EnvService } from '@/core/infra/config/env.service'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import { patchNestJsSwagger } from 'nestjs-zod'
 
-// Adicione aqui, antes de tudo
 require('events').EventEmitter.defaultMaxListeners = 20;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['log', 'debug', 'verbose'],
-  })
+  });
 
-  const configService = app.get(EnvService)
-  const port = configService.get('PORT')
+  const configService = app.get(EnvService);
+  const port = configService.get('PORT');
 
   patchNestJsSwagger();
 
@@ -25,15 +23,12 @@ async function bootstrap() {
     .addTag('Prospera Tecnologia')
     .build();
 
-  app.enableCors()
+  app.enableCors();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const taskSchedulerConfig = app.get(TaskSchedulerConfig);
-  taskSchedulerConfig.configure();
-
   await app.listen(port);
 }
 
-bootstrap()
+bootstrap();

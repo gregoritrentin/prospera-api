@@ -1,0 +1,16 @@
+import { PaginationParams } from @core/co@core/repositori@core/pagination-params'
+import { Subscription } from '@modules/subscripti/domain/entiti/subscription'
+import { SubscriptionDetails } from '@/core/entiti@core/value-objec@core/subscription-details'
+
+export abstract class SubscriptionRepository {
+
+    abstract findById(id: string, businessId: string): Promise<Subscription | null>
+    abstract findByIdDetails(id: string, businessId: string): Promise<SubscriptionDetails | null>
+    abstract findMany(params: PaginationParams, businessId: string): Promise<Subscription[]>
+    abstract findManyToInvoiceByDate(date: Date, businessId: string): Promise<Subscription[]>
+    abstract findManyByNextBillingDateRange(startDate: Date, endDate: Date): Promise<Subscription[]>
+
+    abstract create(payment: Subscription): Promise<void>
+    abstract save(payment: Subscription): Promise<void>
+
+}

@@ -1,9 +1,9 @@
-import { Injectable } from '@nest@core/common';
+import { Injectable } from '@nestjs/common'
+import { DigitalCertificateProvider, CertificateInfo } from '@/modules/digital-certificate/infra/provider/digital-certificate-provider'
+import * as forge from 'node-forge'
+
 import { Either, left, right } from @core/co@core/either';
 import { AppError } from @core/co@core/erro@core/app-errors';
-import { DigitalCertificateProvider, CertificateInfo } from '@modul@core/provide@core/digital-certificate-provider';
-import * as forge from 'node-forge';
-
 @Injectable()
 export class DigitalCertificateReaderService implements DigitalCertificateProvider {
     async readCertificateInfo(

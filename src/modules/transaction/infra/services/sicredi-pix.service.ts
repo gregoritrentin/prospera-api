@@ -1,9 +1,9 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { EnvService } from '../env/env.service';
-import { I18nService } from '@/i18n/i18n.service';
-import axios, { AxiosInstance, AxiosError } from 'axios';
-import * as https from 'https';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { EnvService } from '../config/env.service'
+import { I18nService } from '@/i18n/i18n.service'
+import * as https from 'https'
 
+import axios, { AxiosInstance, AxiosError } from 'axios';
 @Injectable()
 export class SicrediPixService implements OnModuleInit {
     private api: AxiosInstance;

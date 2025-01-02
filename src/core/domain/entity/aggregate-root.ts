@@ -1,4 +1,4 @@
-import { DomainEvents } from '@core/domain/event/domain-events'
+import { DomainEvents } from '@/core/domain/event/domain-events'
 import { DomainEvent } from '../events/domain-event'
 import { Entity } from './entity'
 

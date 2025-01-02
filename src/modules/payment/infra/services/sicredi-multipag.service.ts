@@ -1,15 +1,15 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { EnvService } from '../env/env.service';
-import { I18nService } from '@/i18n/i18n.service';
-import axios, { AxiosInstance, AxiosError } from 'axios';
-import * as https from 'https';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { EnvService } from '../config/env.service'
+import { I18nService } from '@/i18n/i18n.service'
+import * as https from 'https'
 import {
     PaymentsProvider,
     PixChaveProps,
     PixDadosBancariosProps,
     PixResponse
-} from '@/domain/providers/payments-provider';
+} from '@/modules/providers/domain/payments-provider'
 
+import axios, { AxiosInstance, AxiosError } from 'axios';
 @Injectable()
 export class SicrediMultipagService implements PaymentsProvider, OnModuleInit {
     private api: AxiosInstance;

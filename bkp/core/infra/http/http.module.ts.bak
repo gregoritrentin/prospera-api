@@ -1,0 +1,465 @@
+import { forwardRef, Get, Module } from "@nestjs/common"
+import { DatabaseModule } from "@/modules/database/database.module";
+import { EmailModule } from "@/modules/email/email.module";
+import { FileModule } from "@/modules/file/file.module";
+import { CryptographyModule } from "@/core/infra/cryptography/cryptografhy.module";
+import { BoletoModule } from "@/modules/boleto/boleto.module";
+import { PixModule } from "@/modules/pix/pix.module";
+import { WhatsAppModule } from "@/modules/whatsapp/whatsapp.module";
+
+//app
+import { CreateAppUseCase } from "@/modules/application/domain/use-cases/create-app";
+import { FetchAppUseCase } from "@/modules/application/domain/use-cases/fetch-app";
+import { EditAppUseCase } from "@/modules/application/domain/use-cases/edit-app";
+import { DeleteAppUseCase } from "@/modules/application/domain/use-cases/delete-app";
+
+import { CreateAppController } from "@/core/infra/http/controllers/core/app/create-app.controller";
+import { EditAppController } from "@/core/infra/http/controllers/core/app/edit-app-controller";
+import { FetchAppController } from "@/core/infra/http/controllers/core/app/fetch-app-controller";
+import { DeleteAppController } from "@/core/infra/http/controllers/core/app/delete-app-controller";
+
+//marketplace
+import { CreateMarketplaceController } from "@/modules/core/infra/http/controllers/marketplace/create-marketplace.controller";
+import { EditMarketplaceController } from "@/modules/core/infra/http/controllers/marketplace/edit-marketplace.controller";
+import { FetchMarketplaceController } from "@/core/infra/http/controllers/core/marketplace/fetch-marketplace.controler";
+
+import { CreateMarketplaceUseCase } from "@/modules/application/domain/use-cases/create-marketplace";
+import { EditMarketplaceUseCase } from "@/modules/application/domain/use-cases/edit-marketplace";
+import { FetchMarketplaceUseCase } from "@/modules/application/domain/use-cases/fetch-marketplace";
+
+//user 
+import { AuthenticateUserController } from "@/modules/core/infra/http/controllers/auth/authenticate-user.controller";
+import { AuthenticateBusinessController } from "@/modules/core/infra/http/controllers/auth/authenticate-business.controller";
+import { CreateUserController } from "@/core/infra/http/controllers/core/user/create-user.controller";
+import { EditUserController } from "@/core/infra/http/controllers/core/user/edit-user.controller";
+import { DeleteUserController } from "@/core/infra/http/controllers/core/user/delete-user.controller";
+import { FetchUserController } from "@/core/infra/http/controllers/core/user/fetch-user.controller";
+import { GetUserController } from "@/core/infra/http/controllers/core/user/get-user.controller";
+import { SetUserPhotoController } from "@/core/infra/http/controllers/core/user/set-user-photo.controller";
+
+import { AuthenticateUserUseCase } from "@/modules/application/domain/use-cases/authenticate-user";
+import { AuthenticateBusinessUseCase } from "@/modules/application/domain/use-cases/authenticate-business";
+import { CreateUserUseCase } from '@/modules/application/domain/use-cases/create-user';
+import { EditUserUseCase } from "@/modules/application/domain/use-cases/edit-user";
+import { DeleteUserUseCase } from "@/modules/application/domain/use-cases/delete-user";
+import { FetchUserUseCase } from "@/modules/application/domain/use-cases/fetch-user";
+import { GetUserUseCase } from "@/modules/application/domain/use-cases/get-user";
+import { SetUserPhotoUseCase } from "@/modules/application/domain/use-cases/set-user-photo";
+import { SetDefaultBusinessController } from "@/modules/core/infra/http/controllers/user/set-default-business.controller";
+
+//term
+import { FetchTermController } from "@/modules/core/infra/http/controllers/term/fetch-term.controller";
+import { CreateTermController } from "@/modules/core/infra/http/controllers/term/create-term.controller";
+import { DeleteTermController } from "@/modules/core/infra/http/controllers/term/delete-term.controller";
+import { EditTermController } from "@/modules/core/infra/http/controllers/term/edit-term.controller";
+
+import { CreateTermUseCase } from "@/modules/application/domain/use-cases/create-term";
+import { DeleteTermUseCase } from "@/modules/application/domain/use-cases/delete-term";
+import { EditTermUseCase } from "@/modules/application/domain/use-cases/edit-term";
+import { FetchTermUseCase } from "@/modules/application/domain/use-cases/fetch-term";
+
+//user-term
+import { CreateUserTermController } from "@/core/infra/http/controllers/core/term/create-user-term.controller";
+import { DeleteUserTermController } from "@/modules/core/infra/http/controllers/term/delete-user-term.controller";
+import { FetchUserTermController } from "@/modules/core/infra/http/controllers/term/fetch-user-term.controller";
+
+import { CreateUserTermUseCase } from "@/modules/application/domain/use-cases/create-user-term";
+import { DeleteUserTermUseCase } from "@/modules/application/domain/use-cases/delete-user-term";
+import { FetchUserTermUseCase } from "@/modules/application/domain/use-cases/fetch-user-terms";
+
+//business
+import { CreateBusinessController } from "@/core/infra/http/controllers/core/business/create-business.controller";
+import { EditBusinessController } from "@/core/infra/http/controllers/core/business/edit-business.controller";
+import { DeleteBusinessController } from "@/core/infra/http/controllers/core/business/delete-business.controller";
+import { FetchBusinessController } from "@/core/infra/http/controllers/core/business/fetch-business.controller";
+import { GetBusinessController } from "@/core/infra/http/controllers/core/user/get-business.controller"
+
+import { CreateBusinessUseCase } from "@/modules/application/domain/use-cases/create-business";
+import { EditBusinessUseCase } from "@/modules/application/domain/use-cases/edit-business";
+import { DeleteBusinessUseCase } from '@/modules/application/domain/use-cases/delele-business';
+import { FetchBusinessUseCase } from "@/modules/application/domain/use-cases/fetch-business";
+import { GetBusinessUseCase } from '@/modules/application/domain/use-cases/get-business';
+
+//business-owner
+import { CreateBusinessOwnerController } from "@/core/infra/http/controllers/core/business/create-business-owner.controller";
+import { EditBusinessOwnerController } from "@/core/infra/http/controllers/core/business/edit-business-owner.controller";
+import { FetchBusinessOwnerController } from "@/core/infra/http/controllers/core/business/fetch-business-owner.controller";
+
+import { CreateBusinessOwnerUseCase } from "@/modules/application/domain/use-cases/create-business-owner";
+import { EditBusinessOwnerUseCase } from "@/modules/application/domain/use-cases/edit-business-owner";
+import { FetchBusinessOwnerUseCase } from "@/modules/application/domain/use-cases/fetch-user-owner";
+
+//business-app
+import { CreateBusinessAppController } from "@/core/infra/http/controllers/core/business/create-business-app.controller";
+import { EditBusinessAppController } from "@/core/infra/http/controllers/core/business/edit-business-app.controller";
+import { FetchBusinessAppController } from "@/core/infra/http/controllers/core/business/fetch-business-app.controller";
+
+import { CreateBusinessAppUseCase } from "@/modules/application/domain/use-cases/create-business-app";
+import { EditBusinessAppUseCase } from "@/modules/application/domain/use-cases/edit-business-app";
+import { FetchBusinessAppUseCase } from "@/modules/application/domain/use-cases/fetch-business-apps";
+
+//user-business
+import { CreateUserBusinessController } from "@/core/infra/http/controllers/core/user/create-user-business.controller";
+import { EditUserBusinessController } from "@/core/infra/http/controllers/core/user/edit-user-business.controller";
+import { FetchUserBusinessController } from "@/core/infra/http/controllers/core/user/fetch-user-business.controller";
+
+import { CreateUserBusinessUseCase } from "@/modules/application/domain/use-cases/create-user-business";
+import { EditUserBusinessUseCase } from "@/modules/application/domain/use-cases/edit-user-business";
+import { FetchUserBusinessUseCase } from "@/modules/application/domain/use-cases/fetch-user-business";
+
+//person
+import { CreatePersonController } from "@/modules/person/infra/http/controllers/create-person.controller";
+import { EditPersonController } from "@/modules/person/infra/http/controllers/edit-person.controller";
+import { DeletePersonController } from "@/modules/person/infra/http/controllers/delete-person.controller";
+import { FetchPersonController } from "@/modules/person/infra/http/controllers/fetch-person.controller";
+
+import { CreatePersonUseCase } from "@/modules/person/domain/use-cases/create-person";
+import { EditPersonUseCase } from "@/modules/person/domain/use-cases/edit-person";
+import { DeletePersonUseCase } from "@/modules/person/domain/use-cases/delete-person";
+import { FetchPersonUseCase } from "@/modules/person/domain/use-cases/fetch-person";
+
+//item
+import { FetchItemController } from "@/modules/item/infra/http/controllers/fetch-item.controller";
+import { CreateItemController } from "@/modules/item/infra/http/controllers/create-item.controller";
+import { EditItemController } from "@/modules/item/infra/http/controllers/edit-item.controller";
+import { DeleteItemController } from "@/modules/item/infra/http/controllers/delete-item.controller";
+
+import { FetchItemUseCase } from "@/modules/item/domain/use-cases/fetch-item";
+import { EditItemUseCase } from "@/modules/item/domain/use-cases/edit-item";
+import { DeleteItemUseCase } from "@/modules/item/domain/use-cases/delete-item";
+import { CreateItemUseCase } from "@/modules/item/domain/use-cases/create-item";
+
+//item-group
+import { FetchItemGroupController } from "@/core/infra/http/controllers/item/fetch-item-group.controller";
+import { CreateItemGroupController } from "@/core/infra/http/controllers/item/create-item-group.controller";
+import { EditItemGroupController } from "@/core/infra/http/controllers/item/edit-group.controller";
+import { DeleteItemGroupController } from "@/core/infra/http/controllers/item/delete-item-group.controller";
+
+import { CreateItemGroupUseCase } from "@/modules/item/domain/use-cases/create-item-group";
+import { EditItemGroupUseCase } from "@/modules/item/domain/use-cases/edit-item-group";
+import { DeleteItemGroupUseCase } from "@/modules/item/domain/use-cases/delete-item-group";
+import { FetchItemGroupUseCase } from "@/modules/item/domain/use-cases/fetch-item-group";
+
+//item-taxation
+import { FetchItemTaxationController } from "@/core/infra/http/controllers/item/fetch-item-taxation.controller";
+import { EditItemTaxationController } from "@/core/infra/http/controllers/item/edit-taxation.controller";
+import { DeleteItemTaxationController } from "@/core/infra/http/controllers/item/delete-item-taxation.controller";
+
+import { CreateItemTaxationUseCase } from "@/modules/item/domain/use-cases/create-item-taxation";
+import { EditItemTaxationUseCase } from "@/modules/item/domain/use-cases/edit-item-taxation";
+import { DeleteItemTaxationUseCase } from "@/modules/item/domain/use-cases/delete-item-taxation";
+import { FetchItemTaxationUseCase } from "@/modules/item/domain/use-cases/fech-item-taxation";
+
+//transaction-boleto
+import { CreateBoletoController } from "@/core/infra/http/controllers/transaction/create-boleto.controller";
+import { CreateBoletoUseCase } from "@/modules/transaction/domain/use-cases/create-boleto";
+import { PrintBoletoController } from "@/core/infra/http/controllers/transaction/print-boleto.controller";
+import { PrintBoletoUseCase } from "@/modules/transaction/domain/use-cases/print-boleto";
+
+
+
+import { UploadAndCreateFileUseCase } from "@/modules/file/domain/use-cases/upload-and-create-file";
+import { SendAndCreateEmailUseCase } from "@/modules/email/domain/use-cases/send-and-create-email";
+import { SetDefaultBusinessUseCase } from "@/modules/application/domain/use-cases/set-default-business";
+import { SignUpController } from "@/modules/core/infra/http/controllers/sign-up.controller";
+import { GetPersonController } from "@/modules/person/infra/http/controllers/get-person.controller";
+import { GetPersonUseCase } from "@/modules/person/domain/use-cases/get-person";
+import { CancelBoletoController } from "@/modules/transaction/infra/http/controllers/cancel-boleto.controller";
+import { CancelBoletoUseCase } from "@/modules/transaction/domain/use-cases/cancel-boleto";
+import { FetchBoletoController } from "@/modules/transaction/infra/http/controllers/fetch-boleto.controller";
+import { FetchBoletoUseCase } from "@/modules/transaction/domain/use-cases/fetch-boletos";
+import { GetBoletoController } from "@/modules/transaction/infra/http/controllers/get-boleto.controller";
+import { GetBoletoUseCase } from "@/modules/transaction/domain/use-cases/get-boleto";
+import { QueueModule } from "@/modules/queue/queue.module";
+import { CreatePixController } from "@/modules/transaction/infra/http/controllers/create-pix.controller";
+import { CreatePixUseCase } from "@/modules/transaction/domain/use-cases/create-pix";
+import { FetchPixUseCase } from "@/modules/transaction/domain/use-cases/fetch-pixes";
+import { FetchPixController } from "@/modules/transaction/infra/http/controllers/fetch-pix.controller";
+import { GetPixController } from "@/modules/transaction/infra/http/controllers/get-pix.controller";
+import { GetPixUseCase } from "@/modules/transaction/domain/use-cases/get-pix";
+import { PaymentsModule } from "@/modules/payments/payments.module";
+import { CreatePaymentPixKeyUseCase } from "@/modules/payment/domain/use-cases/create-payment-pix-key";
+import { ConnectWhatsAppUseCase } from "@/modules/whatsapp/domain/use-cases/connect-whatsapp";
+import { WhatsAppController } from "@/modules/whatsapp/infra/http/controllers/whatsapp.controller";
+import { SendWhatsAppUseCase } from "@/modules/whatsapp/domain/use-cases/send-whatsapp";
+//import { UpdatePaymentPixController } from "@/modules/payment/infra/http/controllers/update-payments-pix.controller";
+//import { UpdatePaymentPixUseCase } from "@/modules/payment/domain/use-cases/update-payment-pix";
+import { GetPaymentPixProofUseCase } from "@/modules/payment/domain/use-cases/get-payment-pix-proof";
+import { GetPaymentPixProofController } from "@/modules/payment/infra/http/controllers/get-payment-pix-proof.controller";
+//import { CancelScheduledPixPaymentController } from "@/modules/payment/infra/http/controllers/cancel-payment-pix-scheduled.controller";
+//import { CancelPaymentPixScheduledUseCase } from "@/modules/payment/domain/use-cases/cancel-payment-pix-scheduled";
+import { CreateSubscriptionController } from "@/modules/subscription/infra/http/controllers/create-subscription.controller";
+import { CreateSubscriptionUseCase } from "@/modules/subscription/domain/use-cases/create-subscription";
+import { CreateNfseUseCase } from "@/modules/dfe/domain/nfse/use-cases/create-nfse";
+import { GetNfseUseCase } from "@/modules/dfe/domain/nfse/use-cases/get-nfse";
+import { CreateItemTaxationController } from "@/modules/item/infra/http/controllers/create-item-taxation.controller";
+import { EnvModule } from "../config/env.module";
+import { CreatePaymentPixKeyController } from "@/modules/payment/infra/http/controllers/create-payment-pix-key.controller";
+import { CreatePaymentPixBankDataController } from "@/modules/payment/infra/http/controllers/create-payment-pix-bank-data.controller";
+import { SharedModule } from "@/modules/shared/shared.module";
+import { CreatePaymentPixBankDataUseCase } from "@/modules/payment/domain/use-cases/create-payment-pix-bank-data";
+
+
+@Module({
+  imports: [
+    EnvModule,
+    DatabaseModule,
+    BoletoModule,
+    PixModule,
+    PaymentsModule,
+    EmailModule,
+    WhatsAppModule,
+    CryptographyModule,
+    FileModule,
+    SharedModule,
+    forwardRef(() => QueueModule)
+
+  ],
+
+  controllers: [
+
+    //sign-up
+    SignUpController,
+
+    //user
+    AuthenticateUserController,
+    AuthenticateBusinessController,
+    CreateUserController,
+    EditUserController,
+    DeleteUserController,
+    FetchUserController,
+    GetUserController,
+    GetBusinessController,
+
+    SetDefaultBusinessController,
+    SetUserPhotoController,
+
+    //business
+    CreateBusinessController,
+    EditBusinessController,
+    DeleteBusinessController,
+    FetchBusinessController,
+
+    //business-owner
+    CreateBusinessOwnerController,
+    EditBusinessOwnerController,
+    FetchBusinessOwnerController,
+
+    //business-app
+    CreateBusinessAppController,
+    EditBusinessAppController,
+    FetchBusinessAppController,
+
+    //user-business
+    CreateUserBusinessController,
+    EditUserBusinessController,
+    FetchUserBusinessController,
+
+    //business-app
+    CreateBusinessAppController,
+    EditBusinessAppController,
+    FetchBusinessAppController,
+
+    //marketplace
+    CreateMarketplaceController,
+    EditMarketplaceController,
+    FetchMarketplaceController,
+
+    //app
+    CreateAppController,
+    DeleteAppController,
+    FetchAppController,
+    EditAppController,
+
+    //term
+    CreateTermController,
+    EditTermController,
+    DeleteTermController,
+    FetchTermController,
+
+    //user-term
+    CreateUserTermController,
+    DeleteUserTermController,
+    FetchUserTermController,
+
+    //person
+    CreatePersonController,
+    EditPersonController,
+    DeletePersonController,
+    FetchPersonController,
+    GetPersonController,
+
+    //item
+    CreateItemController,
+    EditItemController,
+    DeleteItemController,
+    FetchItemController,
+
+    //item-group
+    CreateItemGroupController,
+    EditItemGroupController,
+    DeleteItemGroupController,
+    FetchItemGroupController,
+
+    //item-taxation
+    EditItemTaxationController,
+    DeleteItemTaxationController,
+    FetchItemTaxationController,
+
+    //transaction boleto
+    CreateBoletoController,
+    PrintBoletoController,
+    CancelBoletoController,
+    FetchBoletoController,
+    GetBoletoController,
+
+    //transaction pix
+    CreatePixController,
+    GetPixController,
+    FetchPixController,
+
+    //payments
+    CreatePaymentPixKeyController,
+    CreatePaymentPixBankDataController,
+    //UpdatePaymentPixController,
+    GetPaymentPixProofController,
+    //CancelScheduledPixPaymentController,
+
+    //subscription
+    CreateSubscriptionController,
+
+
+    //nfse
+    CreateUserController,
+    FetchUserController,
+    GetUserController,
+
+    //whatsapp
+    WhatsAppController
+
+  ],
+  providers: [
+
+
+    CreatePaymentPixKeyUseCase,
+    CreatePaymentPixBankDataUseCase,  // Adicione aqui
+    GetPaymentPixProofUseCase,
+
+    //user
+    AuthenticateUserUseCase,
+    AuthenticateBusinessUseCase,
+
+    CreateUserUseCase,
+    EditUserUseCase,
+    DeleteUserUseCase,
+    FetchUserUseCase,
+    SetUserPhotoUseCase,
+    GetUserUseCase,
+    GetBusinessUseCase,
+    SetDefaultBusinessUseCase,
+
+    UploadAndCreateFileUseCase,
+    SendAndCreateEmailUseCase,
+
+    //business
+    CreateBusinessUseCase,
+    EditBusinessUseCase,
+    DeleteBusinessUseCase,
+    FetchBusinessUseCase,
+
+    //business-owner
+    CreateBusinessOwnerUseCase,
+    EditBusinessOwnerUseCase,
+    FetchBusinessOwnerUseCase,
+
+    //business-app
+    CreateBusinessAppUseCase,
+    EditBusinessAppUseCase,
+    FetchBusinessAppUseCase,
+
+    //user-business
+    CreateUserBusinessUseCase,
+    EditUserBusinessUseCase,
+    FetchUserBusinessUseCase,
+
+    //marketplace
+    CreateMarketplaceUseCase,
+    EditMarketplaceUseCase,
+    FetchMarketplaceUseCase,
+
+    //app
+    CreateAppUseCase,
+    DeleteAppUseCase,
+    FetchAppUseCase,
+    EditAppUseCase,
+
+    //term
+    CreateTermUseCase,
+    EditTermUseCase,
+    DeleteTermUseCase,
+    FetchTermUseCase,
+
+    //term-user
+    CreateUserTermUseCase,
+    DeleteUserTermUseCase,
+    FetchUserTermUseCase,
+
+    //person
+    CreatePersonUseCase,
+    EditPersonUseCase,
+    DeletePersonUseCase,
+    FetchPersonUseCase,
+    GetPersonUseCase,
+
+    //item
+    CreateItemUseCase,
+    EditItemUseCase,
+    DeleteItemUseCase,
+    FetchItemUseCase,
+
+    //item-group
+    CreateItemGroupUseCase,
+    EditItemGroupUseCase,
+    DeleteItemGroupUseCase,
+    FetchItemGroupUseCase,
+
+    //item-taxation
+    CreateItemTaxationUseCase,
+    EditItemTaxationUseCase,
+    DeleteItemTaxationUseCase,
+    FetchItemTaxationUseCase,
+
+    //transaction boleto
+    CreateBoletoUseCase,
+    PrintBoletoUseCase,
+    CancelBoletoUseCase,
+    FetchBoletoUseCase,
+    GetBoletoUseCase,
+
+    //transaction pix
+    CreatePixUseCase,
+    FetchPixUseCase,
+    GetPixUseCase,
+
+    //payments
+    CreatePaymentPixKeyUseCase,
+    //CreatePaymentPixBankDataUseCase,
+    //UpdatePaymentPixUseCase,
+    GetPaymentPixProofUseCase,
+    //CancelPaymentPixScheduledUseCase,
+
+    //subscription
+    CreateSubscriptionUseCase,
+
+    //nfse
+    CreateNfseUseCase,
+    FetchUserUseCase,
+    GetNfseUseCase,
+
+    //whatsapp
+    SendWhatsAppUseCase,
+    ConnectWhatsAppUseCase
+  ],
+
+})
+export class HttpModule { }
